@@ -1,5 +1,6 @@
 """End-to-end pytest suite for the shbt_warp package."""
 
+import csv
 import math
 import subprocess
 from pathlib import Path
@@ -23,7 +24,6 @@ def test_framing_defect_is_zero():
 
 def test_warp_velocity_matches_delta_mod():
     result = shbt_warp.run_simulation()
-    expected = (result["delta_mod"] / 2.0) ** math.exp(1) ** 0  # exp(delta_mod/2)
     expected = math.exp(result["delta_mod"] / 2.0)
     assert math.isclose(result["v_eff_c"], expected, rel_tol=1e-12)
 
@@ -71,5 +71,49 @@ def test_cli_generates_outputs(tmp_path):
     )
     assert tex.exists()
     assert (figs / "warp_bubble_profile.pdf").exists()
+    assert (figs / "shift_profile.pdf").exists()
     assert (figs / "stress_energy_audit.pdf").exists()
     assert (figs / "derendering_transition.pdf").exists()
+    assert (figs / "entropy_gradient.pdf").exists()
+
+
+def test_transient_results_present():
+    result = shbt_warp.run_simulation(grid_points=101)
+    assert "transient" in result
+    transient = result["transient"]
+    for key in ["time_s", "lock_times", "theta_t", "population_shift", "power_mw", "entropy_debt"]:
+        assert key in transient
+        assert len(transient[key]) > 1
+    assert transient["theta_t"][0] == 0.0
+    assert abs(transient["theta_t"][-1] - result["phase"]) < 1.0e-6
+
+    assert "rerender_trajectory" in result["derender"]
+    trajectory = result["derender"]["rerender_trajectory"]
+    for key in ["lock_time", "origin_x", "origin_y", "origin_z", "restored_bits", "transferred_bits", "bit_budget_preserved"]:
+        assert key in trajectory
+        assert len(trajectory[key]) > 1
+    assert trajectory["origin_x"][0] == 0.0
+
+
+def test_cli_sweep_outputs_csv(tmp_path):
+    csv_path = tmp_path / "sweep.csv"
+    subprocess.run(
+        [
+            "shbt-warp-sim",
+            "--sweep-radius",
+            "5:15:5",
+            "--sweep-output",
+            str(csv_path),
+            "--grid-points",
+            "101",
+        ],
+        check=True,
+    )
+    assert csv_path.exists()
+    with csv_path.open(newline="") as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+    assert len(rows) == 3
+    for row in rows:
+        assert float(row["power_mw"]) > 0.0
+        assert float(row["entropy_debt"]) >= 0.0

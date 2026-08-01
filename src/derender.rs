@@ -186,4 +186,60 @@ impl DerenderingEngine {
         map.insert("visible_normalization".to_string(), visible_sum);
         map
     }
+
+    /// Time-step the de-rendered region along a spatial trajectory and return the
+    /// re-rendering coordinate and bit-budget history.  Time is supplied in
+    /// dimensionless lock-time units; velocity is metres per lock-time.
+    pub fn rerendering_trajectory(
+        &mut self,
+        velocity_m_per_locktime: f64,
+        dt: f64,
+        total_time: f64,
+    ) -> std::collections::HashMap<String, Vec<f64>> {
+        assert!(dt > 0.0, "dt must be positive");
+        assert!(total_time >= 0.0, "total_time must be nonnegative");
+        assert!(!self.is_rendered, "A region must be de-rendered before stepping its trajectory");
+        let half = self
+            .stored_half_widths
+            .expect("Stored region geometry is unavailable");
+        let n_steps = (total_time / dt).ceil() as usize;
+        let mut lock_time = Vec::with_capacity(n_steps + 1);
+        let mut origin_x = Vec::with_capacity(n_steps + 1);
+        let mut origin_y = Vec::with_capacity(n_steps + 1);
+        let mut origin_z = Vec::with_capacity(n_steps + 1);
+        let mut restored_bits = Vec::with_capacity(n_steps + 1);
+        let mut transferred_bits = Vec::with_capacity(n_steps + 1);
+        let mut bit_budget_preserved = Vec::with_capacity(n_steps + 1);
+
+        for i in 0..=n_steps {
+            let tau = i as f64 * dt;
+            let ox = velocity_m_per_locktime * tau;
+            let origin = (ox, 0.0, 0.0);
+
+            lock_time.push(tau);
+            origin_x.push(ox);
+            origin_y.push(0.0);
+            origin_z.push(0.0);
+
+            let rerender = self.rerender_region(origin);
+            restored_bits.push(*rerender.get("restored_bits").unwrap_or(&0.0));
+
+            let x_bounds = (ox - half.0, ox + half.0);
+            let y_bounds = (-half.1, half.1);
+            let z_bounds = (-half.2, half.2);
+            let derender = self.derender_region(x_bounds, y_bounds, z_bounds);
+            transferred_bits.push(*derender.get("transferred_bits").unwrap_or(&0.0));
+            bit_budget_preserved.push(*derender.get("bit_budget_preserved").unwrap_or(&0.0));
+        }
+
+        let mut map = std::collections::HashMap::new();
+        map.insert("lock_time".to_string(), lock_time);
+        map.insert("origin_x".to_string(), origin_x);
+        map.insert("origin_y".to_string(), origin_y);
+        map.insert("origin_z".to_string(), origin_z);
+        map.insert("restored_bits".to_string(), restored_bits);
+        map.insert("transferred_bits".to_string(), transferred_bits);
+        map.insert("bit_budget_preserved".to_string(), bit_budget_preserved);
+        map
+    }
 }
