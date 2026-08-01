@@ -2,7 +2,8 @@
 % chktex-file 8
 \section{Numerical implementation and benchmark results}\label{sec:numerical-benchmarks}
 
-The executable prototype \path{warp_extension.py} implements the finite
+The Rust/PyO3 simulator (\path{src/} core, exposed through the
+\path{python/shbt_warp/} package) implements the finite
 calculation as coordinated modules.  \texttt{Boundary\allowbreak{}Register} evaluates
 the exact \(\mathrm{SU}(2)_{26}\) and \(\mathrm{SU}(3)_8\) modular blocks,
 normalizes the nine visible populations, and constructs their Shannon
@@ -62,7 +63,7 @@ For \(1201\) points on \(-30\,\mathrm{m}\leq x\leq30\,\mathrm{m}\),
 Table~\ref{tab:engine-benchmarks}.
 \begin{table}[b]
   \centering
-  \caption{Numerical output of \texttt{warp\_extension.py}.}\label{tab:engine-benchmarks}
+  \caption{Numerical output of the SHBT warp simulator.}\label{tab:engine-benchmarks}
   \begin{tabular}{lc}
     \toprule
     \textbf{Quantity} & \textbf{Generated value} \\

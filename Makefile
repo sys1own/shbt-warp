@@ -11,8 +11,8 @@ sim: .venv
 	. .venv/bin/activate && python -m shbt_warp.cli --figures-directory figures --tex-output sim_results.tex
 
 paper: sim
-	TEXINPUTS=.:./sections//: pdflatex main.tex
-	TEXINPUTS=.:./sections//: pdflatex main.tex
+	TEXINPUTS=.:./sections//: pdflatex -interaction=nonstopmode main.tex
+	TEXINPUTS=.:./sections//: pdflatex -interaction=nonstopmode main.tex
 
 clean:
-	rm -rf figures/*.pdf sim_results.tex *.aux *.log *.out *.toc
+	rm -rf figures/*.pdf sim_results.tex mainNotes.bib *.aux *.log *.out *.toc
