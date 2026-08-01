@@ -1,0 +1,145 @@
+% chktex-file 3
+% chktex-file 8
+% chktex-file 35
+\section{3+1D ADM metric and three-phase flight dynamics}\label{sec:flight-phases}
+
+\subsection{Dynamic ADM line element and shift vector}
+
+The holographic bulk metric is written in 3+1 ADM form
+\begin{equation}
+  ds^2
+  =
+  -\alpha^2(t,x^k)\,dt^2
+  +
+  \gamma_{ij}(t,x^k)\bigl(dx^i+\beta^i\,dt\bigr)\bigl(dx^j+\beta^j\,dt\bigr),
+  \label{eq:adm-line-element}
+\end{equation}
+with lapse function $\alpha=1$ and spatial metric $\gamma_{ij}=\delta_{ij}$.
+The SHBT shift vector is driven by the boundary excitation through
+\begin{equation}
+  \beta^i(t,x^k)
+  =
+  -v_{\mathrm{eff}}\,\xi(t)\,f_{\mathrm{SHBT}}(x^k)\,n^i(t),
+  \label{eq:adm-shift-vector}
+\end{equation}
+where $v_{\mathrm{eff}}=c\,e^{\Delta_{\mathrm{mod}}/2}$,
+$\xi(t)\in[0,1]$ is the smooth ramp envelope, $f_{\mathrm{SHBT}}$ is the
+warp-bubble shape field, and $n^i(t)$ is the unit steering normal.
+The covariant 4-metric components are therefore
+\begin{equation}
+  g_{00}=-1+|\vec\beta|^2,
+  \qquad
+  g_{0i}=g_{i0}=\beta_i,
+  \qquad
+  g_{ij}=\delta_{ij}.
+  \label{eq:adm-covariant-metric}
+\end{equation}
+Every spatial cell is audited for the Lorentzian signature condition
+\begin{equation}
+  \det g_{\mu\nu}(t,x^k)=-1.
+  \label{eq:adm-determinant-condition}
+\end{equation}
+
+\subsection{Phase A: initialization and smooth ramping}
+
+Phase A brings the boundary excitation from the Minkowski vacuum to the
+cruise state using the $C^\infty$ envelope
+\begin{equation}
+  \xi(t)
+  =
+  \frac{1}{2}\left[1-\cos\!\left(\frac{\pi t}{t_{\mathrm{ramp}}}\right)\right],
+  \qquad
+  0\le t\le t_{\mathrm{ramp}}.
+  \label{eq:phase-a-ramp}
+\end{equation}
+At each sub-step the boundary-state audit verifies
+\begin{equation}
+  \bigl|\operatorname{Re}\operatorname{Tr}\rho_\partial-1\bigr|
+  +
+  \bigl|\operatorname{Im}\operatorname{Tr}\rho_\partial\bigr|
+  <10^{-14},
+  \qquad
+  \Delta_{\mathrm{fr}}=0.
+  \label{eq:phase-a-boundary-audit}
+\end{equation}
+
+\subsection{Phase B: vector acceleration and steering}
+
+During Phase B the steering normal evolves according to the rigid rotation
+law
+\begin{equation}
+  \frac{d n^i}{dt}
+  =
+  \epsilon^{i}{}_{jk}\,\omega^j(t)\,n^k(t),
+  \qquad
+  |\vec n(t)|^2=1,
+  \label{eq:phase-b-steering}
+\end{equation}
+which is integrated with a fourth-order Runge-Kutta step followed by exact
+renormalization.  The directional information carried by the boundary is folded
+onto the prime skeleton $(2,3,5,7,11)$ using the load vector
+\begin{equation}
+  \ell_r^{(x)}(\theta,\boldsymbol{x};\tau)
+  =
+  \frac{1}{1+\tau}
+  \sum_{m=1}^{9}
+  \rho_E^{(\theta)}(c_m)
+  \left[
+    1+
+    \frac{x}{R_{\mathrm{bubble}}}
+    \chi_m^{(x)}
+  \right]
+  \mathbb I_{\{m-1\equiv r\;(\mathrm{mod}\;5)\}},
+  \qquad
+  r=0,\dots,4,
+  \label{eq:prime-load-vector}
+\end{equation}
+and the longitudinal Euler flux
+\begin{equation}
+  \Phi_s^{(x)}(\theta,\boldsymbol{x};\tau)
+  =
+  \frac{\ell_{s+1}^{(x)}-\ell_s^{(x)}}{\ln(p_{s+1}/p_s)},
+  \qquad
+  s=0,1,2,3.
+  \label{eq:longitudinal-euler-flux}
+\end{equation}
+On the central plateau $\partial_j f_{\mathrm{SHBT}}=0$ and the interior
+proper acceleration of the Eulerian observer vanishes,
+\begin{equation}
+  a^{\hat\mu}=0\ \mathrm{m\,s^{-2}}.
+  \label{eq:zero-proper-acceleration}
+\end{equation}
+
+\subsection{Phase C: safe collapse and Stinespring de-rendering}
+
+Phase C shuts down the warp by allowing the entropy debt to relax
+exponentially,
+\begin{equation}
+  \Delta_{\mathrm{mod}}(t)
+  =
+  \Delta_{\mathrm{mod}}(t_0)
+  \exp\!\left[-\frac{\Gamma_{\mathrm{lock}}(t-t_0)}{24}\right],
+  \label{eq:entropy-debt-decay}
+\end{equation}
+and applies the Stinespring modular-decoupling isometry
+$\hat{\mathcal D}_{\mathrm{derender}}$ with visible-sector amplitude ratio
+\begin{equation}
+  \eta_D
+  =
+  \frac{c_{\mathrm{dark}}^{\mathrm{res}}}{c_{\mathrm{dark}}^{\mathrm{comp}}}
+  =
+  \CADStinespringRatio.
+  \label{eq:stinespring-ratio}
+\end{equation}
+The shift vector is driven to zero and the metric relaxes back to flat
+Minkowski,
+\begin{equation}
+  \beta^i\to0,
+  \qquad
+  g_{\mu\nu}\to\eta_{\mu\nu},
+  \qquad
+  \det g=-1.
+  \label{eq:phase-c-collapse}
+\end{equation}
+The runtime verifies the collapsed metric determinant
+$\det g=\CADMetricDeterminant$.

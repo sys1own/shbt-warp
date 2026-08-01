@@ -18,6 +18,7 @@ __pycache__
 # Generated simulation outputs (produced by `make` or `shbt-warp-sim`)
 /figures
 /sim_results.tex
+/cad_sim_results.tex
 sweep_results.csv
 
 # LaTeX auxiliary files

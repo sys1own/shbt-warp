@@ -112,3 +112,37 @@ zero-metric simulation: the runtime audit instead verifies
 These outputs validate internal consistency of the finite model; they do not
 constitute experimental evidence that the proposed boundary dynamics is
 realized in nature.
+
+The CAD engine adds a second, finer-grained verification pass that audits the
+physical invariants listed in Table~\ref{tab:cad-verification}.  All values are
+exported directly from the Rust/PyO3 pipeline into \path{sim_results.tex} and
+\path{cad_sim_results.tex} and consumed by this manuscript without manual
+editing.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Comprehensive physical and mathematical verification metrics.}
+  \label{tab:cad-verification}
+  \begin{tabular}{lc}
+    \toprule
+    \textbf{Quantity} & \textbf{Engine value / limit} \\
+    \midrule
+    Canonical branch $(k_l,k_q,K)$ & $\CADCanonicalBranch$ \\
+    Scalar framing defect $\Delta_{\mathrm{fr}}$ & $\CADFramingDefect$ \\
+    Dark residual ledger $c_{\mathrm{dark}}^{\mathrm{res}}$ & $\SimOutputDarkResidual$ \\
+    Dark completed ledger $c_{\mathrm{dark}}^{\mathrm{comp}}$ & $\SimOutputDarkCompleted$ \\
+    Entropy debt $\Delta_{\mathrm{mod}}$ & $\SimOutputEntropyDebt$ \\
+    Warp velocity scale $v_{\mathrm{eff}}/c$ & $\SimOutputWarpVelocity$ \\
+    Unitarity residual $\epsilon_U$ & $\CADUnitarityResidual$ \\
+    Minimum Gram eigenvalue $\lambda_G^{\min}$ & $\SimOutputMetricEigenMin$ \\
+    Interior 4-acceleration $|a^{\hat\mu}|$ & $\SimOutputAccelerationNorm\ \mathrm{m\,s^{-2}}$ \\
+    Operational power $P_{\mathrm{op}}(10\,\mathrm{m})$ & $\SimOutputOperationalPowerMW\ \mathrm{MW}$ \\
+    Phase jitter limit $\sigma_\theta$ & $5.05\times10^{-5}\ \mathrm{rad}$; pass=$\CADPhaseJitterOk$ \\
+    Thermal noise limit $T_N$ & $15.4\ \mathrm{mK}$; pass=$\CADThermalDecoherenceOk$ \\
+    Decoherence limit $\gamma_{\mathrm{dec}}$ & $1.2\times10^{-4}\ \mathrm{s^{-1}}$; pass=$\CADThermalDecoherenceOk$ \\
+    Integer level lock $(\delta k_l,\delta k_q,\delta K)$ & $(0,0,0)$; pass=$\CADIntegerLockOk$ \\
+    Collapse metric determinant $\det g$ & $\CADMetricDeterminant$ \\
+    Stinespring ratio $\eta_D$ & $\CADStinespringRatio$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
