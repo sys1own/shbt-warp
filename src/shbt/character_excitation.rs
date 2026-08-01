@@ -26,7 +26,7 @@ impl CharacterExcitationRegister {
 impl CharacterExcitationRegister {
     /// Construct a register from a flat 81-element list of `Complex64` values.
     #[new]
-    fn new(data: Vec<Complex64>) -> PyResult<Self> {
+    pub fn new(data: Vec<Complex64>) -> PyResult<Self> {
         if data.len() != 81 {
             return Err(PyValueError::new_err(format!(
                 "density matrix must contain 81 entries for a 9x9 matrix, got {}",
@@ -40,7 +40,7 @@ impl CharacterExcitationRegister {
     ///
     /// Returns a `(passed, residual)` tuple where `passed` is `true` when
     /// `|Re(Tr(rho)) - 1.0| + |Im(Tr(rho))| < 1e-14`.
-    fn verify_unitarity(&self) -> PyResult<(bool, f64)> {
+    pub fn verify_unitarity(&self) -> PyResult<(bool, f64)> {
         let tr = self.trace();
         let residual = (tr.re - 1.0).abs() + tr.im.abs();
         Ok((residual < 1.0e-14, residual))
@@ -51,7 +51,7 @@ impl CharacterExcitationRegister {
     ///
     /// `Delta_fr = max( ||K / (2 k_l)||_Z, ||K / (3 k_q)||_Z )`,
     /// where `||x||_Z` is the distance from `x` to the nearest integer.
-    fn audit_framing_defect(&self, k_l: i64, k_q: i64, big_k: i64) -> PyResult<f64> {
+    pub fn audit_framing_defect(&self, k_l: i64, k_q: i64, big_k: i64) -> PyResult<f64> {
         if k_l == 0 || k_q == 0 {
             return Err(PyValueError::new_err("k_l and k_q must be non-zero"));
         }
