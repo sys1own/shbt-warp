@@ -15,10 +15,22 @@ __pycache__
 *.pyc
 .pytest_cache
 
-# Generated outputs
+# Generated simulation outputs (produced by `make` or `shbt-warp-sim`)
 /figures
 /sim_results.tex
+sweep_results.csv
+
+# LaTeX auxiliary files
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+mainNotes.bib
+
+# All PDFs are generated, except the compiled paper (tracked as a convenience).
 *.pdf
+!main.pdf
 
 # IDE
 .idea
