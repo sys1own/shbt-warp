@@ -1,7 +1,7 @@
 # SHBT-CAD Holographic Warp Drive Engineering Simulator
 
 `shbt-warp` (SHBT-CAD) is a production-grade Rust + PyO3 engineering design
-engine for the Scalar Holographic Boundary Theory (SHBT) holographic warp
+engine for the Static Holographic Boundary Theory (SHBT) holographic warp
 drive.  It extends the analytical foundations of `shbt-precision` into an
 executable, high-fidelity simulator that evaluates dynamic 3+1D ADM
 spacetimes, hardware-in-the-loop (HIL) safety monitors, GPU-accelerated
