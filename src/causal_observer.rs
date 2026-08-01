@@ -15,10 +15,10 @@ impl CausalObserver {
         CausalObserver { projector }
     }
 
-    pub fn power_requirement_mw(radius_m: f64) -> f64 {
+    pub fn power_requirement_mw(radius_m: f64, delta_mod: f64) -> f64 {
         assert!(radius_m > 0.0, "radius_m must be positive");
         let power_watts = LIGHT_SPEED_M_S.powi(5) / GRAVITATIONAL_CONSTANT_SI
-            * DELTA_MOD
+            * delta_mod.abs()
             / (24.0 * std::f64::consts::PI)
             * (power_scale_radius_m() / radius_m).powi(2);
         power_watts / 1.0e6
@@ -107,7 +107,7 @@ impl CausalObserver {
 
         let plateau_error = (self.projector.shape[center] - 1.0).abs();
         let plateau_gradient = self.projector.shape_gradient_per_m[center].abs();
-        let power_mw = Self::power_requirement_mw(self.projector.bubble_radius_m);
+        let power_mw = Self::power_requirement_mw(self.projector.bubble_radius_m, self.projector.delta_mod);
 
         let passed = plateau_error <= tolerance
             && plateau_gradient <= tolerance

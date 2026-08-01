@@ -1,4 +1,4 @@
-.PHONY: all test sim cad paper clean
+.PHONY: all test sim sim-custom cad paper clean
 
 all: test sim cad paper
 
@@ -14,6 +14,9 @@ test: rust
 
 sim: rust
 	. .venv/bin/activate && python -m shbt_warp.cli --figures-directory figures --tex-output sim_results.tex
+
+sim-custom: rust
+	. .venv/bin/activate && python examples/custom_simulation.py
 
 cad: rust
 	. .venv/bin/activate && shbt-cad-sim --figures-directory figures --tex-output cad_sim_results.tex

@@ -108,69 +108,71 @@ To compile only the manuscript after the simulation outputs already exist:
 make paper
 ```
 
-## Command-line usage
+## Usage
 
-### Standard SHBT warp simulation
+### Option A: Verification & Paper Build
 
-```bash
-shbt-warp-sim \
-    --radius 10.0 \
-    --domain-radius 30.0 \
-    --grid-points 1201 \
-    --wall-steepness 0.8 \
-    --phase 0.421 \
-    --tex-output sim_results.tex \
-    --figures-directory figures
-```
-
-Generated artifacts:
-
-- `sim_results.tex` — LaTeX macros consumed by `main.tex`.
-- `figures/warp_bubble_profile.pdf`
-- `figures/shift_profile.pdf`
-- `figures/stress_energy_audit.pdf`
-- `figures/derendering_transition.pdf`
-- `figures/entropy_gradient.pdf`
-
-### SHBT-CAD three-phase flight simulation
+To run the automated audit, generate `sim_results.tex`, run tests, and build
+`main.pdf`:
 
 ```bash
-shbt-cad-sim \
-    --radius 10.0 \
-    --t-ramp 1.0 \
-    --t-steering 1.0 \
-    --phase 0.421 \
-    --tex-output cad_sim_results.tex \
-    --figures-directory figures
+make
 ```
 
-Additional artifacts:
+The pipeline also runs the SHBT-CAD three-phase flight simulator
+(`shbt-cad-sim`) to produce `cad_sim_results.tex` and the CAD figures before
+compiling the manuscript.
 
-- `cad_sim_results.tex` — CAD-specific LaTeX macros.
-- `figures/cad_phase_a_ramp.pdf`
-- `figures/cad_phase_b_steering.pdf`
+### Option B: Custom Simulations
 
-Either command can also be invoked through the module runner:
+#### 1. Via Command Line (CLI)
+
+Run a custom warp simulation directly from your terminal:
 
 ```bash
-python -m shbt_warp.cli --cad
+# Run simulation at 15 m radius and 2.5c target velocity
+shbt-warp-sim --radius 15.0 --velocity 2.5 --plot
+
+# Export numerical diagnostics to JSON
+shbt-warp-sim --radius 10.0 --velocity 1.5 --output-json sim_out.json
 ```
 
-### Parameter sweeps
+CLI flags:
 
-Sweep the bubble radius and/or phase-lock angle and write a CSV of power and
-entropy-debt scaling:
+- `--radius` (float, default `10.0`) — boundary radius `R` in meters.
+- `--velocity` (float, default `1.071186`) — target shift velocity in units of `c`.
+- `--displacement` (float, default `0.2636895`) — unitary character population
+  displacement `||delta rho||_1`.
+- `--output-json` (str, optional) — path to export numerical results as JSON.
+- `--plot` — generate metric shift and energy-condition diagnostic plots.
+- `--audit` — default behavior; generate `sim_results.tex` and run benchmark
+  checks when no `--output-json` or `--plot` flags are supplied.
 
-```bash
-shbt-warp-sim \
-    --sweep-radius 5:15:2.5 \
-    --sweep-phase 0.1:0.8:0.1 \
-    --sweep-output sweep_results.csv \
-    --grid-points 301
+Parameter sweeps are still supported with `--sweep-radius`, `--sweep-phase`, and
+`--sweep-output`.
+
+#### 2. Via Python API
+
+Import `shbt_warp` into your Python scripts or Jupyter notebooks:
+
+```python
+import shbt_warp
+
+# Initialize canonical 2D CFT register
+register = shbt_warp.BoundaryRegister(k_l=26, k_q=8, K=312)
+projector = shbt_warp.FGSliceProjector(register)
+
+# Project custom bulk metric at 12 m radius and 2.0c velocity
+metric = projector.project_bulk_slice(radius_m=12.0, target_velocity_c=2.0)
+
+print(f"Operational Power: {metric.operational_power_mw:.2f} MW")
+print(f"Proper Acceleration Norm: {metric.proper_acceleration_norm} m/s^2")
+print(f"Weak Energy Condition Met: {metric.wec_satisfied}")
 ```
 
-The CSV contains one row per `(radius, phase)` pair with `v_eff/c`,
-`P_op (MW)`, entropy debt, and population shift.
+Check `examples/custom_simulation.py` for a velocity sweep and
+`examples/warp_exploration.ipynb` for an interactive plot of the shift profile
+`f(r_s)` and operational power vs boundary radius `R`.
 
 ## Running tests
 
@@ -244,10 +246,9 @@ source .venv/bin/activate
 jupyter notebook examples/warp_exploration.ipynb
 ```
 
-The notebook uses `ipywidgets` sliders for bubble radius, phase angle, wall
-steepness, and grid resolution.  Each slider change re-runs the Rust
-`Simulation` through PyO3 and updates Matplotlib figures for the
-stress-energy audit, shift profile, and modular-register entanglement density.
+The notebook imports `shbt_warp.BoundaryRegister` and `shbt_warp.FGSliceProjector`
+and plots the warp shift profile `f(r_s)` and operational power as a function of
+boundary radius `R`.
 
 ## LaTeX manuscript
 
