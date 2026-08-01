@@ -51,4 +51,27 @@ benchmark tuple
 \end{equation}
 If \path{sim_results.tex} is absent, \path{main.tex} defines matching fallback
 macros so that the manuscript remains compilable; regenerated simulation
-output takes precedence whenever it is present.
+output takes precedence whenever it is present.  The CAD flight engine exports
+additional macros in \path{cad_sim_results.tex}; Table~\ref{tab:cad_macros}
+extends the reference to include these dynamic quantities.
+
+\begin{table}[htbp]
+\centering
+\caption{Dynamic CAD engine macro exports.}
+\label{tab:cad_macros}
+\begin{tabular}{ll}
+\toprule
+\textbf{LaTeX Macro} & \textbf{Value / Benchmark Output} \\
+\midrule
+\texttt{\textbackslash CADCanonicalBranch} & $(26, 8, 312)$ \\
+\texttt{\textbackslash CADFramingDefect} & $0.000000000000$ \\
+\texttt{\textbackslash CADUnitarityResidual} & $<10^{-14}$ \\
+\texttt{\textbackslash CADPhaseJitterOk} & true \\
+\texttt{\textbackslash CADThermalDecoherenceOk} & true \\
+\texttt{\textbackslash CADIntegerLockOk} & true \\
+\texttt{\textbackslash CADStinespringRatio} & $0.697043612789$ \\
+\texttt{\textbackslash CADDeltaMod} & $0.137533547486$ \\
+\texttt{\textbackslash CADMetricDeterminant} & $-1.000000000000$ \\
+\bottomrule
+\end{tabular}
+\end{table}

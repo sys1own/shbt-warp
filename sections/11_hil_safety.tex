@@ -1,0 +1,55 @@
+% chktex-file 3
+% chktex-file 8
+% chktex-file 35
+\section{Real-time HIL control loops and safety algorithms}\label{sec:hil-safety}
+
+The hardware-in-the-loop (HIL) monitor evaluates three pass/fail criteria at
+every simulation step.  Let $\lambda_G^{\min}$ be the smallest eigenvalue of
+the Gram representative of the 4-metric, $\varepsilon_{\det}$ the maximum
+absolute metric-determinant deviation from $-1$, and $I_{\max}$ the largest
+information-density flux.  The safety logic is:
+\begin{itemize}
+\item if $\varepsilon_{\det}>10^{-12}$, trigger
+  \textsc{EmergencyDeterminantViolation};
+\item else if $\lambda_G^{\min}<0.350000$, trigger
+  \textsc{EmergencyGramEigenvalue};
+\item else if $I_{\max}>I_{\mathrm{budget}}$, trigger
+  \textsc{EmergencyInformationDensity};
+\item else return \textsc{StatusNominalPass}.
+\end{itemize}
+
+The HIL checks are implemented by the following three algorithms, which are
+called inside the Phase A, B, and C integration loops.
+
+\noindent\textbf{Algorithm 1: Metric determinant HIL check.}
+\begin{enumerate}
+\item \textbf{Input:} grid metric $g_{\mu\nu}(x^k)$, tolerance $\epsilon=10^{-12}$.
+\item For each cell $(i,j,k)$:
+  \begin{enumerate}
+  \item compute $\det g_{\mu\nu}(x^k)$;
+  \item if $|\det g+1|>\epsilon$, return \textsc{EmergencyDeterminantViolation}.
+  \end{enumerate}
+\item Return \textsc{StatusNominalPass}.
+\end{enumerate}
+
+\noindent\textbf{Algorithm 2: Gram eigenvalue HIL check.}
+\begin{enumerate}
+\item \textbf{Input:} Gram representative $\tilde g_{\mu\nu}(x^k)$, threshold $\lambda_0=0.350000$.
+\item For each cell $(i,j,k)$:
+  \begin{enumerate}
+  \item compute $\lambda_{\min}\bigl[\tilde g(x^k)\bigr]$;
+  \item if $\lambda_{\min}<\lambda_0$, return \textsc{EmergencyGramEigenvalue}.
+  \end{enumerate}
+\item Return \textsc{StatusNominalPass}.
+\end{enumerate}
+
+\noindent\textbf{Algorithm 3: Information-density HIL check.}
+\begin{enumerate}
+\item \textbf{Input:} maximum local information density $I_{\max}$, budget $I_{\mathrm{budget}}$.
+\item If $I_{\max}>I_{\mathrm{budget}}$, return \textsc{EmergencyInformationDensity}.
+\item Return \textsc{StatusNominalPass}.
+\end{enumerate}
+
+The HIL status string returned at each step is therefore a deterministic
+function of the metric, Gram, and information-density audits, and it is
+logged by the CAD engine alongside the flight-phase telemetry.

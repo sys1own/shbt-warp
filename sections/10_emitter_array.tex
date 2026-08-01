@@ -1,0 +1,56 @@
+% chktex-file 3
+% chktex-file 8
+% chktex-file 35
+\section{Boundary emitter-array hardware synthesis and noise sensitivity}\label{sec:emitter-array}
+
+The boundary character states are mapped onto physical radio-frequency
+emitter-array phases.  For the visible $\mathrm{SU}(2)_{26}\times\mathrm{SU}(3)_8$
+register the conformal dimension of the $(q_i,p_j,r_j)$ coordinate is
+\begin{equation}
+  h_{ij}
+  =
+  \frac{q_i(q_i+2)}{4(k_l+2)}
+  +
+  \frac{p_j^2+r_j^2+p_j r_j+3p_j+3r_j}{3(k_q+3)}.
+  \label{eq:visible-conformal-dimension}
+\end{equation}
+With $k_l=26$, $k_q=8$, and visible central charge
+$c_{\mathrm{vis}}=1325/154\approx 8.603896103896$, the modular
+$T$-phase correction is $c_{\mathrm{vis}}/24$.
+
+The per-element emitter phase command is
+\begin{equation}
+  \theta_k(t)
+  =
+  \theta_{\mathrm{local}}(t)\,[q_i+\nu(w_j)]
+  +
+  2\pi\,\theta_{\mathrm{local}}(t)
+  \left(h_{ij}-\frac{c_{\mathrm{vis}}}{24}\right),
+  \label{eq:emitter-phase-command}
+\end{equation}
+where $\nu(w_j)=p_j+r_j$ is the weight grade.  The RF drive voltage on the
+array element is
+\begin{equation}
+  V_k(t)
+  =
+  V_0\cos\!\left(\omega_{\mathrm{carrier}}t+\theta_k(t)+\phi_{\mathrm{cal},k}\right).
+  \label{eq:rf-drive-signal}
+\end{equation}
+
+\subsection{Hardware sensitivity limits}
+
+To preserve the phase-locked boundary state the array must satisfy the
+following bounds, which are audited in real time:
+\begin{align}
+  \sigma_\theta &\le 5.05\times10^{-5}\ \mathrm{rad},
+  \label{eq:phase-jitter-limit}\\
+  T_N &\le 15.4\ \mathrm{mK},
+  \label{eq:thermal-noise-limit}\\
+  \gamma_{\mathrm{dec}} &\le 1.2\times10^{-4}\ \mathrm{s^{-1}},
+  \label{eq:decoherence-rate-limit}\\
+  \delta k_l=\delta k_q=\delta K&=0.
+  \label{eq:integer-level-lock}
+\end{align}
+The CAD engine reports the Boolean audit flags
+$\CADPhaseJitterOk$, $\CADThermalDecoherenceOk$, and
+$\CADIntegerLockOk$ for these four limits.

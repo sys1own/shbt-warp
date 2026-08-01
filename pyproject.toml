@@ -16,7 +16,9 @@ dependencies = [
 
 [project.scripts]
 shbt-warp-sim = "shbt_warp.cli:main"
+shbt-cad-sim = "shbt_warp.cli:cad_main"
 
 [tool.maturin]
 python-source = "python"
 module-name = "shbt_warp._core"
+features = ["extension-module"]

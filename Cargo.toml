@@ -6,8 +6,12 @@ edition = "2021"
 [lib]
 crate-type = ["cdylib", "rlib"]
 
+[features]
+default = []
+extension-module = ["pyo3/extension-module"]
+
 [dependencies]
-pyo3 = { version = "0.23", features = ["extension-module"] }
+pyo3 = { version = "0.23", features = ["num-complex"] }
 ndarray = "0.16"
 nalgebra = { version = "0.33", features = ["rand"] }
 num-complex = "0.4"
