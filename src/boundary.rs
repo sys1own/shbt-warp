@@ -361,6 +361,50 @@ impl ExcitationEngine {
         out
     }
 
+    pub fn excited_density_matrix_at(&self, theta: f64) -> na::SMatrix<C64, 9, 9> {
+        let op = self.excitation_operator_matrix(theta);
+        let rho_vec: Vec<C64> = self
+            .boundary
+            .rho_e
+            .iter()
+            .flat_map(|row| row.iter())
+            .map(|&v| C64::new(v, 0.0))
+            .collect();
+        let diag = na::SVector::<C64, 9>::from_iterator(rho_vec.into_iter());
+        let baseline = na::SMatrix::<C64, 9, 9>::from_diagonal(&diag);
+        let excited = op * baseline * op.adjoint();
+        let tr = excited.trace().re;
+        excited / C64::new(tr, 0.0)
+    }
+
+    pub fn excited_probability_at(&self, theta: f64) -> [f64; 9] {
+        let rho = self.excited_density_matrix_at(theta);
+        let mut probs = [0.0; 9];
+        let mut sum = 0.0;
+        for i in 0..9 {
+            probs[i] = rho[(i, i)].re.max(0.0);
+            sum += probs[i];
+        }
+        if sum > 0.0 {
+            for p in probs.iter_mut() {
+                *p /= sum;
+            }
+        }
+        probs
+    }
+
+    pub fn population_shift_at(&self, theta: f64) -> f64 {
+        let probs = self.excited_probability_at(theta);
+        let mut sum = 0.0;
+        for i in 0..3 {
+            for j in 0..3 {
+                let base = self.boundary.rho_e[i][j];
+                sum += (probs[flatten_index(i, j)] - base).abs();
+            }
+        }
+        sum
+    }
+
     pub fn framing_defect(&self) -> f64 {
         let lepton_lift = self.boundary.parent_level as f64 / (2.0 * self.boundary.lepton_level as f64);
         let quark_lift = self.boundary.parent_level as f64 / (3.0 * self.boundary.quark_level as f64);

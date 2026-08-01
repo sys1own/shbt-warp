@@ -14,15 +14,17 @@ de-rendering events, and boundary thermodynamics.
 - `src/stress_energy.rs` — finite-difference Christoffel, Ricci, Einstein, and
   effective `T_μν`; automated NEC/WEC sampling over 100 random vectors.
 - `src/derender.rs` — `DerenderingEngine` that decouples visible register
-  weights into dark residual/completion channels while preserving bit budgets.
-- `src/thermodynamics.rs` — entropy-debt integration and infinite maximum
-  framing hold time for the topologically protected closed-defect state.
+  weights into dark residual/completion channels while preserving bit budgets,
+  plus a time-stepped re-rendering trajectory.
+- `src/thermodynamics.rs` — entropy-debt integration, infinite maximum
+  framing hold time, and a transient start-up engine for `Δ_mod(t)`.
 - `src/causal_observer.rs` — flat Minkowski interior plateau and operational
   power scaling `P_op ≈ 142.08 MW` at `R_local = 10 m`.
 - `src/lib.rs` — PyO3 `Simulation` class that runs every audit and returns a
-  Python dictionary.
+  Python dictionary, now including time-stepping `transient` data.
 - `python/shbt_warp/` — pure-Python package: `_core` PyO3 bindings,
-  `shbt-warp-sim` CLI, `LaTeXMacroExporter`, and Matplotlib PDF plot generator.
+  `shbt-warp-sim` CLI with parameter sweeps, `LaTeXMacroExporter`, and
+  Matplotlib PDF plot generator.
 
 ## Build
 
@@ -50,10 +52,38 @@ This produces:
 - `sim_results.tex` — LaTeX macros such as `\SimOutputWarpVelocity`,
   `\SimOutputOperationalPowerMW`, and `\SimOutputShiftFieldFormula`.
 - `figures/warp_bubble_profile.pdf`
+- `figures/shift_profile.pdf`
 - `figures/stress_energy_audit.pdf`
 - `figures/derendering_transition.pdf`
+- `figures/entropy_gradient.pdf`
 
-You can also call the Python API directly:
+### Parameter sweeps
+
+Sweep the vessel radius and/or phase-lock angle and produce a CSV of
+operational power and entropy-debt scaling:
+
+```bash
+shbt-warp-sim --sweep-radius 5:15:2.5 --sweep-phase 0.1:0.8:0.1 \
+              --sweep-output sweep_results.csv --grid-points 301
+```
+
+The sweep runs one simulation per `(radius, phase)` pair and reports
+`v_eff/c`, `P_op (MW)`, entropy debt, and population shift.
+
+### Interactive Jupyter notebook
+
+Start Jupyter and open the exploration notebook:
+
+```bash
+jupyter notebook examples/warp_exploration.ipynb
+```
+
+The notebook uses `ipywidgets` sliders to adjust bubble radius, phase angle,
+and wall steepness, then calls the Rust `Simulation` and displays
+real-time Matplotlib visualisations of the stress-energy audit, shift
+profile, and modular-register entanglement density.
+
+### Python API
 
 ```python
 import shbt_warp
@@ -61,6 +91,10 @@ import shbt_warp
 result = shbt_warp.run_simulation(radius=10.0, grid_points=1201)
 print(result["power_mw"])           # 142.08
 print(result["c_dark_residual"])    # 834433 / 362670
+
+# Time-stepping transient data is included by default:
+print(result["transient"]["entropy_debt"])
+print(result["derender"]["rerender_trajectory"]["origin_x"])
 ```
 
 ## Tests
@@ -72,7 +106,8 @@ pytest
 
 Both test suites verify the physics assertions from `main.pdf`, including the
 exact `c_dark^residual` fraction, zero framing defect, warp-velocity formula,
-NEC/WEC sampling, and the 142.08 MW operational-power benchmark.
+NEC/WEC sampling, the 142.08 MW operational-power benchmark, and the new
+parameter-sweep and time-stepping modules.
 
 ## Key outputs
 

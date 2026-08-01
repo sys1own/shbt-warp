@@ -33,6 +33,14 @@ fn vec_to_pylist<'py>(py: Python<'py>, v: &[f64]) -> PyResult<Bound<'py, pyo3::t
     Ok(list)
 }
 
+fn vec_dict_to_pydict<'py>(py: Python<'py>, data: &HashMap<String, Vec<f64>>) -> PyResult<Bound<'py, PyDict>> {
+    let dict = PyDict::new(py);
+    for (k, v) in data {
+        dict.set_item(k.as_str(), vec_to_pylist(py, v)?)?;
+    }
+    Ok(dict)
+}
+
 /// High-level simulation container exposed to Python.
 #[pyclass(name = "Simulation")]
 pub struct Simulation {
@@ -210,7 +218,18 @@ impl Simulation {
             "transferred_bits",
             derender.n_local_bits,
         )?;
+
+        // Time-stepped re-rendering trajectory for the de-rendered region.
+        let trajectory = derender.rerendering_trajectory(0.1, 1.0, 100.0);
+        derender_dict.set_item("rerender_trajectory", vec_dict_to_pydict(py, &trajectory)?)?;
         out.set_item("derender", derender_dict)?;
+
+        // Transient excitation and entropy-debt trajectory.
+        let transient_engine = TransientRateEngine::new(1.0, 100.0, 0.1);
+        let transient = transient_engine.run(&boundary, &engine, self.radius);
+        let transient_dict = vec_dict_to_pydict(py, &transient)?;
+        transient_dict.set_item("velocity_m_per_locktime", 0.1)?;
+        out.set_item("transient", transient_dict)?;
 
         // Thermodynamics.
         let thermo = ThermodynamicRateEngine::new();
