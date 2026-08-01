@@ -1,0 +1,25 @@
+# Build artifacts
+/target
+*.so
+*.pyd
+*.egg-info
+/dist
+/build
+
+# Python virtual environment
+/.venv
+/.env
+
+# Python caches
+__pycache__
+*.pyc
+.pytest_cache
+
+# Generated outputs
+/figures
+/sim_results.tex
+*.pdf
+
+# IDE
+.idea
+.vscode
