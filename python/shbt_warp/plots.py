@@ -7,6 +7,11 @@ import numpy as np
 from pathlib import Path
 
 
+def _save_figure(fig, path):
+    """Save a figure to a vector PDF preserving all text bounding boxes."""
+    fig.savefig(path, format="pdf", bbox_inches="tight")
+
+
 class PlotGenerator:
     """Render the standard SHBT warp simulation figures."""
 
@@ -47,7 +52,7 @@ class PlotGenerator:
 
         fig.suptitle("Warp bubble profile")
         fig.tight_layout()
-        fig.savefig(path, format="pdf")
+        _save_figure(fig, path)
         plt.close(fig)
 
     def _shift_profile(self, path):
@@ -63,7 +68,7 @@ class PlotGenerator:
         ax.set_title("Shift profile")
         ax.legend()
         fig.tight_layout()
-        fig.savefig(path, format="pdf")
+        _save_figure(fig, path)
         plt.close(fig)
 
     def _stress_energy_audit(self, path):
@@ -85,7 +90,7 @@ class PlotGenerator:
 
         fig.suptitle("Stress-energy audit (center line)")
         fig.tight_layout()
-        fig.savefig(path, format="pdf")
+        _save_figure(fig, path)
         plt.close(fig)
 
     def _derendering_transition(self, path):
@@ -102,7 +107,7 @@ class PlotGenerator:
         ax.set_title("De-rendering transition (center line)")
         ax.legend()
         fig.tight_layout()
-        fig.savefig(path, format="pdf")
+        _save_figure(fig, path)
         plt.close(fig)
 
     def _entropy_gradient(self, path):
@@ -111,9 +116,12 @@ class PlotGenerator:
         base = np.array(self._to_array(boundary.get("shannon_density", []))).reshape(3, 3)
         excited = np.array(self._to_array(excitation.get("excited_shannon_contributions", []))).reshape(3, 3)
 
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 3.5))
-        for ax, data, title in [(ax1, base, "Baseline Shannon density"), (ax2, excited, "Excited Shannon contributions")]:
-            im = ax.imshow(data, cmap="viridis", origin="upper", extent=(-0.5, 2.5, 2.5, -0.5))
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 4))
+        for ax, data, title, cmap in [
+            (ax1, base, "Baseline Shannon density", "viridis"),
+            (ax2, excited, "Excited Shannon contributions", "plasma"),
+        ]:
+            im = ax.imshow(data, cmap=cmap, origin="upper", extent=(-0.5, 2.5, 2.5, -0.5))
             ax.set_xticks([0, 1, 2])
             ax.set_yticks([0, 1, 2])
             ax.set_xlabel("SU(3) weight index")
@@ -126,7 +134,8 @@ class PlotGenerator:
         X, Y = np.meshgrid(np.arange(3), np.arange(3))
         ax2.quiver(X, Y, gx, -gy, color="w", scale=0.05, width=0.015)
 
-        fig.suptitle(rf"Shannon entropy gradient at $\theta={self.results.get('phase', 0.421)}$")
+        fig.suptitle(rf"Shannon entropy gradient at $\theta={self.results.get('phase', 0.421)}$", y=0.98)
         fig.tight_layout()
-        fig.savefig(path, format="pdf")
+        fig.subplots_adjust(bottom=0.18, top=0.85, left=0.08, right=0.96, wspace=0.35)
+        _save_figure(fig, path)
         plt.close(fig)
