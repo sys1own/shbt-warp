@@ -20,3 +20,4 @@ shbt-warp-sim = "shbt_warp.cli:main"
 [tool.maturin]
 python-source = "python"
 module-name = "shbt_warp._core"
+features = ["extension-module"]

@@ -5,6 +5,7 @@ pub mod causal_observer;
 pub mod constants;
 pub mod derender;
 pub mod projector;
+pub mod shbt;
 pub mod stress_energy;
 pub mod thermodynamics;
 
@@ -284,6 +285,9 @@ impl Simulation {
 #[pymodule(name = "_core")]
 fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Simulation>()?;
+    m.add_class::<shbt::warp_metric::FGSliceProjector>()?;
+    m.add_class::<shbt::character_excitation::CharacterExcitationRegister>()?;
+    m.add_class::<shbt::safety_monitor::SafetyMonitor>()?;
     Ok(())
 }
 
