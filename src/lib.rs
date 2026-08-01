@@ -89,6 +89,15 @@ impl Simulation {
         boundary_dict.set_item("c_dark_residual", C_DARK_RESIDUAL)?;
         boundary_dict.set_item("framing_defect", engine.framing_defect())?;
         boundary_dict.set_item("closure_norm", engine.closure_norm())?;
+        boundary_dict.set_item(
+            "shannon_density",
+            boundary
+                .shannon_density
+                .iter()
+                .flat_map(|row| row.iter().copied())
+                .collect::<Vec<f64>>(),
+        )?;
+        boundary_dict.set_item("shannon_entropy", boundary.shannon_entropy)?;
         boundary_dict.set_item("audit", audit_to_pydict(py, &boundary.audit(tolerance))?)?;
         out.set_item("boundary", boundary_dict)?;
 
@@ -107,6 +116,14 @@ impl Simulation {
         excitation_dict.set_item("population_shift_l1", population_shift_l1)?;
         excitation_dict.set_item("framing_defect", engine.framing_defect())?;
         excitation_dict.set_item("closure_norm", engine.closure_norm())?;
+        excitation_dict.set_item(
+            "excited_shannon_contributions",
+            engine
+                .excited_shannon_contributions()
+                .iter()
+                .flat_map(|row| row.iter().copied())
+                .collect::<Vec<f64>>(),
+        )?;
         excitation_dict.set_item("audit", audit_to_pydict(py, &engine.audit(tolerance))?)?;
         out.set_item("excitation", excitation_dict)?;
 
@@ -127,6 +144,8 @@ impl Simulation {
             "beta_m_s",
             vec_to_pylist(py, fg.beta_m_s.as_slice().unwrap_or(&[]))?,
         )?;
+        let beta_over_c: Vec<f64> = fg.beta_m_s.iter().map(|b| b / fg.speed_of_light_m_s).collect();
+        fg_dict.set_item("beta_over_c", vec_to_pylist(py, &beta_over_c)?)?;
         fg_dict.set_item("audit", audit_to_pydict(py, &fg.audit(tolerance))?)?;
         out.set_item("fg_slice", fg_dict)?;
 
