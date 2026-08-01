@@ -1,0 +1,64 @@
+
+\documentclass[aps,prd,reprint,onecolumn,notitlepage,nofootinbib]{revtex4-2} % chktex 8
+
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{bm}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{url}
+
+% This draft has no citation database; suppress REVTeX's empty auto-bibliography.
+\makeatletter
+\AtBeginDocument{\let\auto@bib\@empty}
+\makeatother
+
+\IfFileExists{sim_results.tex}{%
+  \input{sim_results.tex}%
+}{%
+  \newcommand{\SimOutputBranch}{(26, 8, 312)}
+  \newcommand{\SimOutputCanonicalBranch}{(26, 8, 312)}
+  \newcommand{\SimOutputLeptonLift}{6}
+  \newcommand{\SimOutputQuarkLift}{13}
+  \newcommand{\SimOutputDarkResidual}{2.300805139659}
+  \newcommand{\SimOutputDarkLedger}{3.300805139659}
+  \newcommand{\SimOutputDarkCompleted}{3.300805139659}
+  \newcommand{\SimOutputEntropyDebt}{0.137533547486}
+  \newcommand{\SimOutputWarpVelocity}{1.07118608}
+  \newcommand{\SimOutputPowerReq}{142.08}
+  \newcommand{\SimOutputOperationalPowerMW}{142.08}
+  \newcommand{\SimOutputPowerScaleRadius}{1.465190\times{}10^{-20}}
+  \newcommand{\SimOutputSaturatedBitBudget}{3.312593\times{}10^{122}}
+  \newcommand{\SimOutputLocalMemoryBits}{1.202481\times{}10^{72}}
+  \newcommand{\SimOutputShiftFieldFormula}{\beta_x(\mathbf{x})=-c\,e^{\Delta_{\mathrm{mod}}/2}f_{\text{SHBT}}(\mathbf{x},\theta)} % chktex 36
+  \newcommand{\SimOutputBoundaryPartition}{0.00342010966891}
+  \newcommand{\SimOutputShannonEntropy}{0.999490161461}
+  \newcommand{\SimOutputPhaseTheta}{0.421}
+  \newcommand{\SimOutputFramingDefect}{0}
+  \newcommand{\SimOutputClosureNorm}{0}
+  \newcommand{\SimOutputBoundaryNormError}{0}
+  \newcommand{\SimOutputUnitarityError}{0}
+  \newcommand{\SimOutputPopulationShift}{0.263689500253}
+  \newcommand{\SimOutputMetricDetMin}{1}
+  \newcommand{\SimOutputMetricEigenMin}{0.358567865584}
+  \newcommand{\SimOutputObserverMetricError}{0}
+  \newcommand{\SimOutputAccelerationNorm}{0}
+}
+
+\begin{document}
+\title{Phase-Locked Boundary Entanglement Engineering and Holographic Warp Metrics: A Static Holographic Boundary Theory Investigation}
+\date{\today}
+\maketitle
+
+\input{01_intro.tex}
+\input{02_mechanics.tex}
+\input{03_thermodynamics_kinematics.tex}
+\input{04_causal_protection.tex}
+\input{05_stress_energy_audit.tex}
+\input{06_derendering.tex}
+\input{07_thermodynamics_power.tex}
+\input{08_numerical_benchmarks.tex}
+\clearpage
+\input{appendix_a_macros.tex}
+\bibliographystyle{apsrev4-2} % chktex 8
+\end{document}
