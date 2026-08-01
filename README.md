@@ -1,98 +1,116 @@
-# SHBT Holographic Warp Drive Simulator
+# SHBT-CAD Holographic Warp Drive Engineering Simulator
 
-`shbt-warp` is a production-grade Rust + PyO3 implementation of the SHBT
-(Scalar Holographic Boundary Theory) holographic warp-drive simulator.  It
-transports and audits the physics developed in `shbt-precision` into a
-standalone, high-performance codebase with a Python-facing CLI and an
-interactive exploration notebook.
+`shbt-warp` (SHBT-CAD) is a production-grade Rust + PyO3 engineering design
+engine for the Scalar Holographic Boundary Theory (SHBT) holographic warp
+drive.  It extends the analytical foundations of `shbt-precision` into an
+executable, high-fidelity simulator that evaluates dynamic 3+1D ADM
+spacetimes, hardware-in-the-loop (HIL) safety monitors, GPU-accelerated
+Fefferman-Graham metric expansions, and boundary emitter-array phase
+synthesis.
 
-The simulator tracks:
+The codebase is no longer a static proof-of-concept: it is intended as a
+living flight-dynamics and control-prototyping instrument.  Rust provides the
+numerical core, PyO3 exposes it as the `shbt_warp` Python package, and a
+`Makefile` automates the full build/test/document pipeline.
 
-- phase-locked `SU(2)_{26} x SU(3)_8` boundary entanglement and character
-  excitation;
-- Fefferman-Graham slice geometry, 4D metric tensors, and Lorentzian / Gram
-  positivity audits;
-- numerical stress-energy tensors, Christoffel symbols, Ricci / Einstein
-  curvature, and automated NEC/WEC sampling;
-- artificial de-rendering events that transfer visible register weight into
-  dark channels while preserving the holographic bit budget;
-- entropy-debt thermodynamics, including a time-stepping transient engine for
-  `Delta_mod(t)`;
-- operational power scaling and causal observer plateau verification.
+## Engineering capabilities
 
-## Repository structure
+- **3+1D ADM metric evaluation** with lapse `alpha = 1.0`, spatial metric
+  `gamma_ij = delta_ij`, shift vector `beta^i(t, x^k)`, and a per-cell
+  Lorentzian determinant check `det g = -1.0`.
+- **Phase-locked boundary character excitation** for the visible
+  `SU(2)_{26} x SU(3)_8` register, with unitary density-matrix audits and
+  exact zero scalar framing defect.
+- **Three-phase flight dynamics** (Phase A ramp, Phase B vector steering over
+  the prime skeleton, Phase C safe collapse and Stinespring de-rendering).
+- **Real-time HIL safety loops** that audit Gram positivity, metric
+  determinant errors, and local bit-budget overflows on every step.
+- **Boundary emitter-array hardware synthesis** that maps local phase angles
+  and conformal dimensions to RF drive signals and enforces phase-jitter,
+  cryogenic-noise, and decoherence limits.
+- **GPU compute shader** (`src/shbt/shaders/fefferman_graham.wgsl`) for
+  parallelized 3+1D metric tensor expansion over Cartesian grids.
+- **Automated LaTeX + figure pipeline** that writes `sim_results.tex`,
+  `cad_sim_results.tex`, vector PDF figures, and compiles `main.pdf`.
+
+## Repository module architecture
 
 | Path | Purpose |
 |------|---------|
-| `src/boundary.rs` | Visible register construction, modular S-matrix blocks, unitary excitation operator, framing defect and central-charge audits. |
+| `src/boundary.rs` | Visible register construction, modular `S`-matrix blocks, unitary excitation operator, framing defect and central-charge audits. |
 | `src/projector.rs` | 1D FG-slice and 3D Cartesian metric calculators; evaluates the shift vector `beta_x(x) = -c exp(Delta_mod/2) f_SHBT(x, theta)` and metric spectra. |
 | `src/stress_energy.rs` | Finite-difference connection, Riemann/Ricci/Einstein curvature, effective `T_{mu nu}`, and 100-vector NEC/WEC sampling. |
 | `src/derender.rs` | `DerenderingEngine`: visible-to-dark weight transfer, background-metric restoration, and time-stepped re-rendering trajectories. |
 | `src/thermodynamics.rs` | Entropy-debt integration, maximum framing hold time, and RK4 transient engine. |
 | `src/causal_observer.rs` | Comoving Minkowski plateau observer and `P_op` power benchmark. |
-| `src/lib.rs` | PyO3 `Simulation` class that runs every audit and exposes a Python dictionary. |
-| `python/shbt_warp/` | Pure-Python package: CLI, `LaTeXMacroExporter`, `PlotGenerator`, and the `examples/warp_exploration.ipynb` notebook. |
-| `main.tex` and `sections/` | APS RevTeX 4-2 manuscript source. |
-| `Makefile` | One-command build pipeline: compile the Rust extension, run the simulator, generate figures / `sim_results.tex`, and compile `main.pdf`. |
+| `src/shbt/warp_metric.rs` | `FGSliceProjector`: evaluates 3+1D ADM lapse (`alpha = 1.0`), spatial metric (`gamma_ij = delta_ij`), shift vector `beta^i`, and verifies `det g = -1.0` per cell. |
+| `src/shbt/character_excitation.rs` | `CharacterExcitationRegister`: 9x9 boundary density matrix `rho_partial` with unitary checks and framing-defect closure. |
+| `src/shbt/emitter_array.rs` | `EmitterArrayController` (phase/RF signal synthesis) and `HardwareNoiseAuditor` (phase jitter, thermal noise, decoherence, integer level lock). |
+| `src/shbt/flight_phases.rs` | `FlightDynamicsEngine`: Phase A ramp, Phase B vector steering, Phase C safe collapse and Stinespring de-rendering. |
+| `src/shbt/safety_monitor.rs` | `SafetyMonitor`: HIL audits for Gram eigenvalue, metric determinant, and information-density limits. |
+| `src/shbt/shaders/fefferman_graham.wgsl` | WGSL compute shader (`@workgroup_size(8, 8, 8)`) that writes the 16-float 4x4 ADM metric per grid cell from a shape-field buffer. |
+| `src/shbt/mod.rs` | Aggregates the `src/shbt/` submodules and exposes them through `src/lib.rs`. |
+| `src/lib.rs` | PyO3 module initialization; registers `Simulation` and every `src/shbt/` class under `shbt_warp._core`. |
+| `python/shbt_warp/` | Python package: `cad_engine.py`, `cli.py`, `latex.py`, `plots.py`, and `examples/warp_exploration.ipynb`. |
+| `main.tex` and `sections/` | APS RevTeX 4-2 manuscript source, including the new ADM flight-phase, emitter-array, and HIL safety sections. |
+| `Makefile` | One-command build pipeline: compile the Rust extension, run the pytest suite, execute the simulators, generate figures and macros, and compile `main.pdf`. |
 
 ## Prerequisites
 
 - Rust toolchain (recent stable `rustc` / `cargo`, 1.70+).
 - Python 3.10 or newer.
 - A working TeX Live installation with `revtex4-2` (only required to compile `main.pdf`).
+- A GPU with WGPU/Vulkan support is optional; the WGSL shader is loaded as an embedded asset and can be dispatched by any WGPU-based compute harness.
 
-The `Makefile` will create a local `.venv` automatically if it does not exist.
+The `Makefile` creates a local `.venv` automatically if it does not exist.
 
-## Installation and build
+## Installation and build quick start
 
 ```bash
 # Clone and enter the repository
 git clone https://github.com/sys1own/shbt-warp.git
 cd shbt-warp
 
-# Build the Rust extension and install the Python package in editable mode
-make sim
-```
+# Editable Python install (builds the Rust extension automatically)
+pip install -e .
 
-`make sim` performs the following:
-
-1. Creates `.venv` and installs `requirements.txt`.
-2. Runs `maturin develop --release` to build and install the `_core` PyO3 extension.
-3. Executes `python -m shbt_warp.cli` to generate `sim_results.tex` and the vector PDF figures in `figures/`.
-
-To build the full paper as well:
-
-```bash
-make
-```
-
-This additionally runs `pdflatex` on `main.tex` twice, producing `main.pdf`.
-
-If you prefer a manual Python-only build:
-
-```bash
+# Or use Maturin directly
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 maturin develop --release
 ```
 
-## Running tests
+For the full automated pipeline (recommended):
 
 ```bash
-# Rust unit tests
-cargo test
-
-# Python tests (requires the PyO3 extension to be installed)
-source .venv/bin/activate
-pytest
+make
 ```
 
-The Rust suite checks the exact `c_dark^residual = 834433/362670` fraction, zero framing defect, warp-velocity formula, the 142.08 MW power benchmark, and 3D metric/stress-energy audits.  The Python suite checks CLI output, figure generation, macro export, parameter sweeps, and the time-stepping transient data.
+`make` performs the following steps in order:
+
+1. Creates `.venv` and installs `requirements.txt` if needed.
+2. Runs `maturin develop --release` to build and install the `_core` PyO3 extension.
+3. Runs `pytest` to verify the Rust/Python integration.
+4. Executes `python -m shbt_warp.cli` to generate `sim_results.tex` and the standard vector PDF figures.
+5. Executes `shbt-cad-sim` to generate `cad_sim_results.tex` and CAD flight-phase figures.
+6. Runs `pdflatex` on `main.tex` twice, producing `main.pdf`.
+
+To run only the simulator and build the paper:
+
+```bash
+make clean && make
+```
+
+To compile only the manuscript after the simulation outputs already exist:
+
+```bash
+make paper
+```
 
 ## Command-line usage
 
-### Single simulation
+### Standard SHBT warp simulation
 
 ```bash
 shbt-warp-sim \
@@ -114,9 +132,34 @@ Generated artifacts:
 - `figures/derendering_transition.pdf`
 - `figures/entropy_gradient.pdf`
 
+### SHBT-CAD three-phase flight simulation
+
+```bash
+shbt-cad-sim \
+    --radius 10.0 \
+    --t-ramp 1.0 \
+    --t-steering 1.0 \
+    --phase 0.421 \
+    --tex-output cad_sim_results.tex \
+    --figures-directory figures
+```
+
+Additional artifacts:
+
+- `cad_sim_results.tex` — CAD-specific LaTeX macros.
+- `figures/cad_phase_a_ramp.pdf`
+- `figures/cad_phase_b_steering.pdf`
+
+Either command can also be invoked through the module runner:
+
+```bash
+python -m shbt_warp.cli --cad
+```
+
 ### Parameter sweeps
 
-Sweep the bubble radius and/or phase-lock angle and write a CSV of power and entropy-debt scaling:
+Sweep the bubble radius and/or phase-lock angle and write a CSV of power and
+entropy-debt scaling:
 
 ```bash
 shbt-warp-sim \
@@ -126,9 +169,32 @@ shbt-warp-sim \
     --grid-points 301
 ```
 
-The CSV contains one row per `(radius, phase)` pair with `v_eff/c`, `P_op (MW)`, entropy debt, and population shift.
+The CSV contains one row per `(radius, phase)` pair with `v_eff/c`,
+`P_op (MW)`, entropy debt, and population shift.
 
-### Python API
+## Running tests
+
+```bash
+# Rust unit tests
+cargo test
+
+# Full Python test suite (requires the PyO3 extension to be installed)
+source .venv/bin/activate
+pytest
+
+# CAD-focused integration tests only
+pytest tests/test_shbt_cad.py
+```
+
+The Rust suite checks the exact `c_dark^residual = 834433/362670` fraction,
+zero framing defect, warp-velocity formula, the 142.08 MW power benchmark,
+and 3D metric/stress-energy audits.  The Python suite checks CLI output,
+figure generation, macro export, parameter sweeps, the time-stepping
+transient data, and the SHBT-CAD flight-phase / HIL / emitter invariants.
+
+## Python API
+
+### Standard simulation
 
 ```python
 import shbt_warp
@@ -143,10 +209,32 @@ result = shbt_warp.run_simulation(
 )
 
 print(result["power_mw"])              # 142.08 MW at R = 10 m
-print(result["v_eff_c"])                # exp(Delta_mod / 2)
-print(result["c_dark_residual"])        # 834433 / 362670
+print(result["v_eff_c"])             # exp(Delta_mod / 2)
+print(result["c_dark_residual"])     # 834433 / 362670
 print(result["transient"]["entropy_debt"])
 print(result["derender"]["rerender_trajectory"]["origin_x"])
+```
+
+### SHBT-CAD flight engine
+
+```python
+from shbt_warp import SHBTCADEngine
+
+engine = SHBTCADEngine(
+    radius=10.0,
+    phase=0.421,
+    t_ramp=1.0,
+    t_steering=1.0,
+    n_steps=64,
+)
+
+report = engine.run_flight_simulation()
+engine.export_latex_macros(report, "cad_sim_results.tex")
+engine.render_figures(report, "figures")
+
+print(report["invariants"]["canonical_branch"])   # (26, 8, 312)
+print(report["invariants"]["framing_defect"])     # 0.0
+print(report["metric_grid"]["flat_metric_determinant"])  # -1.0
 ```
 
 ### Interactive Jupyter notebook
@@ -156,27 +244,30 @@ source .venv/bin/activate
 jupyter notebook examples/warp_exploration.ipynb
 ```
 
-The notebook uses `ipywidgets` sliders for bubble radius, phase angle, wall steepness, and grid resolution.  Each slider change re-runs the Rust `Simulation` through PyO3 and updates Matplotlib figures for the stress-energy audit, shift profile, and modular-register entanglement density.
+The notebook uses `ipywidgets` sliders for bubble radius, phase angle, wall
+steepness, and grid resolution.  Each slider change re-runs the Rust
+`Simulation` through PyO3 and updates Matplotlib figures for the
+stress-energy audit, shift profile, and modular-register entanglement density.
 
 ## LaTeX manuscript
 
-The paper source is in `main.tex` and `sections/`.  A `make` run produces the full document:
+The paper source is in `main.tex` and `sections/`.  The new sections are:
 
-```bash
-make
-```
+- `sections/09_flight_phases.tex` — 3+1D ADM line element, shift vector, and
+  three-phase flight dynamics.
+- `sections/10_emitter_array.tex` — boundary emitter-array hardware synthesis
+  and noise sensitivity.
+- `sections/11_hil_safety.tex` — real-time HIL control loops and safety
+  algorithms.
 
-If you want to compile only the manuscript after the simulation outputs already exist:
-
-```bash
-make paper
-```
-
-The `TEXINPUTS` environment variable in the `Makefile` ensures `main.tex` finds the modular section files in `sections/`.
+`main.tex` loads both `sim_results.tex` and `cad_sim_results.tex`; if either
+is missing it falls back to the canonical benchmark values so the document
+remains compilable.  `make` guarantees the live, simulation-driven values are
+used in `main.pdf`.
 
 ## Key physics macro outputs
 
-The simulator writes the following macros to `sim_results.tex` for direct inclusion in `main.tex`:
+The standard simulator writes the following macros to `sim_results.tex`:
 
 | Macro | Definition | Benchmark value |
 |-------|------------|-----------------|
@@ -188,45 +279,59 @@ The simulator writes the following macros to `sim_results.tex` for direct inclus
 | `\SimOutputEntropyDebt` | Entropy-debt uplift `Delta_mod = c_dark / 24` | `0.137533547486` |
 | `\SimOutputWarpVelocity` | Effective warp velocity `v_eff / c = exp(Delta_mod / 2)` | `1.071186351` |
 | `\SimOutputOperationalPowerMW` | Operational power at `R = 10 m` | `142.08` MW |
-| `\SimOutputPowerScaleRadius` | Power-scale radius `r_s` from the Alcubierre-style scaling | `1.465189552753 x 10^{-20}` m |
-| `\SimOutputSaturatedBitBudget` | Horizon bit budget `N_sat` | `3.312593327986 x 10^{122}` bits |
-| `\SimOutputLocalMemoryBits` | Local 10 m register memory | `1.202481 x 10^{72}` bits |
-| `\SimOutputBoundaryPartition` | Boundary partition function `Z_partial` | `0.00342010966891` |
-| `\SimOutputShannonEntropy` | Visible Shannon entropy `S_E` | `0.999490161461` |
-| `\SimOutputBoundaryNormError` | `|sum rho_E - 1|` | `0` |
-| `\SimOutputUnitarityError` | `||O_excitation^dagger O - I_9||_inf` | `O(10^{-16})` |
-| `\SimOutputPopulationShift` | `||rho_E^(theta) - rho_E||_1` | `0.263689500253` |
-| `\SimOutputMetricDetMin` | `min_x |det g^(L)(x)|` | `1` |
 | `\SimOutputMetricEigenMin` | `min_x lambda_min(g^(G)(x))` | `0.358567865584` |
-| `\SimOutputObserverMetricError` | `||g^obs - eta||_inf` | `0` |
 | `\SimOutputAccelerationNorm` | Comoving proper-acceleration norm | `0` m s^{-2} |
-| `\SimOutputShiftFieldFormula` | LaTeX form of the FG shift vector | `beta_x(x) = -c e^{Delta_mod/2} f_SHBT(x, theta)` |
+
+The CAD engine writes the following additional macros to `cad_sim_results.tex`:
+
+| Macro | Definition | Benchmark value |
+|-------|------------|-----------------|
+| `\CADCanonicalBranch` | Canonical branch `(k_l, k_q, K)` | `(26, 8, 312)` |
+| `\CADFramingDefect` | Scalar framing defect `Delta_fr` | `0.000000000000` |
+| `\CADUnitarityResidual` | `abs(Re(Tr rho) - 1) + abs(Im(Tr rho))` | `< 1e-14` |
+| `\CADStinespringRatio` | `eta_D = c_dark^res / c_dark^comp` | `0.697043612789` |
+| `\CADMetricDeterminant` | Collapse metric determinant `det g` | `-1.000000000000` |
+| `\CADPhaseJitterOk` | Phase jitter pass flag | `true` |
+| `\CADThermalDecoherenceOk` | Thermal/decoherence pass flag | `true` |
+| `\CADIntegerLockOk` | Integer level lock pass flag | `true` |
 
 ## Audit benchmarks
 
 | Audit | Criterion |
-|-------|-------------|
-| Boundary normalization | `|sum rho_E - 1| <= tolerance` |
-| Excitation unitarity | `||O^dagger O - I_9||_inf <= tolerance` |
+|-------|-----------|
+| Boundary normalization | `abs(sum rho_E - 1) <= tolerance` |
+| Excitation unitarity | `norm(O^dagger O - I_9, inf) <= tolerance` |
 | Framing defect | `Delta_fr = 0` exactly (integer lifts) |
-| Lorentzian signature | `|det g^(L)(x) + 1|` small, metric eigenvalues negative/positive in `(-,+,+,+)` order |
+| Lorentzian signature | `abs(det g^(L)(x) + 1)` small, metric eigenvalues negative/positive in `(-,+,+,+)` order |
 | Gram positivity | `lambda_min(g^(G)(x)) > 0` everywhere |
 | Causal observer | `g^obs = eta` in the plateau, zero proper acceleration |
 | Stress-energy | NEC/WEC sampled over 100 random null/timelike vectors; residuals below tolerance |
 | Thermodynamics | Steady-state entropy debt equals `Delta_mod`; maximum hold time infinite for the closed-defect branch |
+| Phase jitter | `sigma_theta <= 5.05e-5` rad |
+| Thermal noise | `T_N <= 15.4` mK |
+| Decoherence | `gamma_dec <= 1.2e-4` s^{-1} |
+| Integer level lock | `delta k_l = delta k_q = delta K = 0` |
 
 ## Generated artifacts and version control
 
-Most files produced by the build pipeline are **not** committed to the repository:
+Most files produced by the build pipeline are **not** committed to the
+repository:
 
 - `sim_results.tex`
+- `cad_sim_results.tex`
 - `figures/*.pdf`
 - `*.aux`, `*.log`, `*.out`, `*.toc`, `mainNotes.bib`, `*.synctex.gz`
 - `sweep_results.csv`
 
-They are listed in `.gitignore` and should always be regenerated locally with `make`.  This keeps the repository focused on source code and guarantees that `main.pdf` reflects the exact current state of the Rust core, Python scripts, and LaTeX source.
+They are listed in `.gitignore` and should always be regenerated locally with
+`make`.  This keeps the repository focused on source code and guarantees that
+`main.pdf` reflects the exact current state of the Rust core, Python scripts,
+and LaTeX source.
 
-`main.pdf` is the one exception: it is tracked as a convenience so the paper can be read without a TeX Live installation.  If `sim_results.tex` or the figure PDFs are missing, run `make` to regenerate them before compiling `main.tex` directly with `pdflatex`; `main.tex` also defines fallback macros for `sim_results.tex` so the manuscript remains compilable, but `make` should still be used for the live, simulation-driven values.
+`main.pdf` is the one exception: it is tracked as a convenience so the paper
+can be read without a TeX Live installation.  If the generated macros or figure
+PDFs are missing, run `make` to regenerate them before compiling `main.tex`
+directly with `pdflatex`.
 
 ## License
 
