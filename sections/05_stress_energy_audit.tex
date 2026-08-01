@@ -1,0 +1,372 @@
+% chktex-file 3
+% chktex-file 8
+\section{Stress-energy audit and energy conditions}\label{sec:stress-energy-audit}
+
+\subsection{Einstein tensor of the longitudinal shift}
+
+The effective stress-energy tensor requested for the four-dimensional slice is
+\begin{equation}
+  T_{\mu\nu}^{\mathrm{eff}}
+  =
+  \frac{1}{8\pi G_N}
+  \left(
+    G_{\mu\nu}[g]
+    +
+    \Lambda_{\mathrm{holo}}g_{\mu\nu}
+  \right),
+  \qquad
+  \Lambda_{\mathrm{holo}}
+  =
+  1.08913883\times10^{-52}\;\mathrm{m^{-2}}.
+  \label{eq:effective-stress-energy-definition}
+\end{equation}
+Energy-condition claims must be checked using the Lorentzian metric, not the
+positive Euclidean Gram representative.  In the dimensionless temporal
+coordinate \(x^0=ct\), write
+\begin{equation}
+  b(x)
+  =
+  \frac{\beta_x(x)}{c},
+  \qquad
+  g_{\mu\nu}
+  =
+  \begin{pmatrix}
+    -1+b^2 & b & 0 & 0 \\
+    b & 1 & 0 & 0 \\
+    0 & 0 & 1 & 0 \\
+    0 & 0 & 0 & 1
+  \end{pmatrix}.
+  \label{eq:section5-shift-metric}
+\end{equation}
+The inverse and determinant are
+\begin{equation}
+  g^{\mu\nu}
+  =
+  \begin{pmatrix}
+    -1 & b & 0 & 0 \\
+    b & 1-b^2 & 0 & 0 \\
+    0 & 0 & 1 & 0 \\
+    0 & 0 & 0 & 1
+  \end{pmatrix},
+  \qquad
+  \det g
+  =
+  -1.
+  \label{eq:section5-inverse-and-determinant}
+\end{equation}
+Primes denote derivatives with respect to \(x\).  A direct Levi-Civita
+calculation gives the nonzero connection coefficients
+\begin{equation}
+  \begin{aligned}
+  \Gamma^{0}{}_{00}
+  &=
+  -b^2b',
+  &
+  \Gamma^{0}{}_{01}
+  &=
+  \Gamma^{0}{}_{10}
+  =
+  -bb',
+  &
+  \Gamma^{0}{}_{11}
+  &=
+  -b',
+  \\
+  \Gamma^{1}{}_{00}
+  &=
+  (b^2-1)bb',
+  &
+  \Gamma^{1}{}_{01}
+  &=
+  \Gamma^{1}{}_{10}
+  =
+  b^2b',
+  &
+  \Gamma^{1}{}_{11}
+  &=
+  bb'.
+  \end{aligned}
+  \label{eq:shift-christoffel-symbols}
+\end{equation}
+Define
+\begin{equation}
+  Q(x)
+  =
+  b(x)b''(x)
+  +
+  [b'(x)]^2
+  =
+  \frac{1}{2}
+  \frac{d^2}{dx^2}
+  b^2(x).
+  \label{eq:shift-curvature-functional}
+\end{equation}
+The Ricci tensor and scalar are
+\begin{equation}
+  R_{\mu\nu}
+  =
+  \begin{pmatrix}
+    (b^2-1)Q & bQ & 0 & 0 \\
+    bQ & Q & 0 & 0 \\
+    0 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0
+  \end{pmatrix},
+  \qquad
+  R
+  =
+  2Q.
+  \label{eq:shift-ricci-tensor}
+\end{equation}
+Consequently the Einstein tensor is particularly simple:
+\begin{equation}
+  G_{\mu\nu}
+  =
+  \begin{pmatrix}
+    0 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0 \\
+    0 & 0 & -Q & 0 \\
+    0 & 0 & 0 & -Q
+  \end{pmatrix}.
+  \label{eq:shift-einstein-tensor}
+\end{equation}
+Equation~\eqref{eq:shift-einstein-tensor} agrees with the flat-interior result:
+on an exact plateau \(b'=b''=0\), so \(Q=0\) and
+\(G_{\mu\nu}=0\).
+
+\subsection{Null energy condition}
+
+Let \(k^\mu\) be any null vector,
+\begin{equation}
+  g_{\mu\nu}k^\mu k^\nu
+  =
+  0.
+  \label{eq:null-vector-condition}
+\end{equation}
+The cosmological term drops out of the null contraction, and
+Eq.~\eqref{eq:shift-einstein-tensor} yields
+\begin{equation}
+  T_{\mu\nu}^{\mathrm{eff}}
+  k^\mu k^\nu
+  =
+  -\frac{Q(x)}{8\pi G_N}
+  \left[
+    (k^y)^2+(k^w)^2
+  \right].
+  \label{eq:nec-contraction}
+\end{equation}
+Null vectors with nonzero transverse components exist at every regular point.
+Therefore the necessary and sufficient pointwise condition for the NEC is
+\begin{equation}
+  T_{\mu\nu}^{\mathrm{eff}}
+  k^\mu k^\nu
+  \geq0
+  \quad
+  \text{for all null }k^\mu
+  \qquad
+  \Longleftrightarrow
+  \qquad
+  Q(x)\leq0.
+  \label{eq:nec-condition-q}
+\end{equation}
+
+For a localized shift, impose the asymptotic conditions
+\begin{equation}
+  \lim_{x\to\pm\infty}b(x)
+  =
+  0,
+  \qquad
+  \lim_{x\to\pm\infty}b'(x)
+  =
+  0.
+  \label{eq:localized-shift-boundary-conditions}
+\end{equation}
+Since \(Q=(bb')'\),
+\begin{equation}
+  \int_{-\infty}^{+\infty}
+  Q(x)\,dx
+  =
+  \left[
+    b(x)b'(x)
+  \right]_{-\infty}^{+\infty}
+  =
+  0.
+  \label{eq:integrated-q-zero}
+\end{equation}
+If the NEC held everywhere, Eq.~\eqref{eq:nec-condition-q} would give
+\(Q\leq0\) everywhere.  Together with
+Eq.~\eqref{eq:integrated-q-zero}, continuity would force
+\begin{equation}
+  Q(x)
+  =
+  0
+  \quad
+  \text{for every }x.
+  \label{eq:q-identically-zero}
+\end{equation}
+Equation~\eqref{eq:shift-curvature-functional} would then imply that \(b^2\)
+is affine in \(x\).  The two asymptotic conditions in
+Eq.~\eqref{eq:localized-shift-boundary-conditions} force that affine function
+to vanish:
+\begin{equation}
+  Q\equiv0
+  \quad\Longrightarrow\quad
+  b^2(x)=A x+B
+  \quad\Longrightarrow\quad
+  A=B=0
+  \quad\Longrightarrow\quad
+  b(x)\equiv0.
+  \label{eq:nec-localized-no-go}
+\end{equation}
+Hence a nontrivial, smooth, localized shift of the form
+Eq.~\eqref{eq:section5-shift-metric} cannot satisfy the NEC everywhere.
+Longitudinal null vectors with \(k^y=k^w=0\) saturate the NEC, but transverse
+null directions detect the violation wherever \(Q>0\).
+
+\subsection{Weak energy condition}
+
+Let \(u^\mu\) be a unit timelike vector,
+\begin{equation}
+  g_{\mu\nu}u^\mu u^\nu
+  =
+  -1.
+  \label{eq:unit-timelike-condition}
+\end{equation}
+Using Eqs.~\eqref{eq:effective-stress-energy-definition} and
+~\eqref{eq:shift-einstein-tensor}, the measured effective energy density is
+\begin{equation}
+  T_{\mu\nu}^{\mathrm{eff}}
+  u^\mu u^\nu
+  =
+  \frac{1}{8\pi G_N}
+  \left\{
+    -Q(x)
+    \left[
+      (u^y)^2+(u^w)^2
+    \right]
+    -
+    \Lambda_{\mathrm{holo}}
+  \right\}.
+  \label{eq:wec-contraction}
+\end{equation}
+The comoving Eulerian observer is
+\begin{equation}
+  n^\mu
+  =
+  (1,-b,0,0),
+  \qquad
+  g_{\mu\nu}n^\mu n^\nu
+  =
+  -1.
+  \label{eq:eulerian-observer-section5}
+\end{equation}
+For this observer,
+\begin{equation}
+  T_{\mu\nu}^{\mathrm{eff}}
+  n^\mu n^\nu
+  =
+  -\frac{\Lambda_{\mathrm{holo}}}
+  {8\pi G_N}.
+  \label{eq:eulerian-wec-density}
+\end{equation}
+Thus, with a positive \(\Lambda_{\mathrm{holo}}\) included on the
+stress-energy side exactly as in
+Eq.~\eqref{eq:effective-stress-energy-definition}, the WEC is already violated
+for the comoving observer.  If the cosmological term is retained on the
+geometric side and excluded from the material stress tensor, one sets
+\(\Lambda_{\mathrm{holo}}=0\) in
+Eq.~\eqref{eq:wec-contraction}.  The WEC for all timelike observers then again
+requires
+\begin{equation}
+  Q(x)\leq0,
+  \label{eq:wec-condition-zero-lambda}
+\end{equation}
+and the localized no-go theorem
+Eq.~\eqref{eq:nec-localized-no-go} applies unchanged.
+
+\subsection{Comparison with the classical Alcubierre source}
+
+For the usual three-dimensional Alcubierre profile
+\(\beta_x=-v_s f(r_s)\), the Eulerian energy density contains the explicitly
+negative transverse-gradient term
+\begin{equation}
+  \rho_{\mathrm{Alc}}
+  =
+  -\frac{c^4}{32\pi G_N}
+  \frac{v_s^2}{c^2}
+  \left[
+    (\partial_y f)^2
+    +
+    (\partial_w f)^2
+  \right]
+  \leq0.
+  \label{eq:classical-alcubierre-energy-density}
+\end{equation}
+The restricted one-dimensional shift used in
+Eq.~\eqref{eq:section5-shift-metric} removes these transverse derivatives.
+For \(\Lambda_{\mathrm{holo}}=0\), its coordinate component and Eulerian
+energy density are
+\begin{equation}
+  T_{00}^{\mathrm{eff}}
+  =
+  0,
+  \qquad
+  T_{\mu\nu}^{\mathrm{eff}}
+  n^\mu n^\nu
+  =
+  0.
+  \label{eq:one-dimensional-zero-eulerian-density}
+\end{equation}
+Boundary-driven longitudinal shear therefore avoids the specific negative
+\(T_{00}\) term in Eq.~\eqref{eq:classical-alcubierre-energy-density} for
+this reduced ansatz.  It does not, however, establish universal energy
+condition compliance: the transverse pressures in
+Eq.~\eqref{eq:shift-einstein-tensor} still violate the NEC and WEC somewhere
+for every nontrivial localized profile.
+
+Accordingly, a claim of complete SHBT energy-condition compliance requires
+additional dynamics beyond
+Eq.~\eqref{eq:effective-stress-energy-definition}.  Such a completion may be
+parameterized by a boundary-response tensor
+\(\mathcal B_{\mu\nu}\):
+\begin{equation}
+  8\pi G_N
+  T_{\mu\nu}^{\mathrm{phys}}
+  =
+  G_{\mu\nu}
+  +
+  \Lambda_{\mathrm{holo}}g_{\mu\nu}
+  +
+  \mathcal B_{\mu\nu}.
+  \label{eq:boundary-response-completion}
+\end{equation}
+For the NEC and WEC to hold, this tensor must satisfy the explicit
+inequalities
+\begin{equation}
+  \mathcal B_{\mu\nu}k^\mu k^\nu
+  \geq
+  Q
+  \left[
+    (k^y)^2+(k^w)^2
+  \right]
+  \quad
+  \text{for all null }k^\mu,
+  \label{eq:boundary-response-nec-requirement}
+\end{equation}
+and
+\begin{equation}
+  \mathcal B_{\mu\nu}u^\mu u^\nu
+  \geq
+  Q
+  \left[
+    (u^y)^2+(u^w)^2
+  \right]
+  +
+  \Lambda_{\mathrm{holo}}
+  \quad
+  \text{for all unit timelike }u^\mu.
+  \label{eq:boundary-response-wec-requirement}
+\end{equation}
+Until \(\mathcal B_{\mu\nu}\) is derived independently from the boundary
+theory, Eqs.~\eqref{eq:nec-localized-no-go} and
+~\eqref{eq:eulerian-wec-density} are the rigorous conclusions of the
+Einstein-tensor audit.

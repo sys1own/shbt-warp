@@ -1,0 +1,165 @@
+% chktex-file 35
+% chktex-file 3
+\section{Introduction and holographic framework}\label{sec:introduction}
+
+Metric engineering in classical general relativity is an inverse problem.  One first specifies a target Lorentzian geometry \(g_{\mu\nu}^{\mathrm{target}}\), computes its Einstein tensor, and then infers the stress-energy tensor required to sustain it:
+\begin{equation}
+  T_{\mu\nu}^{\mathrm{req}}
+  =
+  \frac{1}{8\pi G_N}
+  \left(
+    G_{\mu\nu}[g^{\mathrm{target}}]
+    +\Lambda g_{\mu\nu}^{\mathrm{target}}
+  \right).
+  \label{eq:gr-inverse-problem}
+\end{equation}
+For an Alcubierre-type longitudinal shift, the wall gradients of the prescribed shape function generate regions in which the Eulerian energy density is negative,
+\begin{equation}
+  \rho_{\mathrm{GR}}
+  =
+  T_{\mu\nu}^{\mathrm{req}}n^\mu n^\nu
+  <0,
+  \qquad\text{and hence}\qquad
+  T_{00}<0
+  \quad\text{in part of the wall}.
+  \label{eq:classical-negative-energy}
+\end{equation}
+The obstruction is therefore not merely technological: the target metric is supported by a bulk source that violates the weak energy condition and, for appropriate null directions, the null energy condition.
+
+Static Holographic Boundary Theory (SHBT) changes the control problem.  The independent data are assigned to a static boundary conformal register, while the bulk metric is treated as a downstream projection of boundary loading, Shannon entanglement, and holographic resolution flow.  The foundational construction and its numerical implementation are established in the primary repository
+\url{https://github.com/sys1own/shbt-precision.git}.  In the extension studied here, no negative-energy bulk source is inserted into Eq.~\eqref{eq:gr-inverse-problem}.  Instead, a unitary character excitation redistributes boundary entanglement and the resulting directional entropy shear is mapped into a bulk shift component.  The operational distinction is
+\begin{equation}
+  \text{classical GR:}\quad
+  g_{\mu\nu}^{\mathrm{target}}
+  \longrightarrow T_{\mu\nu}^{\mathrm{req}},
+  \qquad
+  \text{SHBT:}\quad
+  \rho_{\partial}
+  \longrightarrow \rho_E
+  \longrightarrow \Phi_s^{(x)}
+  \longrightarrow g_{\mu\nu}.
+  \label{eq:bulk-versus-boundary-control}
+\end{equation}
+Thus \emph{matter-free} refers specifically to the absence of an imposed exotic bulk source.  Control hardware and positive boundary bookkeeping costs remain part of the physical accounting.
+
+\subsection{Canonical anomaly-free branch}
+
+The visible boundary theory is the affine product
+\begin{equation}
+  \mathcal{A}_{\mathrm{vis}}
+  =
+  \mathrm{SU}(2)_{k_\ell}
+  \times
+  \mathrm{SU}(3)_{k_q},
+  \qquad
+  \mathfrak{b}_*
+  =
+  (k_\ell,k_q,K)
+  =
+  (26,8,312)
+  =
+  \SimOutputBranch,
+  \label{eq:canonical-anomaly-free-branch}
+\end{equation}
+embedded in the parent completion \(\mathrm{SO}(10)_K\).  The corresponding center lifts are
+\begin{equation}
+  \begin{aligned}
+  I_\ell^*
+  &=
+  \frac{K}{2k_\ell}
+  =
+  \frac{312}{52}
+  =
+  6,
+  \\
+  I_q^*
+  &=
+  \frac{K}{3k_q}
+  =
+  \frac{312}{24}
+  =
+  13.
+  \end{aligned}
+  \label{eq:integer-center-lifts}
+\end{equation}
+For \(\|x\|_{\mathbb Z}\equiv\min_{n\in\mathbb Z}|x-n|\), the scalar framing defect is
+\begin{equation}
+  \Delta_{\mathrm{fr}}(\mathfrak b)
+  =
+  \max\left\{
+    \left\|\frac{K}{2k_\ell}\right\|_{\mathbb Z},
+    \left\|\frac{K}{3k_q}\right\|_{\mathbb Z}
+  \right\}.
+  \label{eq:framing-defect-general}
+\end{equation}
+Equations~\eqref{eq:canonical-anomaly-free-branch} and~\eqref{eq:integer-center-lifts} imply
+\begin{equation}
+  \Delta_{\mathrm{fr}}(\mathfrak b_*)
+  =
+  \max\{\|6\|_{\mathbb Z},\|13\|_{\mathbb Z}\}
+  =
+  0.
+  \label{eq:zero-framing-defect}
+\end{equation}
+
+The framing condition is not an optional numerical tolerance.  Within the SHBT closure ansatz, the scalar obstruction has the unique metric-proportional bulk continuation
+\begin{equation}
+  \mathcal{E}_{\mu\nu}
+  =
+  \mathcal{Q}_{\mathrm{fr}}
+  \Delta_{\mathrm{fr}}
+  g_{\mu\nu},
+  \label{eq:weyl-closure-tensor}
+\end{equation}
+where \(\mathcal{Q}_{\mathrm{fr}}\) is the framing-response coefficient.  Therefore
+\begin{equation}
+  \begin{aligned}
+  \Delta_{\mathrm{fr}}=0
+  &\quad\Longrightarrow\quad
+  \mathcal{E}_{\mu\nu}=0,
+  \\
+  \|\mathcal E\|_g
+  &=
+  |\mathcal Q_{\mathrm{fr}}|
+  |\Delta_{\mathrm{fr}}|
+  \|g\|_g
+  =
+  0.
+  \end{aligned}
+  \label{eq:closure-tensor-vanishes}
+\end{equation}
+Any intervention that changes the affine levels may reopen \(\Delta_{\mathrm{fr}}\), inject a framing-sourced Weyl term, and invalidate the closed boundary-to-bulk projection.  Admissible controls must consequently act inside the fixed nine-dimensional visible block and preserve the branch \(\mathfrak b_*\) exactly.
+
+\subsection{Holographic control variables}
+
+The completed dark ledger and its dimensionless modular debt are
+\begin{equation}
+  \begin{aligned}
+  c_{\mathrm{dark}}^{\mathrm{comp}}
+  &=
+  \frac{1197103}{362670}
+  =
+  \SimOutputDarkLedger,
+  \\
+  \Delta_{\mathrm{mod}}
+  &=
+  \frac{c_{\mathrm{dark}}^{\mathrm{comp}}}{24}
+  =
+  \frac{1197103}{8704080}
+  =
+  \SimOutputEntropyDebt.
+  \end{aligned}
+  \label{eq:intro-dark-ledger}
+\end{equation}
+The extension assigns the corresponding kinematic scale
+\begin{equation}
+  v_{\mathrm{eff}}
+  =
+  c\exp\left(\frac{\Delta_{\mathrm{mod}}}{2}\right),
+  \qquad
+  \frac{v_{\mathrm{eff}}}{c}
+  =
+  \SimOutputWarpVelocity.
+  \label{eq:intro-effective-velocity}
+\end{equation}
+These definitions do not by themselves establish a realizable propulsion system.  They specify a closed mathematical model whose consistency can be tested by modular invariance, unitary excitation, framing closure, metric nonsingularity, and positivity of the Euclidean Gram representative.  Sections~\ref{sec:boundary-register} and~\ref{sec:shift-derivation} construct those ingredients explicitly and distinguish the positive projection metric from the Lorentzian spacetime metric into which the shift is embedded.

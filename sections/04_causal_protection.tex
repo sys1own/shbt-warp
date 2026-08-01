@@ -1,0 +1,275 @@
+% chktex-file 3
+% chktex-file 35
+\section{Causal protection and the observer interior}\label{sec:causal-protection}
+
+\subsection{Exact comoving plateau geometry}
+
+Let the CausalPoint observer be placed in an open interior region
+\(\mathcal U_{\mathrm{int}}\) on which the SHBT shape functional has an exact
+plateau.  The defining conditions are
+\begin{equation}
+  f_{\mathrm{SHBT}}(\boldsymbol{x},\theta)
+  =
+  1,
+  \qquad
+  \partial_i f_{\mathrm{SHBT}}
+  =
+  0,
+  \qquad
+  \beta_x(\boldsymbol{x})
+  =
+  \beta_0
+  =
+  -c
+  \exp\left(
+    \frac{\Delta_{\mathrm{mod}}}{2}
+  \right).
+  \label{eq:exact-interior-plateau}
+\end{equation}
+Because the plateau is open and constant, all higher spatial derivatives of
+\(\beta_x\) vanish in \(\mathcal U_{\mathrm{int}}\).  The four-dimensional
+line element induced by Eq.~\eqref{eq:four-dimensional-shift-line-element}
+therefore reduces to
+\begin{equation}
+  ds_{\mathrm{int}}^2
+  =
+  -c^2dt^2
+  +
+  \left(
+    dx+\beta_0dt
+  \right)^2
+  +
+  dy^2
+  +
+  dw^2.
+  \label{eq:interior-plateau-metric}
+\end{equation}
+Introduce the comoving coordinates
+\begin{equation}
+  T=t,
+  \qquad
+  X=x+\beta_0t,
+  \qquad
+  Y=y,
+  \qquad
+  W=w.
+  \label{eq:interior-coordinate-transformation}
+\end{equation}
+Since \(\beta_0\) is constant,
+\begin{equation}
+  dT=dt,
+  \qquad
+  dX=dx+\beta_0dt,
+  \qquad
+  dY=dy,
+  \qquad
+  dW=dw.
+  \label{eq:interior-coordinate-differentials}
+\end{equation}
+Substitution into Eq.~\eqref{eq:interior-plateau-metric} gives
+\begin{equation}
+  ds_{\mathrm{int}}^2
+  =
+  -c^2dT^2
+  +
+  dX^2
+  +
+  dY^2
+  +
+  dW^2
+  =
+  \eta_{\hat\mu\hat\nu}
+  dX^{\hat\mu}dX^{\hat\nu}.
+  \label{eq:exact-interior-minkowski}
+\end{equation}
+Thus the plateau shift is a constant-coordinate shear, not an intrinsic
+curvature of the interior.  Its magnitude may exceed \(c\) relative to the
+external coordinates without changing the local Minkowski signature.
+
+\subsection{Vanishing connection, curvature, and proper acceleration}
+
+In the coordinates \(X^{\hat\mu}=(cT,X,Y,W)\), the metric components are
+constant:
+\begin{equation}
+  g_{\hat\mu\hat\nu}^{\mathrm{obs}}
+  =
+  \eta_{\hat\mu\hat\nu}
+  =
+  \operatorname{diag}(-1,1,1,1),
+  \qquad
+  \partial_{\hat\alpha}
+  g_{\hat\mu\hat\nu}^{\mathrm{obs}}
+  =
+  0.
+  \label{eq:observer-metric-constant}
+\end{equation}
+The Levi-Civita connection is consequently
+\begin{equation}
+  \Gamma^{\hat\alpha}{}_{\hat\mu\hat\nu}
+  =
+  \frac{1}{2}
+  g_{\mathrm{obs}}^{\hat\alpha\hat\sigma}
+  \left(
+    \partial_{\hat\mu}
+    g_{\hat\sigma\hat\nu}^{\mathrm{obs}}
+    +
+    \partial_{\hat\nu}
+    g_{\hat\sigma\hat\mu}^{\mathrm{obs}}
+    -
+    \partial_{\hat\sigma}
+    g_{\hat\mu\hat\nu}^{\mathrm{obs}}
+  \right)
+  =
+  0.
+  \label{eq:interior-christoffel-zero}
+\end{equation}
+It follows directly that
+\begin{equation}
+  R^{\hat\alpha}{}_{\hat\beta\hat\mu\hat\nu}
+  =
+  \partial_{\hat\mu}
+  \Gamma^{\hat\alpha}{}_{\hat\nu\hat\beta}
+  -
+  \partial_{\hat\nu}
+  \Gamma^{\hat\alpha}{}_{\hat\mu\hat\beta}
+  +
+  \Gamma^{\hat\alpha}{}_{\hat\mu\hat\sigma}
+  \Gamma^{\hat\sigma}{}_{\hat\nu\hat\beta}
+  -
+  \Gamma^{\hat\alpha}{}_{\hat\nu\hat\sigma}
+  \Gamma^{\hat\sigma}{}_{\hat\mu\hat\beta}
+  =
+  0.
+  \label{eq:interior-riemann-zero}
+\end{equation}
+All contractions of the Riemann tensor vanish as well:
+\begin{equation}
+  R_{\hat\mu\hat\nu}
+  =
+  0,
+  \qquad
+  R
+  =
+  0,
+  \qquad
+  G_{\hat\mu\hat\nu}
+  =
+  0
+  \quad
+  \text{on }
+  \mathcal U_{\mathrm{int}}.
+  \label{eq:interior-curvature-contractions}
+\end{equation}
+
+A comoving observer has fixed \((X,Y,W)\) and four-velocity
+\begin{equation}
+  u^{\hat\mu}
+  =
+  \frac{dX^{\hat\mu}}{d\tau_{\mathrm p}}
+  =
+  (c,0,0,0),
+  \qquad
+  \eta_{\hat\mu\hat\nu}
+  u^{\hat\mu}u^{\hat\nu}
+  =
+  -c^2.
+  \label{eq:comoving-interior-four-velocity}
+\end{equation}
+Its covariant four-acceleration is
+\begin{equation}
+  a^{\hat\mu}
+  =
+  u^{\hat\nu}
+  \nabla_{\hat\nu}
+  u^{\hat\mu}
+  =
+  u^{\hat\nu}
+  \partial_{\hat\nu}
+  u^{\hat\mu}
+  +
+  \Gamma^{\hat\mu}{}_{\hat\alpha\hat\beta}
+  u^{\hat\alpha}u^{\hat\beta}
+  =
+  0.
+  \label{eq:interior-proper-acceleration-zero}
+\end{equation}
+The executable observer audit returns
+\begin{equation}
+  \left\|
+    g_{\hat\mu\hat\nu}^{\mathrm{obs}}
+    -
+    \eta_{\hat\mu\hat\nu}
+  \right\|_{\infty}
+  =
+  \SimOutputObserverMetricError,
+  \qquad
+  \|a^{\hat\mu}\|
+  =
+  \SimOutputAccelerationNorm
+  \;\mathrm{m\,s^{-2}}.
+  \label{eq:numerical-observer-audit}
+\end{equation}
+The zero-acceleration result applies to the exact plateau.  The bubble wall,
+where derivatives of \(f_{\mathrm{SHBT}}\) are nonzero, is not locally
+Minkowskian and must be analyzed separately.
+
+\subsection{Chronology from a global resolution time}
+
+Monotonicity of a coordinate along one trajectory is not sufficient by itself
+to exclude closed timelike curves.  The required global statement is that the
+boundary resolution variable \(\tau\) is a smooth time function on the
+admissible spacetime domain.  We impose
+\begin{equation}
+  \frac{d\tau}{dt}
+  =
+  H(t)
+  >0,
+  \qquad
+  g^{\mu\nu}
+  \nabla_\mu\tau
+  \nabla_\nu\tau
+  <0.
+  \label{eq:global-resolution-time-condition}
+\end{equation}
+The second inequality states that \(\nabla_\mu\tau\) is everywhere timelike.
+Choose its orientation so that \(\tau\) increases on every future-directed
+causal curve \(x^\mu(\lambda)\).  Then
+\begin{equation}
+  \frac{d\tau}{d\lambda}
+  =
+  \frac{dx^\mu}{d\lambda}
+  \nabla_\mu\tau
+  >0.
+  \label{eq:resolution-increases-on-causal-curves}
+\end{equation}
+Suppose, for contradiction, that a future-directed closed causal curve
+\(\mathcal C\) exists with
+\(x^\mu(\lambda_1)=x^\mu(\lambda_0)\).  Single-valuedness of the time function
+would require
+\begin{equation}
+  \tau(\lambda_1)-\tau(\lambda_0)
+  =
+  0.
+  \label{eq:closed-curve-time-return}
+\end{equation}
+Monotonicity instead gives
+\begin{equation}
+  \tau(\lambda_1)-\tau(\lambda_0)
+  =
+  \int_{\lambda_0}^{\lambda_1}
+  \frac{d\tau}{d\lambda}
+  d\lambda
+  >0,
+  \label{eq:closed-curve-contradiction}
+\end{equation}
+contradicting Eq.~\eqref{eq:closed-curve-time-return}.  Therefore
+\begin{equation}
+  \nexists\,
+  \text{closed future-directed causal curve}
+  \quad
+  \text{whenever Eq.~\eqref{eq:global-resolution-time-condition} holds}.
+  \label{eq:ctc-exclusion-theorem}
+\end{equation}
+This is the precise chronology-protection statement: the monotonic SHBT
+resolution arrow suppresses CTCs provided it extends to a globally defined
+time function with timelike gradient.

@@ -1,0 +1,113 @@
+% chktex-file 3
+% chktex-file 8
+\section{Numerical implementation and benchmark results}\label{sec:numerical-benchmarks}
+
+The executable prototype \path{warp_extension.py} implements the finite
+calculation as coordinated modules.  \texttt{Boundary\allowbreak{}Register} evaluates
+the exact \(\mathrm{SU}(2)_{26}\) and \(\mathrm{SU}(3)_8\) modular blocks,
+normalizes the nine visible populations, and constructs their Shannon
+contributions.  \texttt{Excitation\allowbreak{}Engine} builds the Hermitian directional
+generator, exponentiates it spectrally, applies the conformal phase matrix,
+and re-audits the framing defect.  \texttt{FGSlice\allowbreak{}Projector} samples the shape
+and shift fields, constructs both the Lorentzian metric and its positive Gram
+representative, and evaluates their spectra.  \texttt{Causal\allowbreak{}Observer}
+transforms the central plateau to the comoving frame and contracts the local
+connection with the observer four-velocity.
+
+The extended pipeline adds \texttt{Metric3D\allowbreak{}Calculator}, which evaluates
+\(g_{\mu\nu}(x,y,z)\) and its Gram representative on a Cartesian grid;
+\texttt{StressEnergy\allowbreak{}Auditor}, which derives the numerical connection,
+Riemann, Ricci, Einstein, and effective stress-energy tensors;
+\texttt{Derendering\allowbreak{}Engine}, which transfers visible weights into the dark
+ledgers while enforcing background-metric restoration; and
+\texttt{ThermodynamicRate\allowbreak{}Engine}, which integrates the entropy-debt balance.
+\texttt{LaTeXMacro\allowbreak{}Exporter} supplies the stable interface consumed by this
+manuscript.  NEC and WEC flags are reported as diagnostics rather than
+structural pass criteria, consistent with the localized-shift no-go result in
+Sec.~\ref{sec:stress-energy-audit}.
+
+The principal numerical residuals are
+\begin{equation}
+  \epsilon_{\rho}
+  =\left|\sum_{i,j}\rho_E(i,j)-1\right|,
+  \qquad
+  \epsilon_U
+  =\left\|U^{\dagger}U-I_9\right\|_{\infty},
+  \qquad
+  \epsilon_{\partial}
+  =\left|\sum_{i,j}\rho_E^{\mathrm{Sh}}(i,j)-1\right|.
+  \label{eq:numerical-boundary-residuals}
+\end{equation}
+The metric and observer audits use
+\begin{equation}
+  \epsilon_{\det}
+  =\max_x|\det g^{(L)}(x)+1|,
+  \qquad
+  \lambda_G^{\min}
+  =\min_x\lambda_{\min}[g^{(G)}(x)],
+  \qquad
+  \epsilon_{\mathrm{obs}}
+  =\left\|g^{\mathrm{obs}}-\eta\right\|_{\infty}.
+  \label{eq:numerical-metric-residuals}
+\end{equation}
+An execution is accepted only if normalization and unitarity residuals are
+within tolerance, \(\Delta_{\mathrm{fr}}=0\), the Lorentzian determinant is
+nonzero at every grid point, \(\lambda_G^{\min}>0\), and the plateau observer
+has vanishing proper acceleration.
+
+For \(1201\) points on \(-30\,\mathrm{m}\leq x\leq30\,\mathrm{m}\),
+\(R=10\,\mathrm{m}\), wall steepness
+\(0.8\,\mathrm{m}^{-1}\), and
+\(\theta=\SimOutputPhaseTheta\), the generated benchmark is summarized in
+Table~\ref{tab:engine-benchmarks}.
+\begin{table}[b]
+  \centering
+  \caption{Numerical output of \texttt{warp\_extension.py}.}\label{tab:engine-benchmarks}
+  \begin{tabular}{lc}
+    \toprule
+    \textbf{Quantity} & \textbf{Generated value} \\
+    \midrule
+    Boundary partition function \(Z_{\partial}\)
+      & \(\SimOutputBoundaryPartition\) \\
+    Shannon entropy \(S_E\)
+      & \(\SimOutputShannonEntropy\) \\
+    Boundary normalization error
+      & \(\SimOutputBoundaryNormError\) \\
+    Excitation unitarity error
+      & \(\SimOutputUnitarityError\) \\
+    Excited population displacement \(\|\delta\rho\|_1\)
+      & \(\SimOutputPopulationShift\) \\
+    Framing defect \(\Delta_{\mathrm{fr}}\)
+      & \(\SimOutputFramingDefect\) \\
+    Closure norm \(\|\mathcal E\|\)
+      & \(\SimOutputClosureNorm\) \\
+    Minimum \(|\det g^{(L)}|\)
+      & \(\SimOutputMetricDetMin\) \\
+    Minimum Gram eigenvalue
+      & \(\SimOutputMetricEigenMin\) \\
+    Observer metric error
+      & \(\SimOutputObserverMetricError\) \\
+    Proper-acceleration norm
+      & \(\SimOutputAccelerationNorm\ \mathrm{m\,s^{-2}}\) \\
+    Operational power at \(10\,\mathrm{m}\)
+      & \(\SimOutputOperationalPowerMW\ \mathrm{MW}\) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The engine also regenerates the vector figures
+\path{figures/shift_profile.pdf} and
+\path{figures/entropy_gradient.pdf}.  Numerical values are written to
+\path{sim_results.tex}; the paper therefore consumes the results of the same
+execution that performs the audits.  The analytic metric-collapse no-go in
+Sec.~\ref{sec:derendering} is deliberately not reported as a successful
+zero-metric simulation: the runtime audit instead verifies
+\begin{equation}
+  \min_x|\det g^{(L)}(x)|=\SimOutputMetricDetMin>0,
+  \qquad
+  \lambda_G^{\min}=\SimOutputMetricEigenMin>0.
+  \label{eq:runtime-nonsingularity-result}
+\end{equation}
+These outputs validate internal consistency of the finite model; they do not
+constitute experimental evidence that the proposed boundary dynamics is
+realized in nature.

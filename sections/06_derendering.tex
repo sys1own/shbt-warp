@@ -1,0 +1,211 @@
+% chktex-file 3
+% chktex-file 8
+\section{Artificial de-rendering and re-rendering mechanics}\label{sec:derendering}
+
+The term \emph{de-rendering} denotes a controlled removal of a localized
+visible character block from the active boundary-to-bulk projection.  It is
+not a destruction of the underlying Hilbert-space state.  Let
+\(\mathcal C_{\mathrm{loc}}\subseteq\mathcal C\) be the characters assigned to
+the selected region and let
+\(\Pi_{\mathrm{loc}}=\sum_{c\in\mathcal C_{\mathrm{loc}}}|c\rangle
+\langle c|\).  The two dark ledgers used by the channel are
+\begin{equation}
+  c_{\mathrm{dark}}^{\mathrm{res}}
+  =\frac{834433}{362670}
+  =\SimOutputDarkResidual,
+  \qquad
+  c_{\mathrm{dark}}^{\mathrm{comp}}
+  =c_{\mathrm{dark}}^{\mathrm{res}}+1
+  =\frac{1197103}{362670}
+  =\SimOutputDarkCompleted.
+  \label{eq:dark-ledgers-derendering}
+\end{equation}
+Their ratio
+\begin{equation}
+  \eta_D
+  =\frac{c_{\mathrm{dark}}^{\mathrm{res}}}
+  {c_{\mathrm{dark}}^{\mathrm{comp}}}
+  =\frac{834433}{1197103}
+  \label{eq:derendering-channel-ratio}
+\end{equation}
+sets the relative residual-sector amplitude.
+
+\subsection{Modular decoupling channel}
+
+A norm-preserving realization of the modular decoupling operator is the
+Stinespring map
+\begin{equation}
+  \widehat{\mathcal D}_{\mathrm{derender}}
+  =\sum_{c\in\mathcal C_{\mathrm{loc}}}
+  \left(
+    \sqrt{\eta_D}\,
+    |\chi_{\mathrm{res}}^c,0\rangle
+    +\sqrt{1-\eta_D}\,
+    |\chi_{\mathrm{comp}}^c,1\rangle
+  \right)\langle c|,
+  \label{eq:modular-decoupling-operator}
+\end{equation}
+where the last label is an auxiliary ledger flag and the dark states are
+orthonormal for distinct \(c\).  Consequently,
+\begin{equation}
+  \widehat{\mathcal D}_{\mathrm{derender}}^{\dagger}
+  \widehat{\mathcal D}_{\mathrm{derender}}
+  =\Pi_{\mathrm{loc}},
+  \qquad
+  \operatorname{Tr}\rho_{\mathrm{dark}}
+  =\operatorname{Tr}(\Pi_{\mathrm{loc}}\rho_{\partial}),
+  \label{eq:derendering-isometry}
+\end{equation}
+with
+\begin{equation}
+  \rho_{\mathrm{dark}}
+  =\widehat{\mathcal D}_{\mathrm{derender}}
+  \Pi_{\mathrm{loc}}\rho_{\partial}\Pi_{\mathrm{loc}}
+  \widehat{\mathcal D}_{\mathrm{derender}}^{\dagger}.
+  \label{eq:dark-state-after-decoupling}
+\end{equation}
+The orthogonal visible complement is left unchanged.  Thus the complete
+channel is trace preserving when Eq.~\eqref{eq:dark-state-after-decoupling}
+is combined with
+\((1-\Pi_{\mathrm{loc}})\rho_{\partial}(1-\Pi_{\mathrm{loc}})\).
+
+For a local gauge-rendering cost
+\begin{equation}
+  \mathcal C_{\overline B}(\rho)
+  =\gamma_3\operatorname{Tr}(\rho Q_{\mathrm{SU}(3)}^2)
+  +\gamma_{\mathrm{EM}}\operatorname{Tr}(\rho Q_{\mathrm{EM}}^2)
+  +\gamma_{\mathrm{fr}}\Delta_{\mathrm{fr}}^2,
+  \label{eq:gauge-rendering-cost}
+\end{equation}
+decoupling removes the local visible contribution while preserving its
+charge labels in the dark ledger.  Since the branch is unchanged,
+\(\Delta_{\mathrm{fr}}=0\) throughout the channel.
+
+\subsection{What is nullified}
+
+Write the Lorentzian projection as a background plus an actively controlled
+deformation,
+\begin{equation}
+  g_{\mu\nu}^{(L)}
+  =\eta_{\mu\nu}+\delta g_{\mu\nu}^{\mathrm{act}}[\rho_E].
+  \label{eq:active-metric-decomposition}
+\end{equation}
+The decoupled characters no longer contribute execution vectors to the local
+entropy-flow map, so the de-rendering limit is
+\begin{equation}
+  \delta g_{\mu\nu}^{\mathrm{act}}\longrightarrow0,
+  \qquad
+  \beta_x\longrightarrow0,
+  \qquad
+  g_{\mu\nu}^{(L)}\longrightarrow\eta_{\mu\nu}.
+  \label{eq:derendering-background-restoration}
+\end{equation}
+Thus the active metric slice is nullified, but the spacetime metric itself is
+not.  A total limit \(g_{\mu\nu}\to0\) is forbidden by the normalized Gram
+construction.  In fact,
+\begin{equation}
+  g^{(G)}
+  =\frac{\operatorname{Sym}(\widetilde g+\epsilon_{\mathrm{eig}}I_4)}
+  {\operatorname{Tr}[\operatorname{Sym}(\widetilde g+
+  \epsilon_{\mathrm{eig}}I_4)]},
+  \qquad
+  \operatorname{Tr}g^{(G)}=1,
+  \label{eq:normalized-gram-derendering}
+\end{equation}
+and
+\begin{equation}
+  \lambda_{\min}(g^{(G)})
+  \geq
+  \frac{\epsilon_{\mathrm{eig}}}
+  {\operatorname{Tr}\widetilde g+4\epsilon_{\mathrm{eig}}}
+  >0.
+  \label{eq:derendering-eigenvalue-floor}
+\end{equation}
+The zero tensor would instead have trace and determinant equal to zero,
+contradicting Eqs.~\eqref{eq:normalized-gram-derendering} and~\eqref{eq:derendering-eigenvalue-floor}.
+
+\subsection{Conserved ledgers}
+
+The de-rendering channel is admissible only when the controller is included
+in the closed system.  On a Cauchy surface \(\Sigma\), total four-momentum
+obeys
+\begin{equation}
+  P_{\mathrm{tot}}^{\mu}
+  =\int_{\Sigma}d\Sigma_{\nu}
+  \left(
+    T_{\mathrm{vis}}^{\mu\nu}
+    +T_{\mathrm{dark}}^{\mu\nu}
+    +T_{\mathrm{ctrl}}^{\mu\nu}
+  \right),
+  \qquad
+  \nabla_{\mu}T_{\mathrm{tot}}^{\mu\nu}=0,
+  \qquad
+  \Delta P_{\mathrm{tot}}^{\mu}=0.
+  \label{eq:derendering-momentum-conservation}
+\end{equation}
+Charge conservation is expressed by an intertwining relation between the
+visible charge and its dark topological encoding,
+\begin{equation}
+  Q_{\mathrm{dark}}
+  \widehat{\mathcal D}_{\mathrm{derender}}
+  =\widehat{\mathcal D}_{\mathrm{derender}}Q_{\mathrm{vis}},
+  \qquad
+  \Delta\langle Q_{\mathrm{tot}}\rangle=0.
+  \label{eq:derendering-charge-conservation}
+\end{equation}
+Finally, the information ledger is bounded by the saturated horizon budget
+\begin{equation}
+  N_{\mathrm{sat}}
+  =\frac{3\pi}{L_P^2\Lambda_{\mathrm{holo}}}
+  =\SimOutputSaturatedBitBudget\ \text{bits},
+  \qquad
+  N_{\mathrm{act}}+N_{\mathrm{dark}}+N_{\mathrm{free}}
+  =N_{\mathrm{sat}}.
+  \label{eq:saturated-bit-conservation}
+\end{equation}
+At the \(10\,\mathrm{m}\) benchmark the addressable local allocation is
+\begin{equation}
+  N_{\mathrm{local}}
+  =\SimOutputLocalMemoryBits\ \text{bits},
+  \qquad
+  N_{\mathrm{free}}^{\mathrm{after}}
+  =N_{\mathrm{free}}^{\mathrm{before}}+N_{\mathrm{act}}^{\mathrm{before}}.
+  \label{eq:local-bit-release}
+\end{equation}
+
+\subsection{Destination reconstruction}
+
+Let \(\widehat T_{\partial}(\bm{x}_{\mathrm{tar}})\) relabel the boundary
+address of the stored character block.  The inverse channel followed by
+phase-locked excitation defines
+\begin{equation}
+  \widehat{\mathcal R}_{\mathrm{rerender}}(\bm{x}_{\mathrm{tar}})
+  =\widehat{\mathcal O}_{\mathrm{excitation}}(\theta)
+  \widehat T_{\partial}(\bm{x}_{\mathrm{tar}})
+  \widehat{\mathcal D}_{\mathrm{derender}}^{\dagger},
+  \label{eq:rerendering-operator}
+\end{equation}
+which reconstructs
+\begin{equation}
+  \rho_{\partial}^{\mathrm{tar}}
+  =\widehat{\mathcal R}_{\mathrm{rerender}}
+  \rho_{\mathrm{dark}}
+  \widehat{\mathcal R}_{\mathrm{rerender}}^{\dagger}
+  \longmapsto
+  g_{\mu\nu}^{(L)}(\bm{x}_{\mathrm{tar}}).
+  \label{eq:rerendered-target-slice}
+\end{equation}
+This is non-local only as a boundary-address operation: the formal map does
+not contain a sequence of intermediate bulk slices.  It is not, by itself, a
+proof of acausal transport.  A physical protocol must still satisfy causal
+authorization of the target operation,
+\begin{equation}
+  \bm{x}_{\mathrm{tar}}\in J^+(\bm{x}_{\mathrm{src}}),
+  \qquad
+  t_{\mathrm{tar}}-t_{\mathrm{src}}
+  \geq\frac{d_{\partial}(\bm{x}_{\mathrm{src}},
+  \bm{x}_{\mathrm{tar}})}{c},
+  \label{eq:rerendering-causal-authorization}
+\end{equation}
+unless an independently specified causal boundary dynamics proves a stronger
+communication channel.

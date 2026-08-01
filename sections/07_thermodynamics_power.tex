@@ -1,0 +1,103 @@
+% chktex-file 3
+% chktex-file 8
+% chktex-file 35
+\section{Boundary thermodynamics and power scaling}\label{sec:thermodynamics-power}
+
+The completed dark ledger supplies the positive modular entropy debt of the
+operating branch,
+\begin{equation}
+  \Delta_{\mathrm{mod}}
+  =\frac{c_{\mathrm{dark}}^{\mathrm{comp}}}{24}
+  =\frac{1197103}{8704080}
+  =\SimOutputEntropyDebt.
+  \label{eq:thermodynamic-entropy-debt}
+\end{equation}
+Within the kinematic ansatz of Sec.~\ref{sec:shift-derivation}, the associated
+shift scale is
+\begin{equation}
+  v_{\mathrm{eff}}
+  =c\exp\left(\frac{\Delta_{\mathrm{mod}}}{2}\right),
+  \qquad
+  \frac{v_{\mathrm{eff}}}{c}
+  =\SimOutputWarpVelocity.
+  \label{eq:thermodynamic-effective-velocity}
+\end{equation}
+This exponential is a constitutive relation of the extension, not a
+consequence of the Einstein equations alone.
+
+For a driven boundary register, a minimal relaxation model separates the
+control injection rate \(\mathcal F\) from passive dark-sector dissipation,
+\begin{equation}
+  \frac{d\Delta_{\mathrm{mod}}}{dt}
+  =\mathcal F(P_{\mathrm{op}},\theta,R_{\mathrm{local}})
+  -\frac{\Gamma_{\mathrm{lock}}}{24}\Delta_{\mathrm{mod}}.
+  \label{eq:entropy-debt-rate-equation}
+\end{equation}
+For constant drive, the solution is
+\begin{equation}
+  \Delta_{\mathrm{mod}}(t)
+  =\Delta_{\mathrm{mod}}^{\mathrm{ss}}
+  +\left[
+    \Delta_{\mathrm{mod}}(0)-\Delta_{\mathrm{mod}}^{\mathrm{ss}}
+  \right]
+  \exp\left(-\frac{\Gamma_{\mathrm{lock}}t}{24}\right),
+  \qquad
+  \Delta_{\mathrm{mod}}^{\mathrm{ss}}
+  =\frac{24\mathcal F}{\Gamma_{\mathrm{lock}}}.
+  \label{eq:entropy-debt-relaxation-solution}
+\end{equation}
+The benchmark fixes the steady state to
+Eq.~\eqref{eq:thermodynamic-entropy-debt}; a microscopic derivation of
+\(\Gamma_{\mathrm{lock}}\) remains outside the present finite-register
+simulation.
+
+\subsection{Calibrated operational power law}
+
+The operational model uses the Planck-power scale multiplied by the modular
+coupling and a geometric suppression factor,
+\begin{equation}
+  P_{\mathrm{op}}(R_{\mathrm{local}})
+  =\frac{c^5}{G_N}
+  \frac{\Delta_{\mathrm{mod}}}{24\pi}
+  \left(\frac{r_g}{R_{\mathrm{local}}}\right)^2.
+  \label{eq:operational-power-fundamental}
+\end{equation}
+The length \(r_g\) is not fixed by the dimensionless dark ledger.  Therefore
+the quoted power benchmark constitutes an independent calibration.  Solving
+Eq.~\eqref{eq:operational-power-fundamental} for that scale gives
+\begin{equation}
+  r_g^{\mathrm{cal}}
+  =R_0
+  \left[
+    \frac{24\pi G_N P_0}
+    {c^5\Delta_{\mathrm{mod}}}
+  \right]^{1/2}
+  =\SimOutputPowerScaleRadius\ \mathrm{m},
+  \label{eq:calibrated-power-length}
+\end{equation}
+where
+\begin{equation}
+  R_0=10\ \mathrm{m},
+  \qquad
+  P_0=\SimOutputOperationalPowerMW\ \mathrm{MW}.
+  \label{eq:power-benchmark-pair}
+\end{equation}
+Substitution produces the inverse-area law used by the executable engine,
+\begin{equation}
+  P_{\mathrm{op}}(R_{\mathrm{local}})
+  =\SimOutputOperationalPowerMW
+  \left(\frac{10\ \mathrm{m}}{R_{\mathrm{local}}}\right)^2
+  \mathrm{MW}.
+  \label{eq:operational-power-scaling}
+\end{equation}
+In particular,
+\begin{equation}
+  P_{\mathrm{op}}(10\ \mathrm{m})
+  =\SimOutputPowerReq\ \mathrm{MW}.
+  \label{eq:ten-meter-power-result}
+\end{equation}
+Equations~\eqref{eq:operational-power-fundamental}--\eqref{eq:ten-meter-power-result}
+make the normalization transparent: the
+\(142.08\,\mathrm{MW}\) value is conditional on
+\(r_g=r_g^{\mathrm{cal}}\), whereas the \(R^{-2}\) dependence is the actual
+prediction of the stated power ansatz.
