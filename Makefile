@@ -5,7 +5,7 @@ all: sim paper
 sim:
 	pip install -r requirements.txt
 	maturin develop --release
-	python3 -m shbt_warp.cli --figures-directory figures --tex-output sim_results.tex
+	python3 warp_extension.py --figures-directory figures --tex-output sim_results.tex
 
 paper: sim
 	pdflatex main.tex
