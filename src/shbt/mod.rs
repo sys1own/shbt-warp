@@ -1,6 +1,7 @@
 //! Core SHBT modules for ADM metric evaluation, character-state verification,
-//! and HIL safety monitoring.
+//! emitter-array hardware synthesis, and HIL safety monitoring.
 
 pub mod character_excitation;
+pub mod emitter_array;
 pub mod safety_monitor;
 pub mod warp_metric;

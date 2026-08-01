@@ -288,6 +288,8 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<shbt::warp_metric::FGSliceProjector>()?;
     m.add_class::<shbt::character_excitation::CharacterExcitationRegister>()?;
     m.add_class::<shbt::safety_monitor::SafetyMonitor>()?;
+    m.add_class::<shbt::emitter_array::EmitterArrayController>()?;
+    m.add_class::<shbt::emitter_array::HardwareNoiseAuditor>()?;
     Ok(())
 }
 
