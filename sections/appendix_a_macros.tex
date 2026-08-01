@@ -1,0 +1,53 @@
+% chktex-file 1
+% chktex-file 3
+% chktex-file 8
+% chktex-file 24
+\appendix
+\section{Generated LaTeX macro reference}\label{app:macro-reference}
+
+Running \path{warp_extension.py} writes \path{sim_results.tex}, which is
+loaded by \path{main.tex} before the document begins.  The exported interface
+is listed in Table~\ref{tab:sim_macros}.  Alias pairs are retained for
+compatibility with earlier drafts.
+
+\begin{table}[htbp]
+\centering
+\caption{Dynamically Injected Simulation Macro Exports and Audit Benchmarks.}
+\label{tab:sim_macros}
+\begin{tabular}{ll}
+\toprule
+\textbf{LaTeX Macro} & \textbf{Value / Benchmark Output} \\
+\midrule
+\texttt{\textbackslash SimOutputCanonicalBranch} & $(26, 8, 312)$ \\
+\texttt{\textbackslash SimOutputFramingDefect} & $0.000000000000$ \\
+\texttt{\textbackslash SimOutputDarkResidual} & $2.300805139659$ \\
+\texttt{\textbackslash SimOutputDarkCompleted} & $3.300805139659$ \\
+\texttt{\textbackslash SimOutputEntropyDebt} & $0.137533547486$ \\
+\texttt{\textbackslash SimOutputWarpVelocity} & $1.071186351 \, c$ \\
+\texttt{\textbackslash SimOutputOperationalPowerMW} & $142.08 \text{ MW}$ \\
+\texttt{\textbackslash SimOutputSaturatedBitBudget} & $3.312593 \times 10^{122} \text{ bits}$ \\
+\texttt{\textbackslash SimOutputLocalMemoryBits} & $1.202481 \times 10^{72} \text{ bits}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+For example, a single simulation run dynamically supplies the coupled
+benchmark tuple
+\begin{equation}
+  \left(
+    \frac{v_{\mathrm{eff}}}{c},
+    P_{\mathrm{op}}(10\,\mathrm{m}),
+    \Delta_{\mathrm{fr}},
+    \lambda_G^{\min}
+  \right)
+  =\left(
+    \SimOutputWarpVelocity,
+    \SimOutputOperationalPowerMW\,\mathrm{MW},
+    \SimOutputFramingDefect,
+    \SimOutputMetricEigenMin
+  \right).
+  \label{eq:dynamic-macro-example}
+\end{equation}
+If \path{sim_results.tex} is absent, \path{main.tex} defines matching fallback
+macros so that the manuscript remains compilable; regenerated simulation
+output takes precedence whenever it is present.
