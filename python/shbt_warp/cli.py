@@ -10,6 +10,7 @@ import numpy as np
 _POWER_BENCHMARK_MW = 142.08
 
 from shbt_warp._core import Simulation
+from shbt_warp.cad_engine import SHBTCADEngine
 from shbt_warp.latex import LaTeXMacroExporter
 from shbt_warp.plots import PlotGenerator
 
@@ -216,5 +217,121 @@ def main(argv=None):
     return 0
 
 
+def cad_main(argv=None):
+    """Entry point for ``shbt-cad-sim``."""
+    parser = argparse.ArgumentParser(
+        description="SHBT CAD flight-phase simulator"
+    )
+    parser.add_argument(
+        "--radius",
+        type=float,
+        default=10.0,
+        help="Bubble radius in meters (default: 10.0)",
+    )
+    parser.add_argument(
+        "--t-ramp",
+        type=float,
+        default=1.0,
+        help="Phase A ramp duration in seconds (default: 1.0)",
+    )
+    parser.add_argument(
+        "--t-steering",
+        type=float,
+        default=1.0,
+        help="Phase B steering duration in seconds (default: 1.0)",
+    )
+    parser.add_argument(
+        "--grid-points",
+        type=int,
+        default=1201,
+        help="Grid resolution reference (default: 1201)",
+    )
+    parser.add_argument(
+        "--phase",
+        type=float,
+        default=0.421,
+        help="Phase-lock angle theta (default: 0.421)",
+    )
+    parser.add_argument(
+        "--noise-temp",
+        type=float,
+        default=15.4e-3,
+        help="Array noise temperature in Kelvin (default: 15.4 mK)",
+    )
+    parser.add_argument(
+        "--noise-gamma",
+        type=float,
+        default=1.2e-4,
+        help="Decoherence rate in s^-1 (default: 1.2e-4)",
+    )
+    parser.add_argument(
+        "--phase-jitter",
+        type=float,
+        default=5.05e-5,
+        help="Phase jitter in radians (default: 5.05e-5)",
+    )
+    parser.add_argument(
+        "--tex-output",
+        type=str,
+        default="sim_results.tex",
+        help="Output LaTeX macro file (default: sim_results.tex)",
+    )
+    parser.add_argument(
+        "--figures-directory",
+        type=str,
+        default="figures",
+        help="Directory for vector PDF figures (default: figures)",
+    )
+    parser.add_argument(
+        "--budget-limit",
+        type=float,
+        default=1.0,
+        help="HIL information-density budget limit (default: 1.0)",
+    )
+
+    args = parser.parse_args(argv)
+
+    engine = SHBTCADEngine(
+        radius=args.radius,
+        grid_points=args.grid_points,
+        phase=args.phase,
+        t_ramp=args.t_ramp,
+        t_steering=args.t_steering,
+        noise_temp_k=args.noise_temp,
+        noise_gamma=args.noise_gamma,
+        phase_jitter=args.phase_jitter,
+        budget_limit=args.budget_limit,
+    )
+
+    print("Running SHBT CAD flight simulation...", flush=True)
+    report = engine.run_flight_simulation()
+
+    print("\nCAD audit summary:")
+    print(f"  Canonical branch:         {report['invariants']['canonical_branch']}")
+    print(f"  Framing defect:           {report['invariants']['framing_defect']:.12f}")
+    print(f"  Unitarity residual:       {report['invariants']['trace_residual']:.6e}")
+    print(f"  Phase jitter OK:          {report['noise']['phase_jitter_ok']}")
+    print(f"  Thermal decoherence OK:   {report['noise']['thermal_decoherence_ok']}")
+    print(f"  Integer lock OK:          {report['noise']['integer_lock_ok']}")
+    print(f"  Stinespring ratio:        {report['invariants']['stinespring_ratio']:.12f}")
+    print(f"  Collapse metric det(g):   {report['metric_grid']['flat_metric_determinant']:.12f}")
+
+    engine.export_latex_macros(report, args.tex_output)
+    print(f"\nWrote LaTeX macros: {args.tex_output}")
+
+    figure_paths = engine.render_figures(report, args.figures_directory)
+    print(f"Wrote CAD figures to: {args.figures_directory}/")
+    for p in figure_paths:
+        print(f"  - {p}")
+
+    return 0
+
+
 if __name__ == "__main__":
+    if "cad" in sys.argv:
+        sys.argv.remove("cad")
+        sys.exit(cad_main())
+    if "--cad" in sys.argv:
+        sys.argv.remove("--cad")
+        sys.exit(cad_main())
     sys.exit(main())
