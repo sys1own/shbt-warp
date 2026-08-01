@@ -57,11 +57,12 @@ impl ThermodynamicRateEngine {
         }
     }
 
-    pub fn audit(&self) -> HashMap<String, f64> {
-        let steady = self.steady_state_entropy_debt(POWER_BENCHMARK_MW);
+    pub fn audit(&self, power_mw: f64, delta_mod: f64, radius_m: f64) -> HashMap<String, f64> {
+        let steady = self.steady_state_entropy_debt(power_mw);
+        let expected = delta_mod.abs() * (DEFAULT_BUBBLE_RADIUS_M / radius_m).powi(2);
         let hold_time = self.maximum_hold_time(0.0);
-        let initial_rate = self.entropy_debt_rate(0.0, POWER_BENCHMARK_MW);
-        let passed = (steady - DELTA_MOD).abs() <= 1.0e-12 * DELTA_MOD.abs() && hold_time.is_infinite();
+        let initial_rate = self.entropy_debt_rate(0.0, power_mw);
+        let passed = (steady - expected).abs() <= 1.0e-12 * delta_mod.abs() && hold_time.is_infinite();
         let mut map = HashMap::new();
         map.insert("passed".to_string(), if passed { 1.0 } else { 0.0 });
         map.insert("steady_state_entropy_debt".to_string(), steady);
@@ -131,9 +132,9 @@ impl TransientRateEngine {
         &self,
         _boundary: &BoundaryRegister,
         engine: &ExcitationEngine,
-        radius_m: f64,
+        _radius_m: f64,
+        power_mw: f64,
     ) -> HashMap<String, Vec<f64>> {
-        let power_mw = crate::causal_observer::CausalObserver::power_requirement_mw(radius_m);
         let debt = self.entropy_debt_trajectory(power_mw, 0.0);
         let n_steps = debt.len();
         let mut time_s = Vec::with_capacity(n_steps);

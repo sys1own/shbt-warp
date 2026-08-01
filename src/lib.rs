@@ -57,12 +57,14 @@ pub struct Simulation {
     pub wall_steepness: f64,
     #[pyo3(get)]
     pub phase: f64,
+    #[pyo3(get)]
+    pub delta_mod: f64,
 }
 
 #[pymethods]
 impl Simulation {
     #[new]
-    #[pyo3(signature = (radius=10.0, domain_radius=30.0, grid_points=1201, wall_steepness=0.8, phase=0.421, stress_grid_points=7))]
+    #[pyo3(signature = (radius=10.0, domain_radius=30.0, grid_points=1201, wall_steepness=0.8, phase=0.421, stress_grid_points=7, delta_mod=None))]
     fn new(
         radius: f64,
         domain_radius: f64,
@@ -70,6 +72,7 @@ impl Simulation {
         wall_steepness: f64,
         phase: f64,
         stress_grid_points: usize,
+        delta_mod: Option<f64>,
     ) -> Self {
         Simulation {
             radius,
@@ -78,7 +81,25 @@ impl Simulation {
             stress_grid_points,
             wall_steepness,
             phase,
+            delta_mod: delta_mod.unwrap_or(DELTA_MOD),
         }
+    }
+
+    /// Compute the L1 population shift for an arbitrary phase-lock angle.
+    #[pyo3(signature = (phase=None))]
+    fn population_shift_at(&self, _py: Python, phase: Option<f64>) -> f64 {
+        let theta = phase.unwrap_or(self.phase);
+        let boundary = BoundaryRegister::new();
+        let engine = ExcitationEngine::new(boundary, theta);
+        let probs = engine.excited_probability();
+        let mut sum = 0.0;
+        for i in 0..3 {
+            for j in 0..3 {
+                let base = engine.boundary.rho_e[i][j];
+                sum += (probs[flatten_index(i, j)] - base).abs();
+            }
+        }
+        sum
     }
 
     /// Run all audits and return a Python dict of results.
@@ -138,7 +159,7 @@ impl Simulation {
 
         // FG slice projector.
         let fg = FGSliceProjector::new(
-            DELTA_MOD,
+            self.delta_mod,
             self.radius,
             self.domain_radius,
             self.grid_points,
@@ -164,7 +185,7 @@ impl Simulation {
             self.domain_radius,
             self.stress_grid_points,
             self.wall_steepness,
-            DELTA_MOD,
+            self.delta_mod,
         );
         let n3 = metric3d.grid_points_per_axis;
         let mid3 = n3 / 2;
@@ -225,9 +246,12 @@ impl Simulation {
         derender_dict.set_item("rerender_trajectory", vec_dict_to_pydict(py, &trajectory)?)?;
         out.set_item("derender", derender_dict)?;
 
+        // Power scale and transient/thermo inputs.
+        let power_mw = CausalObserver::power_requirement_mw(self.radius, self.delta_mod);
+
         // Transient excitation and entropy-debt trajectory.
         let transient_engine = TransientRateEngine::new(1.0, 100.0, 0.1);
-        let transient = transient_engine.run(&boundary, &engine, self.radius);
+        let transient = transient_engine.run(&boundary, &engine, self.radius, power_mw);
         let transient_dict = vec_dict_to_pydict(py, &transient)?;
         transient_dict.set_item("velocity_m_per_locktime", 0.1)?;
         out.set_item("transient", transient_dict)?;
@@ -235,28 +259,27 @@ impl Simulation {
         // Thermodynamics.
         let thermo = ThermodynamicRateEngine::new();
         let thermo_dict = PyDict::new(py);
-        thermo_dict.set_item("steady_state_entropy_debt", thermo.steady_state_entropy_debt(POWER_BENCHMARK_MW))?;
+        thermo_dict.set_item("steady_state_entropy_debt", thermo.steady_state_entropy_debt(power_mw))?;
         thermo_dict.set_item("kappa_per_joule", thermo.kappa_per_joule)?;
         thermo_dict.set_item("relaxation_rate_s_inv", thermo.relaxation_rate_s_inv)?;
         thermo_dict.set_item("maximum_hold_time_s", thermo.maximum_hold_time(0.0))?;
-        thermo_dict.set_item("audit", audit_to_pydict(py, &thermo.audit())?)?;
+        thermo_dict.set_item("audit", audit_to_pydict(py, &thermo.audit(power_mw, self.delta_mod, self.radius))?)?;
         out.set_item("thermodynamics", thermo_dict)?;
 
         // Causal observer / power.
         let observer = CausalObserver::new(fg);
         let observer_audit = observer.audit(tolerance);
         let causal_dict = PyDict::new(py);
-        let power_mw = CausalObserver::power_requirement_mw(self.radius);
         causal_dict.set_item("power_requirement_mw", power_mw)?;
-        causal_dict.set_item("v_eff_c", (DELTA_MOD / 2.0).exp())?;
+        causal_dict.set_item("v_eff_c", (self.delta_mod / 2.0).exp())?;
         causal_dict.set_item("audit", audit_to_pydict(py, &observer_audit)?)?;
         out.set_item("causal", causal_dict)?;
 
         out.set_item("power_mw", power_mw)?;
-        out.set_item("v_eff_c", (DELTA_MOD / 2.0).exp())?;
+        out.set_item("v_eff_c", (self.delta_mod / 2.0).exp())?;
         out.set_item("c_dark_residual", C_DARK_RESIDUAL)?;
         out.set_item("c_dark", C_DARK_COMP)?;
-        out.set_item("delta_mod", DELTA_MOD)?;
+        out.set_item("delta_mod", self.delta_mod)?;
         out.set_item("radius", self.radius)?;
         out.set_item("domain_radius", self.domain_radius)?;
         out.set_item("grid_points", self.grid_points)?;
@@ -326,7 +349,7 @@ mod tests {
 
     #[test]
     fn causal_power_matches_benchmark() {
-        assert!((CausalObserver::power_requirement_mw(DEFAULT_BUBBLE_RADIUS_M) - POWER_BENCHMARK_MW).abs() < 1.0e-10);
+        assert!((CausalObserver::power_requirement_mw(DEFAULT_BUBBLE_RADIUS_M, DELTA_MOD) - POWER_BENCHMARK_MW).abs() < 1.0e-10);
     }
 
     #[test]
