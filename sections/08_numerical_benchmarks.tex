@@ -2,9 +2,9 @@
 % chktex-file 8
 \section{Numerical implementation and benchmark results}\label{sec:numerical-benchmarks}
 
-The Rust/PyO3 simulator (\path{src/} core, exposed through the
-\path{python/shbt_warp/} package) implements the finite
-calculation as coordinated modules.  \texttt{Boundary\allowbreak{}Register} evaluates
+The Rust/PyO3 dynamic 3+1D ADM metric design and safety simulation engine
+(\path{src/} core, exposed through the \path{python/shbt_warp/} package)
+implements the finite calculation as coordinated modules.  \texttt{Boundary\allowbreak{}Register} evaluates
 the exact \(\mathrm{SU}(2)_{26}\) and \(\mathrm{SU}(3)_8\) modular blocks,
 normalizes the nine visible populations, and constructs their Shannon
 contributions.  \texttt{Excitation\allowbreak{}Engine} builds the Hermitian directional
@@ -15,7 +15,7 @@ representative, and evaluates their spectra.  \texttt{Causal\allowbreak{}Observe
 transforms the central plateau to the comoving frame and contracts the local
 connection with the observer four-velocity.
 
-The extended pipeline adds \texttt{Metric3D\allowbreak{}Calculator}, which evaluates
+The extended architecture adds \texttt{Metric3D\allowbreak{}Calculator}, which evaluates
 \(g_{\mu\nu}(x,y,z)\) and its Gram representative on a Cartesian grid;
 \texttt{StressEnergy\allowbreak{}Auditor}, which derives the numerical connection,
 Riemann, Ricci, Einstein, and effective stress-energy tensors;
@@ -51,7 +51,7 @@ The metric and observer audits use
   =\left\|g^{\mathrm{obs}}-\eta\right\|_{\infty}.
   \label{eq:numerical-metric-residuals}
 \end{equation}
-An execution is accepted only if normalization and unitarity residuals are
+A simulation run is accepted only if normalization and unitarity residuals are
 within tolerance, \(\Delta_{\mathrm{fr}}=0\), the Lorentzian determinant is
 nonzero at every grid point, \(\lambda_G^{\min}>0\), and the plateau observer
 has vanishing proper acceleration.
@@ -63,7 +63,7 @@ For \(1201\) points on \(-30\,\mathrm{m}\leq x\leq30\,\mathrm{m}\),
 Table~\ref{tab:engine-benchmarks}.
 \begin{table}[b]
   \centering
-  \caption{Numerical output of the SHBT warp simulator.}\label{tab:engine-benchmarks}
+  \caption{Numerical output of the SHBT dynamic metric engine.}\label{tab:engine-benchmarks}
   \begin{tabular}{lc}
     \toprule
     \textbf{Quantity} & \textbf{Generated value} \\
@@ -100,9 +100,9 @@ The engine also regenerates the vector figures
 \path{figures/shift_profile.pdf} and
 \path{figures/entropy_gradient.pdf}.  Numerical values are written to
 \path{sim_results.tex}; the paper therefore consumes the results of the same
-execution that performs the audits.  The analytic metric-collapse no-go in
+run that performs the audits.  The analytic metric-collapse no-go in
 Sec.~\ref{sec:derendering} is deliberately not reported as a successful
-zero-metric simulation: the runtime audit instead verifies
+zero-metric projection: the runtime audit instead verifies
 \begin{equation}
   \min_x|\det g^{(L)}(x)|=\SimOutputMetricDetMin>0,
   \qquad
@@ -115,7 +115,7 @@ realized in nature.
 
 The CAD engine adds a second, finer-grained verification pass that audits the
 physical invariants listed in Table~\ref{tab:cad-verification}.  All values are
-exported directly from the Rust/PyO3 pipeline into \path{sim_results.tex} and
+exported directly from the Rust/PyO3 computation into \path{sim_results.tex} and
 \path{cad_sim_results.tex} and consumed by this manuscript without manual
 editing.
 
