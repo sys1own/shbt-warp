@@ -285,7 +285,7 @@ Eq.~\eqref{eq:nec-localized-no-go} applies unchanged.
 
 \subsection{Comparison with the classical Alcubierre source}
 
-For the usual three-dimensional Alcubierre profile
+For the usual three-dimensional Alcubierre profile~\cite{Alcubierre:1994}
 \(\beta_x=-v_s f(r_s)\), the Eulerian energy density contains the explicitly
 negative transverse-gradient term
 \begin{equation}
@@ -321,7 +321,16 @@ Boundary-driven longitudinal shear therefore avoids the specific negative
 this reduced ansatz.  It does not, however, establish universal energy
 condition compliance: the transverse pressures in
 Eq.~\eqref{eq:shift-einstein-tensor} still violate the NEC and WEC somewhere
-for every nontrivial localized profile.
+for every nontrivial localized profile.  The executable \path{StressEnergyAuditor}
+samples random null and timelike vectors on the 3-D metric grid and reports the
+minimum sampled energy densities
+\begin{equation}
+  \min_{\text{NEC}} T_{\mu\nu}k^\mu k^\nu = \SimOutputNEC,
+  \qquad
+  \min_{\text{WEC}} T_{\mu\nu}u^\mu u^\nu = \SimOutputWEC,
+  \label{eq:numerical-energy-condition-minima}
+\end{equation}
+which are negative for the canonical profile, confirming the violation.
 
 Accordingly, a claim of complete SHBT energy-condition compliance requires
 additional dynamics beyond
