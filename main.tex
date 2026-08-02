@@ -10,59 +10,54 @@
 \usepackage{url}
 \usepackage{hyperref}
 
-% This draft has no citation database; suppress REVTeX's empty auto-bibliography.
-\makeatletter
-\AtBeginDocument{\let\auto@bib\@empty}
-\makeatother
-
-\IfFileExists{sim_results.tex}{%
-  \input{sim_results.tex}%
-}{%
-  \newcommand{\SimOutputBranch}{(26, 8, 312)}
-  \newcommand{\SimOutputCanonicalBranch}{(26, 8, 312)}
-  \newcommand{\SimOutputLeptonLift}{6}
-  \newcommand{\SimOutputQuarkLift}{13}
-  \newcommand{\SimOutputDarkResidual}{2.300805139659}
-  \newcommand{\SimOutputDarkLedger}{3.300805139659}
-  \newcommand{\SimOutputDarkCompleted}{3.300805139659}
-  \newcommand{\SimOutputEntropyDebt}{0.137533547486}
-  \newcommand{\SimOutputWarpVelocity}{1.07118608}
-  \newcommand{\SimOutputPowerReq}{142.08}
-  \newcommand{\SimOutputOperationalPowerMW}{142.08}
-  \newcommand{\SimOutputPowerScaleRadius}{1.465190\times{}10^{-20}}
-  \newcommand{\SimOutputSaturatedBitBudget}{3.312593\times{}10^{122}}
-  \newcommand{\SimOutputLocalMemoryBits}{1.202481\times{}10^{72}}
-  \newcommand{\SimOutputShiftFieldFormula}{\beta_x(\mathbf{x})=-c\,e^{\Delta_{\mathrm{mod}}/2}f_{\text{SHBT}}(\mathbf{x},\theta)} % chktex 36
-  \newcommand{\SimOutputBoundaryPartition}{0.00342010966891}
-  \newcommand{\SimOutputShannonEntropy}{0.999490161461}
-  \newcommand{\SimOutputPhaseTheta}{0.421}
-  \newcommand{\SimOutputFramingDefect}{0}
-  \newcommand{\SimOutputClosureNorm}{0}
-  \newcommand{\SimOutputBoundaryNormError}{0}
-  \newcommand{\SimOutputUnitarityError}{0}
-  \newcommand{\SimOutputPopulationShift}{0.263689500253}
-  \newcommand{\SimOutputMetricDetMin}{1}
-  \newcommand{\SimOutputMetricEigenMin}{0.358567865584}
-  \newcommand{\SimOutputObserverMetricError}{0}
-  \newcommand{\SimOutputAccelerationNorm}{0}
+\InputIfFileExists{sim_results.tex}{}{%
+  \providecommand{\SimOutputBranch}{(26, 8, 312)}
+  \providecommand{\SimOutputCanonicalBranch}{(26, 8, 312)}
+  \providecommand{\SimOutputLeptonLift}{6}
+  \providecommand{\SimOutputQuarkLift}{13}
+  \providecommand{\SimOutputDarkResidual}{2.300805139659}
+  \providecommand{\SimOutputDarkLedger}{3.300805139659}
+  \providecommand{\SimOutputDarkCompleted}{3.300805139659}
+  \providecommand{\SimOutputEntropyDebt}{0.137533547486}
+  \providecommand{\SimOutputWarpVelocity}{1.071186351}
+  \providecommand{\SimOutputPowerReq}{142.08}
+  \providecommand{\SimOutputOperationalPowerMW}{142.08}
+  \providecommand{\SimOutputPowerScaleRadius}{1.465189552753\times{}10^{-20}}
+  \providecommand{\SimOutputSaturatedBitBudget}{3.312593327986\times{}10^{122}}
+  \providecommand{\SimOutputLocalMemoryBits}{1.202481\times{}10^{72}}
+  \providecommand{\SimOutputShiftFieldFormula}{\beta_x(\mathbf{x}) = -c \,e^{\Delta_{\mathrm{mod}}/2} f_{\text{SHBT}}(\mathbf{x}, \theta)}
+  \providecommand{\SimOutputBoundaryPartition}{0.00342010966891}
+  \providecommand{\SimOutputShannonEntropy}{0.999490161461}
+  \providecommand{\SimOutputPhaseTheta}{0.421}
+  \providecommand{\SimOutputFramingDefect}{0.000000000000}
+  \providecommand{\SimOutputClosureNorm}{0}
+  \providecommand{\SimOutputBoundaryNormError}{0}
+  \providecommand{\SimOutputUnitarityError}{4.587893\times{}10^{-16}}
+  \providecommand{\SimOutputPopulationShift}{0.263689500253}
+  \providecommand{\SimOutputMetricDetMin}{1}
+  \providecommand{\SimOutputMetricEigenMin}{0.358567865584}
+  \providecommand{\SimOutputObserverMetricError}{0}
+  \providecommand{\SimOutputAccelerationNorm}{0}
+  \providecommand{\SimOutputNEC}{-1.495110\times{}10^{6}}
+  \providecommand{\SimOutputWEC}{-8.772117\times{}10^{5}}
+  \providecommand{\SimOutputSteadyStateEntropyDebt}{0.137533547486}
+  \providecommand{\SimOutputMaximumHoldTimeS}{\infty}
 }
 
-\IfFileExists{cad_sim_results.tex}{%
-  \input{cad_sim_results.tex}%
-}{%
-  \newcommand{\CADCanonicalBranch}{(26, 8, 312)}
-  \newcommand{\CADFramingDefect}{0.000000000000}
-  \newcommand{\CADUnitarityResidual}{2.220446e-16}
-  \newcommand{\CADPhaseJitterOk}{true}
-  \newcommand{\CADThermalDecoherenceOk}{true}
-  \newcommand{\CADIntegerLockOk}{true}
-  \newcommand{\CADStinespringRatio}{0.697043612789}
-  \newcommand{\CADDeltaMod}{0.137533547486}
-  \newcommand{\CADMetricDeterminant}{-1.000000000000}
-  \newcommand{\CADRadius}{10.0}
-  \newcommand{\CADPhase}{0.421000}
-  \newcommand{\CADEmitterThetaK}{0.000000000000}
-  \newcommand{\CADEmitterVRF}{0.000000000000e+00}
+\InputIfFileExists{cad_sim_results.tex}{}{%
+  \providecommand{\CADCanonicalBranch}{(26, 8, 312)}
+  \providecommand{\CADFramingDefect}{0.000000000000}
+  \providecommand{\CADUnitarityResidual}{2.220446049250e-16}
+  \providecommand{\CADPhaseJitterOk}{true}
+  \providecommand{\CADThermalDecoherenceOk}{true}
+  \providecommand{\CADIntegerLockOk}{true}
+  \providecommand{\CADStinespringRatio}{0.697043612789}
+  \providecommand{\CADDeltaMod}{0.137533547486}
+  \providecommand{\CADMetricDeterminant}{-1.000000000000}
+  \providecommand{\CADRadius}{10.0}
+  \providecommand{\CADPhase}{0.421000}
+  \providecommand{\CADEmitterThetaK}{0.285186702072}
+  \providecommand{\CADEmitterVRF}{9.443489112879e-01}
 }
 
 \begin{document}
@@ -83,5 +78,5 @@
 \input{11_hil_safety.tex}
 \clearpage
 \input{appendix_a_macros.tex}
-\bibliographystyle{apsrev4-2} % chktex 8
+\input{references.tex}
 \end{document}
