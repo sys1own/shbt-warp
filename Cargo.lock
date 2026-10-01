@@ -530,6 +530,7 @@ dependencies = [
  "warp-gpu-shaders",
  "warp-hil-microkernel",
  "warp-lanr-thermo",
+ "warp-power-battery",
  "warp-uncertainty-uq",
 ]
 
@@ -577,6 +578,10 @@ version = "0.1.0"
 
 [[package]]
 name = "warp-lanr-thermo"
+version = "0.1.0"
+
+[[package]]
+name = "warp-power-battery"
 version = "0.1.0"
 
 [[package]]

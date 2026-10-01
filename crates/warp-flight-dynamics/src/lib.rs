@@ -206,3 +206,25 @@ pub fn zero_comoving_acceleration(v_s: f64) -> bool {
     // Deep inside the cabin (x = 0) the wall profile is flat.
     adm::comoving_acceleration(&p, 0.0, 1e-4).abs() <= adm::LAPSE_LOCK_TOL
 }
+
+/// Isomer-battery burst energy budget per flight stage (warp2.txt):
+/// Stage 2 subluminal ramp 0 -> 0.95c and Stage 3 superluminal cruise
+/// 2.0c -> 5.0c are powered by the ^178m2Hf graser discharge, not the
+/// LANR housekeeping array.
+pub const BURST_STAGE2_T_S: f64 = 10.0;
+pub const BURST_STAGE2_E_TJ: f64 = 12.50;
+pub const BURST_STAGE2_P_TW: f64 = 2.34;
+pub const BURST_STAGE3_T_S: f64 = 5.0;
+pub const BURST_STAGE3_E_TJ: f64 = 290.80;
+pub const BURST_STAGE3_P_TW: f64 = 109.05;
+/// Superluminal velocity envelope powered by the isomer battery.
+pub const CRUISE_VS_ISOMER_MIN: f64 = 2.0;
+pub const CRUISE_VS_ISOMER_MAX: f64 = 5.0;
+/// Total isomer-battery capacity, TJ (500.0 TJ = 138.89 GWh).
+pub const BATTERY_CAPACITY_TJ: f64 = 500.0;
+
+/// Whether the staged burst energy fits inside the isomer battery with
+/// cruise reserve to spare.
+pub fn burst_budget_ok() -> bool {
+    BURST_STAGE2_E_TJ + BURST_STAGE3_E_TJ <= BATTERY_CAPACITY_TJ
+}

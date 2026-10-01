@@ -16,12 +16,14 @@
  */
 #define _GNU_SOURCE /* MAP_ANONYMOUS under -std=c11 -pedantic */
 #include <assert.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <math.h>
 #include <sys/mman.h>
 
 #include "shbt_warp_hardware.h"
+#include "shbt_isomer_battery_mmio.h"
 
 /* Arena symbols are provided by the hosted arena TU inside
  * libshbt_warp_reference.so (kernel/src/arena_stubs.c). */
@@ -121,6 +123,60 @@ int main(void)
     assert(shbt_warp_emitter_phase_word(0.0) == 0);
     assert(shbt_warp_emitter_phase_word(3.141592653589793) >= 32760u);
     assert(shbt_warp_emitter_phase_word(6.283185307179586) == 0);
+
+    /* 9. Isomer battery MMIO contract: bitfields, offsets, and volatile
+     * accessors over a hosted instance of the 128-byte register block. */
+    {
+        volatile shbt_isomer_battery_mmio_t bat = {0};
+
+        /* Status flag bitfield positions. */
+        assert(SHBT_ISOMER_STAT_READY == 0x01);
+        assert(SHBT_ISOMER_STAT_BORRMANN_LOCKED == 0x02);
+        assert(SHBT_ISOMER_STAT_CROWBAR_ARMED == 0x04);
+        assert(SHBT_ISOMER_STAT_CROWBAR_TRIPPED == 0x08);
+        assert(SHBT_ISOMER_STAT_CRYO_WARNING == 0x10);
+        assert(SHBT_ISOMER_STAT_QUENCH_FAULT == 0x20);
+        assert(SHBT_ISOMER_STAT_LASING_ACTIVE == 0x40);
+        assert(SHBT_ISOMER_STAT_DARK_SINK_SYNC == 0x80);
+
+        /* Register offsets inside the struct (dual-cacheline contract). */
+        assert(offsetof(shbt_isomer_battery_mmio_t, energy_remaining_joules) == 0x00);
+        assert(offsetof(shbt_isomer_battery_mmio_t, state_of_charge_q32) == 0x08);
+        assert(offsetof(shbt_isomer_battery_mmio_t, bus_voltage_uv) == 0x10);
+        assert(offsetof(shbt_isomer_battery_mmio_t, bus_current_ua) == 0x18);
+        assert(offsetof(shbt_isomer_battery_mmio_t, core_temperature_uk) == 0x20);
+        assert(offsetof(shbt_isomer_battery_mmio_t, trigger_delay_ps) == 0x30);
+        assert(offsetof(shbt_isomer_battery_mmio_t, graser_coherent_flux_w_m2) == 0x38);
+        assert(offsetof(shbt_isomer_battery_mmio_t, transient_shear_stress_kpa) == 0x40);
+        assert(offsetof(shbt_isomer_battery_mmio_t, system_status_flags) == 0x48);
+        assert(offsetof(shbt_isomer_battery_mmio_t, inductive_recovery_eff_q32) == 0x50);
+        assert(offsetof(shbt_isomer_battery_mmio_t, dark_ledger_sink_q32) == 0x58);
+        assert(offsetof(shbt_isomer_battery_mmio_t, interlock_cmd_reg) == 0x64);
+
+        /* Volatile accessor roundtrip. */
+        bat.energy_remaining_joules = 500000000000000ull;   /* 500.0 TJ */
+        bat.state_of_charge_q32 = 1ull << 32;               /* 100.0% */
+        bat.bus_voltage_uv = 400000000000ull;               /* 400 kV */
+        bat.core_temperature_uk = 21130000ull;              /* 21.13 K */
+        bat.cryo_headroom_uk = 11790000ull;                 /* 11.79 K */
+        bat.trigger_pulse_width_ps = 10000u;                /* 10 ns */
+        bat.borrmann_epsilon_q16 = (uint32_t)(0.985 * 65536.0 + 0.5);
+        bat.transient_shear_stress_kpa = 124600u;           /* 124.60 MPa */
+        bat.system_status_flags = SHBT_ISOMER_STAT_READY
+                                | SHBT_ISOMER_STAT_BORRMANN_LOCKED
+                                | SHBT_ISOMER_STAT_CROWBAR_ARMED;
+
+        assert(bat.energy_remaining_joules == 500000000000000ull);
+        assert(bat.state_of_charge_q32 == (1ull << 32));
+        assert(bat.core_temperature_uk + bat.cryo_headroom_uk == 32920000ull);
+        assert(bat.transient_shear_stress_kpa <= 124600u);
+        assert(bat.system_status_flags & SHBT_ISOMER_STAT_CROWBAR_ARMED);
+        assert(!(bat.system_status_flags & SHBT_ISOMER_STAT_CROWBAR_TRIPPED));
+
+        /* crowbar_trip_count increments are visible through the block. */
+        bat.crowbar_trip_count += 1;
+        assert(bat.crowbar_trip_count == 1u);
+    }
 
     puts("reference_test: all checks passed");
     return 0;

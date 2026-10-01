@@ -10,7 +10,7 @@ fn main() {
 
     // verification_matrix.json
     let json = serde_json::json!({
-        "suite": "shbt-warp 120-check verification (70 gates + 50 EXT)",
+        "suite": "shbt-warp 128-check verification (70 gates + 50 EXT + 8 BAT)",
         "gates": results,
         "passed": passed,
         "total": total,
@@ -27,7 +27,7 @@ fn main() {
     writeln!(tex, "\\def\\WarpGatesTotal{{{}}}", total).unwrap();
     for r in &results {
         let macro_name = format!(
-            "\\def\\Warp{}{{{}}}",
+            "\\expandafter\\def\\csname Warp{}\\endcsname{{{}}}",
             r.gate.replace('-', ""),
             if r.passed { "PASS" } else { "FAIL" }
         );

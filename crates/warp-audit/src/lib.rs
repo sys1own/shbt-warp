@@ -11,6 +11,7 @@
 //! Every public `gate_*` function returns a `GateResult` with a scalar
 //! metric and a boolean verdict.
 
+pub mod bat;
 pub mod ext;
 
 use warp_boundary_cft as cft;
@@ -608,8 +609,8 @@ pub fn gate_70() -> GateResult {
     g(70, "zero accel + 256^3 shader", 256.0, 256.0, ok)
 }
 
-/// Run all 70 gates plus the 50 EXT checks (120 entries total) and return
-/// their results in order.
+/// Run all 70 gates plus the 50 EXT checks and the 8 isomer-battery BAT
+/// checks (128 entries total) and return their results in order.
 pub fn run_all() -> Vec<GateResult> {
     let mut v = vec![
         gate_01(), gate_02(), gate_03(), gate_04(), gate_05(), gate_06(),
@@ -626,5 +627,6 @@ pub fn run_all() -> Vec<GateResult> {
         gate_67(), gate_68(), gate_69(), gate_70(),
     ];
     v.extend(ext::run_all_ext());
+    v.extend(bat::run_all_bat());
     v
 }

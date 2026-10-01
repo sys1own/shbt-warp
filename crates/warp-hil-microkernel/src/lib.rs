@@ -194,3 +194,49 @@ pub fn quench_interlock_ok(accel_raw_q32: u64, secded_due: bool, trigger_ns: f64
     let fires = accel_raw_q32 > 429 || secded_due;
     !fires || trigger_ns <= PCSS_HARD_LIMIT_NS
 }
+
+/// Isomer battery register map (`shbt_isomer_battery_mmio_t`, 128 B
+/// dual-cacheline at 0x70000000, mirroring `shbt_isomer_battery_mmio.h`).
+pub mod isomer {
+    pub const ENERGY_REMAINING_JOULES: usize = 0x00;
+    pub const STATE_OF_CHARGE_Q32: usize = 0x08;
+    pub const BUS_VOLTAGE_UV: usize = 0x10;
+    pub const BUS_CURRENT_UA: usize = 0x18;
+    pub const CORE_TEMPERATURE_UK: usize = 0x20;
+    pub const CRYO_HEADROOM_UK: usize = 0x28;
+    pub const TRIGGER_DELAY_PS: usize = 0x30;
+    pub const GRASER_COHERENT_FLUX_W_M2: usize = 0x38;
+    pub const TRANSIENT_SHEAR_STRESS_KPA: usize = 0x40;
+    pub const SYSTEM_STATUS_FLAGS: usize = 0x48;
+    pub const INDUCTIVE_RECOVERY_EFF_Q32: usize = 0x50;
+    pub const DARK_LEDGER_SINK_Q32: usize = 0x58;
+    pub const TMSV_SQUEEZING_R_Q16: usize = 0x60;
+    pub const INTERLOCK_CMD_REG: usize = 0x64;
+    pub const HARDWARE_RESERVED_PAD: usize = 0x68;
+
+    pub const STAT_READY: u32 = 1 << 0;
+    pub const STAT_BORRMANN_LOCKED: u32 = 1 << 1;
+    pub const STAT_CROWBAR_ARMED: u32 = 1 << 2;
+    pub const STAT_CROWBAR_TRIPPED: u32 = 1 << 3;
+    pub const STAT_CRYO_WARNING: u32 = 1 << 4;
+    pub const STAT_QUENCH_FAULT: u32 = 1 << 5;
+    pub const STAT_LASING_ACTIVE: u32 = 1 << 6;
+    pub const STAT_DARK_SINK_SYNC: u32 = 1 << 7;
+}
+
+/// Battery bus crowbar: PCSS-triggered nuclear burst closing-time bound.
+pub const ISOMER_CROWBAR_CLOSE_NS: f64 = 2.10;
+/// Battery bus slew-rate bounds.
+pub const ISOMER_DI_DT_MAX: f64 = 1.85e14;
+pub const ISOMER_DV_DT_MAX: f64 = 4.20e13;
+/// Cryo headroom for the isomer core, in microkelvin (11.79 K).
+pub const ISOMER_HEADROOM_MIN_UK: u64 = 11_790_000;
+/// Core operating temperature, in microkelvin (21.13 K).
+pub const ISOMER_CORE_OP_UK: u64 = 21_130_000;
+
+/// Battery crowbar interlock: a nuclear-burst trip must close within
+/// 2.10 ns (under the shared 2.50 ns hard limit) while retaining the
+/// >= 94.20% SiC inductive recovery.
+pub fn isomer_crowbar_ok(close_ns: f64, recovery: f64) -> bool {
+    close_ns <= ISOMER_CROWBAR_CLOSE_NS && recovery >= SIC_RECOVERY
+}
