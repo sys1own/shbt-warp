@@ -4,3 +4,4 @@ matplotlib>=3.5
 pytest>=7.0
 ipywidgets>=7.6
 h5py>=3.6
+z3-solver>=4.12
