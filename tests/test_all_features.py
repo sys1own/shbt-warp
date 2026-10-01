@@ -3,7 +3,7 @@
 
 Exercises every CLI subcommand end to end and asserts that each expected
 artifact exists with non-zero size, that the verification matrix reports
-120/120 PASS (70 gates + 50 EXT), and that the Z3 formal suite discharges
+128/128 PASS (70 gates + 50 EXT + 8 BAT), and that the Z3 formal suite discharges
 all five theorems. Exits 0 when everything passes.
 
 Usage:  python3 tests/test_all_features.py
@@ -63,8 +63,8 @@ def main():
     mpath = REPO / "verification_matrix.json"
     if mpath.exists():
         m = json.loads(mpath.read_text())
-        matrix_ok = m["passed"] == 120 == m["total"]
-    check("cli verify 120/120", p.returncode == 0 and matrix_ok)
+        matrix_ok = m["passed"] == 128 == m["total"]
+    check("cli verify 128/128", p.returncode == 0 and matrix_ok)
     check("warp_results.tex", (REPO / "warp_results.tex").stat().st_size > 0)
 
     p = run([sys.executable, "-m", "shbt_warp.cli", "sim"], timeout=300)

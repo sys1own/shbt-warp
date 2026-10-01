@@ -12,6 +12,7 @@ warp-emitter-pdk = { path = "../warp-emitter-pdk" }
 warp-flight-dynamics = { path = "../warp-flight-dynamics" }
 warp-hil-microkernel = { path = "../warp-hil-microkernel" }
 warp-lanr-thermo = { path = "../warp-lanr-thermo" }
+warp-power-battery = { path = "../warp-power-battery" }
 warp-gpu-shaders = { path = "../warp-gpu-shaders" }
 warp-uncertainty-uq = { path = "../warp-uncertainty-uq" }
 serde = { version = "1.0", features = ["derive"] }

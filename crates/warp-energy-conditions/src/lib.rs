@@ -188,3 +188,20 @@ pub fn sink_capacity_ok(rho_neg: f64, total_budget: f64) -> bool {
 pub fn foliation_nec_violations(profile: &[StressTensor]) -> usize {
     profile.iter().filter(|t| !nec(t)).count()
 }
+
+/// Ford-Roman net margin with the isomer battery's positive injection:
+/// rho_effective = eta_A * rho_bubble + rho_dark_sink + rho_battery(t),
+/// bounded below by -3/(32 pi^2 tau0^4) for all tau0 >= tau_Planck.
+/// Returns the signed margin (>= 0 compliant).
+pub fn qi_net_margin_battery(tau0: f64, rho_bubble_abs: f64, hbar: f64, rho_battery: f64) -> f64 {
+    let eta_a = ETA_A_NUM as f64 / PARTITION_DEN as f64;
+    let eta_d = ETA_D_NUM as f64 / PARTITION_DEN as f64;
+    let bound = -FORD_ROMAN_C / tau0.powi(4);
+    // Dark sink absorbs the eta_D fraction of the negative wall stress;
+    // the battery injects positive energy at the bubble interface.
+    let net = -eta_a * rho_bubble_abs
+        + eta_d * rho_bubble_abs
+        + eta_d * C_BRAID * hbar / (std::f64::consts::PI * tau0.powi(4))
+        + rho_battery;
+    net - bound
+}
