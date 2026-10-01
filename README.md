@@ -264,53 +264,35 @@ directed gamma pulse — the graser discharge.
 ## Core closures
 
 $$
-f_{\text{SHBT}}(r) = \frac{\tanh(\sigma_w(r+R)) - \tanh(\sigma_w(r-R))}
-                          {2\tanh(\sigma_w R)}
+f_{\text{SHBT}}(r) = \frac{\tanh(\sigma_w(r+R)) - \tanh(\sigma_w(r-R))}{2\tanh(\sigma_w R)}
 $$
 
 $$
-\beta^x(t,\mathbf{x}) = -v_s(t)\,e^{\Delta_{\text{mod}}/2}\,
-                        f_{\text{SHBT}}(\mathbf{x}),
-\qquad \Delta_{\text{mod}} = 0.1375335
+\beta^x(t, \mathbf{x}) = -v_s(t)\, e^{\Delta_{\text{mod}}/2}\, f_{\text{SHBT}}(\mathbf{x}), \qquad \Delta_{\text{mod}} = 0.1375335
 $$
 
 $$
-\rho_{\text{Eulerian}} = -\frac{v_s^2\,e^{\Delta_{\text{mod}}}}{32\pi}\,
-  \frac{y^2+z^2}{r^2}\left(\partial_r f\right)^2 \le 0
+\rho_{\text{Eulerian}} = -\frac{v_s^2\, e^{\Delta_{\text{mod}}}}{32\pi} \frac{y^2+z^2}{r^2} (\partial_r f)^2 \le 0
 $$
 
 $$
-c_{\text{total}} = \frac{39}{14} + \frac{64}{11} + \frac{351}{8}
-  \approx 52.478896, \qquad
-\Delta_{\text{fr}} = \frac{c_{\text{total}} - c_{\text{ghost}}}{24}
-  \bmod 1 \equiv 0
+c_{\text{total}} = \frac{39}{14} + \frac{64}{11} + \frac{351}{8} \approx 52.478896, \qquad \Delta_{\text{fr}} = \frac{c_{\text{total}} - c_{\text{ghost}}}{24} \bmod 1 \equiv 0
 $$
 
 $$
-G_{\text{isomer}} = \frac{E_{\text{iso}}}{E_{\text{gateway}}}
-  = \frac{2.446~\text{MeV}}{0.040~\text{MeV}} = 61.15,
-\qquad
-\mu_{\text{loss}}^{\text{eff}} = (1-\varepsilon_B)\,\mu_0 \approx 0.18~\text{cm}^{-1}
-\;\Rightarrow\; g_0 > 0
+G_{\text{isomer}} = \frac{E_{\text{iso}}}{E_{\text{gateway}}} = \frac{2.446\text{ MeV}}{0.040\text{ MeV}} = 61.15, \qquad \mu_{\text{loss}}^{\text{eff}} = (1-\varepsilon_B)\mu_0 \approx 0.18\text{ cm}^{-1} \implies g_0 > 0
 $$
 
 $$
-\eta_{\text{conv}} = \eta_1 + \eta_2 + \eta_3
-  = 26.4\% + 12.1\% + 7.3\% = 45.8\%
+\eta_{\text{conv}} = \eta_1 + \eta_2 + \eta_3 = 26.4\% + 12.1\% + 7.3\% = 45.8\%
 $$
 
 $$
-\langle T_{\mu\nu}^{\text{ren}} n^\mu n^\nu \rangle
-  = \eta_A \langle T_{\mu\nu}^{\text{bubble}} n^\mu n^\nu \rangle
-  + \eta_D \langle T_{\mu\nu}^{\text{dark}} n^\mu n^\nu \rangle
-  + \rho_{\text{battery}}(t)
-  \;\ge\; -\frac{3}{32\pi^2 \tau_0^4}
-  \qquad \forall\, \tau_0 \ge \tau_{\text{Planck}}
+\langle T_{\mu\nu}^{\text{ren}} n^\mu n^\nu \rangle = \eta_A \langle T_{\mu\nu}^{\text{bubble}} n^\mu n^\nu \rangle + \eta_D \langle T_{\mu\nu}^{\text{dark}} n^\mu n^\nu \rangle + \rho_{\text{battery}}(t) \ge -\frac{3}{32\pi^2 \tau_0^4} \qquad \forall\, \tau_0 \ge \tau_{\text{Planck}}
 $$
 
 $$
-s(\tau) = 10\tau^3 - 15\tau^4 + 6\tau^5,
-\qquad \max_\tau s''(\tau) = 5.7735
+s(\tau) = 10\tau^3 - 15\tau^4 + 6\tau^5, \qquad \max_\tau s''(\tau) = 5.7735
 $$
 
 ## Verification matrix
