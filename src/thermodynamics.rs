@@ -11,6 +11,12 @@ pub struct ThermodynamicRateEngine {
     pub branch_preserving: bool,
 }
 
+impl Default for ThermodynamicRateEngine {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ThermodynamicRateEngine {
     pub fn new() -> Self {
         ThermodynamicRateEngine {

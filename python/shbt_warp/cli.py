@@ -147,7 +147,124 @@ def _is_custom_run(args) -> bool:
     return args.velocity is not None or args.displacement is not None
 
 
-def main(argv=None):
+def _repo_root() -> Path:
+    return Path(__file__).resolve().parents[2]
+
+
+def _run_build_kernel(_args) -> int:
+    """Compile kernel/ into the freestanding .so and hosted reference lib."""
+    import subprocess
+
+    return subprocess.call(["make", "-C", str(_repo_root() / "kernel"), "all"])
+
+
+def _run_verify(_args) -> int:
+    """Run the 70-gate Rust audit; writes verification_matrix.json and
+    warp_results.tex at the repository root."""
+    import subprocess
+
+    repo = _repo_root()
+    proc = subprocess.run(
+        ["cargo", "run", "--release", "-p", "warp-audit"], cwd=repo
+    )
+    if proc.returncode != 0:
+        return proc.returncode
+    matrix = repo / "verification_matrix.json"
+    if matrix.exists():
+        data = json.loads(matrix.read_text())
+        print(f"verification_matrix.json: {data['passed']}/{data['total']} gates PASS")
+    print(f"warp_results.tex: {repo / 'warp_results.tex'}")
+    return 0
+
+
+def _run_export_eda(args) -> int:
+    """Emit the 8x8 GDSII mask, STEP waveguide and Touchstone S2P interposer."""
+    from shbt_warp.exporters import export_gdsii, export_s2p, export_step
+
+    out_dir = Path(args.out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    gds = export_gdsii(out_dir / "pic8x8.gds")
+    step = export_step(out_dir / "waveguide.step")
+    s2p = export_s2p(out_dir / "interposer.s2p")
+    print(f"GDSII mask: {gds}")
+    print(f"STEP waveguide: {step}")
+    print(f"S2P interposer: {s2p}")
+    return 0
+
+
+def _run_export_fits(args) -> int:
+    from shbt_warp.exporters import export_fits
+
+    print(f"FITS: {export_fits(Path(args.out))}")
+    return 0
+
+
+def _run_export_hdf5(args) -> int:
+    from shbt_warp.exporters import export_hdf5
+
+    print(f"HDF5: {export_hdf5(Path(args.out))}")
+    return 0
+
+
+def _run_hud(args) -> int:
+    from shbt_warp import hud
+
+    return hud.main(["--headless"] if args.headless else [])
+
+
+_SUBCOMMANDS = {
+    "build-kernel",
+    "sim",
+    "verify",
+    "export-eda",
+    "export-fits",
+    "export-hdf5",
+    "hud",
+}
+
+
+def _subcommand_main(argv) -> int:
+    # `sim` forwards all remaining flags to the legacy flat-argument simulator.
+    if argv and argv[0] == "sim":
+        return _legacy_main(argv[1:])
+    parser = argparse.ArgumentParser(
+        prog="shbt-warp-sim",
+        description="SHBT Holographic Warp Drive digital twin",
+    )
+    sub = parser.add_subparsers(dest="command", required=True)
+    sub.add_parser("build-kernel", help="compile the C11 microkernel")
+    sub.add_parser("sim", help="run the canonical warp simulation")
+    sub.add_parser("verify", help="run the 70-gate verification suite")
+    p_eda = sub.add_parser("export-eda", help="emit GDSII/STEP/S2P artifacts")
+    p_eda.add_argument("--out-dir", default="eda_outputs")
+    p_fits = sub.add_parser("export-fits", help="FITS v4.0 + WCS science cube")
+    p_fits.add_argument("--out", default="warp_adm.fits")
+    p_h5 = sub.add_parser("export-hdf5", help="mission datacube HDF5")
+    p_h5.add_argument("--out", default="warp_mission.h5")
+    p_hud = sub.add_parser("hud", help="interactive terminal telemetry HUD")
+    p_hud.add_argument(
+        "--headless",
+        action="store_true",
+        help="render ~3 s of frames and exit (CI use)",
+    )
+    args = parser.parse_args(argv)
+
+    if args.command == "build-kernel":
+        return _run_build_kernel(args)
+    if args.command == "verify":
+        return _run_verify(args)
+    if args.command == "export-eda":
+        return _run_export_eda(args)
+    if args.command == "export-fits":
+        return _run_export_fits(args)
+    if args.command == "export-hdf5":
+        return _run_export_hdf5(args)
+    if args.command == "hud":
+        return _run_hud(args)
+    return _legacy_main([])
+
+
+def _legacy_main(argv=None):
     parser = argparse.ArgumentParser(
         description="SHBT Holographic Warp Drive Simulator"
     )
@@ -452,6 +569,15 @@ def cad_main(argv=None):
         print(f"  - {p}")
 
     return 0
+
+
+def main(argv=None):
+    """Dispatch to a subcommand when the first token matches one, else run the
+    legacy flat-argument simulator for backward compatibility."""
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if argv and argv[0] in _SUBCOMMANDS:
+        return _subcommand_main(argv)
+    return _legacy_main(argv)
 
 
 if __name__ == "__main__":

@@ -36,3 +36,12 @@ mainNotes.bib
 # IDE
 .idea
 .vscode
+kernel/build/
+test_c_abi
+verification_matrix.json
+warp_results.tex
+*.fits
+*.h5
+eda_outputs/
+__pycache__/
+.pytest_cache/

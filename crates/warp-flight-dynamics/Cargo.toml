@@ -1,0 +1,8 @@
+[package]
+name = "warp-flight-dynamics"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+warp-core-adm = { path = "../warp-core-adm" }
+warp-hil-microkernel = { path = "../warp-hil-microkernel" }

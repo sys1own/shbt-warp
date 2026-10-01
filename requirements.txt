@@ -3,3 +3,4 @@ numpy>=1.21
 matplotlib>=3.5
 pytest>=7.0
 ipywidgets>=7.6
+h5py>=3.6

@@ -1,4 +1,4 @@
-/// Physical and algorithmic constants shared by the SHBT warp simulator.
+//! Physical and algorithmic constants shared by the SHBT warp simulator.
 
 pub const LIGHT_SPEED_M_S: f64 = 299_792_458.0;
 pub const GRAVITATIONAL_CONSTANT_SI: f64 = 6.674_30e-11;
@@ -15,7 +15,7 @@ pub const N_LOCAL_BITS_10M: f64 = 1.202_481e72;
 pub const POWER_BENCHMARK_MW: f64 = 142.08;
 pub const LAMBDA_HOLO_SI: f64 = 1.089_138_83e-52;
 
-pub const MEGAPARSEC_M: f64 = 3.085_677_581_491_367_3e22;
+pub const MEGAPARSEC_M: f64 = 3.085_677_581_491_367e22;
 pub const HUBBLE_LOADING_KM_S_MPC: f64 = 4.797_960;
 pub const HUBBLE_LOADING_S_INV: f64 = HUBBLE_LOADING_KM_S_MPC * 1.0e3 / MEGAPARSEC_M;
 pub const HOLOGRAPHIC_LOCK_RATE_S_INV: f64 = 3.0 * HUBBLE_LOADING_S_INV;
