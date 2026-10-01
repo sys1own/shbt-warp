@@ -301,7 +301,7 @@ mod tests {
         let (xi, beta, trace_pass, trace_res, delta_fr) = engine
             .phase_a_audit(0.5, 1.0, 0.8, [1.0, 0.0, 0.0], rho, 26, 8, 312)
             .unwrap();
-        assert!(xi >= 0.0 && xi <= 1.0);
+        assert!((0.0..=1.0).contains(&xi));
         assert!(!beta.iter().any(|b| b.is_nan()));
         assert!(trace_pass);
         assert!(trace_res < 1.0e-14);
@@ -333,8 +333,8 @@ mod tests {
             assert!((got - exp).abs() < 1.0e-15);
         }
         // Flux vanishes where consecutive load components are equal.
-        for s in 0..3 {
-            assert!(phi_s[s].abs() < 1.0e-15);
+        for phi in phi_s.iter().take(3) {
+            assert!(phi.abs() < 1.0e-15);
         }
         // The last flux reflects the imbalance between the r=3 and r=4 groups.
         let denom = (11.0_f64 / 7.0_f64).ln();

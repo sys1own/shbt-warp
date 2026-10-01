@@ -1,0 +1,7 @@
+[package]
+name = "warp-emitter-pdk"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+warp-hil-microkernel = { path = "../warp-hil-microkernel" }

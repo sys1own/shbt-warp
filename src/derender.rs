@@ -143,16 +143,16 @@ impl DerenderingEngine {
 
         let mut restored = [[0.0; 3]; 3];
         let mut norm = 0.0;
-        for i in 0..3 {
-            for j in 0..3 {
-                restored[i][j] = self.dark_residual_weights[i][j] + self.dark_completion_weights[i][j];
-                norm += restored[i][j];
+        for (i, row) in restored.iter_mut().enumerate() {
+            for (j, cell) in row.iter_mut().enumerate() {
+                *cell = self.dark_residual_weights[i][j] + self.dark_completion_weights[i][j];
+                norm += *cell;
             }
         }
         assert!(norm > 0.0, "Dark ledgers contain no recoverable character weight");
-        for i in 0..3 {
-            for j in 0..3 {
-                self.visible_weights[i][j] = restored[i][j] / norm;
+        for (i, row) in restored.iter().enumerate() {
+            for (j, cell) in row.iter().enumerate() {
+                self.visible_weights[i][j] = cell / norm;
                 self.dark_residual_weights[i][j] = 0.0;
                 self.dark_completion_weights[i][j] = 0.0;
             }

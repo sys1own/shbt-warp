@@ -133,6 +133,12 @@ pub struct BoundaryRegister {
     pub shannon_entropy: f64,
 }
 
+impl Default for BoundaryRegister {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl BoundaryRegister {
     pub fn new() -> Self {
         let mut su2 = [[0.0; 3]; 3];
@@ -301,7 +307,7 @@ impl ExcitationEngine {
                     a[(i, j)] = self.k_norm[(idx[i], idx[j])];
                 }
             }
-            let a2 = &a * &a;
+            let a2 = a * a;
             let exp_block = na::SMatrix::<f64, 3, 3>::identity() + a * s + a2 * c;
             for i in 0..3 {
                 for j in 0..3 {
@@ -326,7 +332,7 @@ impl ExcitationEngine {
             .flat_map(|row| row.iter())
             .map(|&v| C64::new(v, 0.0))
             .collect();
-        let diag = na::SVector::<C64, 9>::from_iterator(rho_vec.into_iter());
+        let diag = na::SVector::<C64, 9>::from_iterator(rho_vec);
         let baseline = na::SMatrix::<C64, 9, 9>::from_diagonal(&diag);
         let excited = op * baseline * op.adjoint();
         let tr = excited.trace().re;
@@ -370,7 +376,7 @@ impl ExcitationEngine {
             .flat_map(|row| row.iter())
             .map(|&v| C64::new(v, 0.0))
             .collect();
-        let diag = na::SVector::<C64, 9>::from_iterator(rho_vec.into_iter());
+        let diag = na::SVector::<C64, 9>::from_iterator(rho_vec);
         let baseline = na::SMatrix::<C64, 9, 9>::from_diagonal(&diag);
         let excited = op * baseline * op.adjoint();
         let tr = excited.trace().re;
