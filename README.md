@@ -249,17 +249,21 @@ directed gamma pulse — the graser discharge.
 
 ## SHBT ecosystem crosswalk
 
-| Repository | Upstream logic imported | Downstream export |
-|------------|------------------------|-------------------|
-| [shbt-precision](https://github.com/sys1own/shbt-precision) | 512-bit MPFR arithmetic, geometric algebra | FG metric series, Ricci kernels |
-| [shbt-qc](https://github.com/sys1own/shbt-qc) | QEC codes, Solovay–Kitaev compilers | braid dilation operators (124 sequences) |
-| [shbt-cf](https://github.com/sys1own/shbt-cf) | Kac–Moody character tables, LANR ledger | rational c-evaluators on (26,8,312) |
-| [shbt-power](https://github.com/sys1own/shbt-power) | hydride/TPV conversion curves | 906.00 kW Landauer debt schedules |
-| [shbt-ghost](https://github.com/sys1own/shbt-ghost) | BRST ghost cancellation, CCZ4 damping | Δ_fr = 0 framing operators |
-| [shbt-recon](https://github.com/sys1own/shbt-recon) | bulk reconstruction, entanglement wedge | f_SHBT boundary phase maps, C-ABI |
-| [shbt-sglt](https://github.com/sys1own/shbt-sglt) | inverse scattering, soliton kernels | min-jerk wall stabilization |
-| [shbt-exotic](https://github.com/sys1own/shbt-exotic) | non-local kernels, regulated stress-energy | η_A/η_D Stinespring partition |
-| [shbt-warp](https://github.com/sys1own/shbt-warp) (this repo) | all upstream logic — canonical 3+1D flight twin | warp_results.tex audit macros, Ford–Roman + isomer ledger |
+Canonical 9-repository logic transfer (mirrors Table XI of `warp.pdf`;
+LANR core generation is attributed to `shbt-cf` — `shbt-sglt` supplies
+metrology and flight kinematics only):
+
+| Repository | Canonical logic transfer |
+|------------|--------------------------|
+| [shbt-precision](https://github.com/sys1own/shbt-precision) | 512-bit rug/MPFR arithmetic, WZW (26,8,312) character convergence, Δ_fr ≡ 0 ⇒ E_μν ≡ 0 |
+| [shbt-qc](https://github.com/sys1own/shbt-qc) | C11 shbt-os microkernel, 128 B MMIO @ 0x70000000, SECDED Hamming(72,64), InP/InGaAs PIC PDK |
+| [shbt-cf](https://github.com/sys1own/shbt-cf) | 1,800-module LANR starter (555.03 W net/cell, 999.054 kW @ 400 V), dual-stage TEG, 3D helium thermal-hydraulics |
+| [shbt-power](https://github.com/sys1own/shbt-power) | verification_matrix.json harness, closed-loop energy accounting, 906.000 kW Landauer schedules |
+| [shbt-ghost](https://github.com/sys1own/shbt-ghost) | 3+1 CCZ4 + Gundlach damping (κ₁ = 0.15, κ₂ = 0.0), sub-2.5 ns PCSS GaN/4H-SiC crowbars, 94.20% SiC recovery |
+| [shbt-recon](https://github.com/sys1own/shbt-recon) | V_unified^macro Stinespring dilation, zero-copy dual-cacheline C-ABI, POSIX SPSC buffers |
+| [shbt-sglt](https://github.com/sys1own/shbt-sglt) | TMSV ranging (r = 2.50, 21.715 dB, σ_r ≤ 0.144 pm/√Hz), min-jerk s(τ) (|s″| ≤ 5.7735), hyper-dual UQ |
+| [shbt-exotic](https://github.com/sys1own/shbt-exotic) | multi-protocol field-coupling benchmark suite |
+| [shbt-warp](https://github.com/sys1own/shbt-warp) (this repo) | exports the ¹⁷⁸ᵐ²Hf graser battery spec (500.0 TJ, 109.05 TW, G = 61.15, ε_B = 0.985, η_conv = 45.8%) enabling v_s = 2.0c → 5.0c cruise |
 
 ## Core closures
 
