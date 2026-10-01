@@ -14,13 +14,14 @@ import time
 
 BASE = 0x70000000
 REGS = [
-    ("SYS_CONTROL", 0x00), ("SYS_STATUS", 0x04), ("LANR_POWER_MW", 0x08),
-    ("LANDAUER_DEBT_MW", 0x10), ("BUBBLE_VELOCITY_C", 0x18),
-    ("WALL_THICKNESS_NM", 0x20), ("LAPSE_ERROR_RAW", 0x28),
-    ("QUENCH_TIMER_NS", 0x2C), ("INTERLOCK_FLAGS", 0x30),
-    ("SHIFT_BETA_X", 0x40), ("RICCI_SCALAR", 0x48),
-    ("QI_INTEGRAL_BOUND", 0x50), ("RF_EMITTER_PHASE", 0x58),
-    ("ECC_SYNDROME", 0x5C), ("FLIGHT_STAGE", 0x60), ("CRC32_CHECKSUM", 0x64),
+    ("CTRL_STATUS", 0x00), ("TARGET_VELOCITY", 0x08),
+    ("CURRENT_VELOCITY", 0x10), ("CAVITY_ACCEL_RAW", 0x18),
+    ("BUBBLE_RADIUS_NM", 0x20), ("WALL_THICKNESS_PM", 0x28),
+    ("RF_PHASE_GRAD_URAD", 0x30), ("OPTICAL_POWER_MW", 0x38),
+    ("CRYO_TEMP_MILLIK", 0x40), ("KAPITZA_DROP_UV", 0x48),
+    ("LANR_POWER_MW", 0x50), ("DARK_LEDGER_SINK", 0x58),
+    ("ECC_SYNDROME_REG", 0x60), ("PCSS_INTERLOCK_RAW", 0x68),
+    ("WATCHDOG_HEARTBEAT", 0x70), ("RESERVED_PADDING", 0x78),
 ]
 
 STAGES = ["COLD", "INCEPTION", "CRUISE", "DECEL", "QUENCH"]
@@ -36,8 +37,8 @@ def frame_state(t):
         "margin_kw": 999.054 - 906.0,
         "ccz4_residual": 1e-123 * (1.0 + rng.random()),
         "lapse_err": rng.random() * 1e-7,
-        "quench_ns": 2.16,
-        "v_c": [0.0, 0.95, 5.0, 0.95, 0.0][stage],
+        "quench_ns": 2.140,
+        "v_c": [0.0, 0.75, 4.25, 0.05, 0.0][stage],
         "tick": int(t * 100),
     }
 

@@ -3,50 +3,48 @@
 //! Rust mirror of `kernel/include/shbt_warp_hardware.h`: the 128-byte
 //! dual-cacheline `shbt_warp_mmio_t` register block at 0x70000000, SECDED
 //! Hamming(72,64) ECC scrubbing, Givens remapping and the sub-2.5 ns PCSS
-//! crowbar quench driver (94.20% SiC inductive recovery).
+//! crowbar quench driver (2.140 ns trip, 94.20% SiC inductive recovery).
 
 /// MMIO base physical address.
 pub const MMIO_BASE: u64 = 0x7000_0000;
 /// Register-block footprint (bytes) — two aligned cache lines.
 pub const MMIO_SIZE: usize = 128;
 
+/// Byte offsets of the 16 u64 registers (warp1.txt normative layout).
 pub mod reg {
-    pub const SYS_CONTROL: usize = 0x00;
-    pub const SYS_STATUS: usize = 0x04;
-    pub const LANR_POWER_MW: usize = 0x08;
-    pub const LANDAUER_DEBT_MW: usize = 0x10;
-    pub const BUBBLE_VELOCITY_C: usize = 0x18;
-    pub const WALL_THICKNESS_NM: usize = 0x20;
-    pub const LAPSE_ERROR_RAW: usize = 0x28;
-    pub const QUENCH_TIMER_NS: usize = 0x2C;
-    pub const INTERLOCK_FLAGS: usize = 0x30;
-    pub const SHIFT_BETA_X: usize = 0x40;
-    pub const RICCI_SCALAR: usize = 0x48;
-    pub const QI_INTEGRAL_BOUND: usize = 0x50;
-    pub const RF_EMITTER_PHASE: usize = 0x58;
-    pub const ECC_SYNDROME: usize = 0x5C;
-    pub const FLIGHT_STAGE: usize = 0x60;
-    pub const CRC32_CHECKSUM: usize = 0x64;
+    pub const CTRL_STATUS: usize = 0x00;
+    pub const TARGET_VELOCITY: usize = 0x08;
+    pub const CURRENT_VELOCITY: usize = 0x10;
+    pub const CAVITY_ACCEL_RAW: usize = 0x18;
+    pub const BUBBLE_RADIUS_NM: usize = 0x20;
+    pub const WALL_THICKNESS_PM: usize = 0x28;
+    pub const RF_PHASE_GRAD_URAD: usize = 0x30;
+    pub const OPTICAL_POWER_MW: usize = 0x38;
+    pub const CRYO_TEMP_MILLIK: usize = 0x40;
+    pub const KAPITZA_DROP_UV: usize = 0x48;
+    pub const LANR_POWER_MW: usize = 0x50;
+    pub const DARK_LEDGER_SINK: usize = 0x58;
+    pub const ECC_SYNDROME_REG: usize = 0x60;
+    pub const PCSS_INTERLOCK_RAW: usize = 0x68;
+    pub const WATCHDOG_HEARTBEAT: usize = 0x70;
+    pub const RESERVED_PADDING: usize = 0x78;
 }
 
-/// SYS_CONTROL bits.
-pub const CTRL_ENABLE: u32 = 1 << 0;
-pub const CTRL_BUBBLE_ACTIVE: u32 = 1 << 1;
-pub const CTRL_QUENCH_TRIGGER: u32 = 1 << 2;
-/// SYS_STATUS bits.
-pub const STAT_BUBBLE_STABLE: u32 = 1 << 0;
-pub const STAT_ECC_OK: u32 = 1 << 1;
-pub const STAT_LAPSE_UNITY: u32 = 1 << 2;
-/// INTERLOCK_FLAGS bits.
-pub const ILK_SPACELIKE: u32 = 1 << 0;
-pub const ILK_UNDERPOWER: u32 = 1 << 1;
-pub const ILK_HORIZON_RISK: u32 = 1 << 2;
+/// ctrl_status bits.
+pub const CTRL_ARM: u64 = 1 << 0;
+pub const CTRL_FIRE: u64 = 1 << 1;
+pub const CTRL_ABORT: u64 = 1 << 2;
+pub const CTRL_SECDED_ERR: u64 = 1 << 3;
+/// pcss_interlock_raw status bits.
+pub const PCSS_TRIPPED: u64 = 1 << 0;
+pub const PCSS_SIC_RECOVERED: u64 = 1 << 1;
 
-/// Register block mirroring the C11 `shbt_warp_mmio_t`.
+/// Register block mirroring the packed C11 `shbt_warp_mmio_t`: 16 u64 words
+/// on two 64-byte cache lines.
 #[repr(C, align(64))]
 #[derive(Clone, Copy, Debug)]
 pub struct ShbtWarpMmio {
-    pub regs: [u32; 32],
+    pub regs: [u64; 16],
 }
 
 const _: [(); 128] = [(); std::mem::size_of::<ShbtWarpMmio>()];
@@ -54,26 +52,32 @@ const _: [(); 64] = [(); std::mem::align_of::<ShbtWarpMmio>()];
 
 impl ShbtWarpMmio {
     pub fn zeroed() -> Self {
-        Self { regs: [0; 32] }
+        Self { regs: [0; 16] }
     }
 
-    pub fn read(&self, offset: usize) -> u32 {
-        self.regs[offset / 4]
+    pub fn read(&self, offset: usize) -> u64 {
+        self.regs[offset / 8]
     }
 
-    pub fn write(&mut self, offset: usize, v: u32) {
-        self.regs[offset / 4] = v;
+    pub fn write(&mut self, offset: usize, v: u64) {
+        self.regs[offset / 8] = v;
     }
 }
 
-/// PCSS crowbar trigger budget (ns) and SiC inductive recovery fraction.
-pub const PCSS_TRIGGER_NS: f64 = 2.18;
+/// PCSS crowbar constants: 180 ps optical trigger + 820 ps avalanche rise +
+/// 8 x 0.1425 ns latch chain = 2.140 ns total trip (sub-2.5 ns guaranteed),
+/// structural abort limit 5.0 ns, 94.20% SiC inductive recovery.
+pub const PCSS_OPTICAL_PS: f64 = 180.0;
+pub const PCSS_AVALANCHE_PS: f64 = 820.0;
+pub const PCSS_TRIGGER_NS: f64 = 2.140;
 pub const PCSS_HARD_LIMIT_NS: f64 = 2.50;
+pub const PCSS_STRUCT_LIMIT_NS: f64 = 5.00;
+pub const PCSS_PEAK_SHUNT_KA: f64 = 4.85;
 pub const SIC_RECOVERY: f64 = 0.9420;
 /// Minimum thermal headroom across the substrate stack (K).
 pub const THERMAL_HEADROOM_K: f64 = 11.79;
 
-/// SECDED Hamming(72,64): encode a 64-bit word into 72 bits (8 parity bits,
+/// SECDED Hamming(72,64): encode a 64-bit word into 72 bits (7 parity bits +
 /// overall parity in bit 71).
 pub fn secded_encode(data: u64) -> u128 {
     let mut code: u128 = 0;
@@ -103,7 +107,7 @@ pub fn secded_encode(data: u64) -> u128 {
 
 /// SECDED decode: returns (corrected_data, syndrome, corrected_count).
 /// Syndrome 0 = clean; nonzero syndrome with odd overall parity = single-bit
-/// error corrected in place.
+/// error corrected in place; nonzero syndrome with even parity = DUE abort.
 pub fn secded_decode(code: u128) -> (u64, u8, u32) {
     let parity_positions = [0u64, 1, 3, 7, 15, 31, 63];
     let mut syndrome: u64 = 0;
@@ -137,13 +141,20 @@ pub fn secded_decode(code: u128) -> (u64, u8, u32) {
     (data, syndrome as u8, corrected)
 }
 
+/// Double-bit upset check: syndrome nonzero with even overall parity must
+/// fire the emergency abort interlock within one 10 ns cycle.
+pub fn secded_due_aborts(code: u128) -> bool {
+    let (_data, syn, corrected) = secded_decode(code);
+    syn != 0 && corrected == 0
+}
+
 /// Givens rotation applied to a pair of lanes; the scalar form the AVX-512
 /// kernel unrolls across 8 lanes.
 pub fn givens_rotate(x: f64, y: f64, c: f64, s: f64) -> (f64, f64) {
     (c * x + s * y, -s * x + c * y)
 }
 
-/// Crowbar audit: trigger latency under the 2.18 ns budget plus SiC
+/// Crowbar audit: trigger latency under the 2.140 ns budget plus SiC
 /// recovery at the 94.20% rating.
 pub fn crowbar_ok(trigger_ns: f64) -> bool {
     trigger_ns <= PCSS_TRIGGER_NS
@@ -154,8 +165,7 @@ pub fn headroom_ok(delta_t: f64) -> bool {
     delta_t >= THERMAL_HEADROOM_K
 }
 
-/// CRC-32/Castagnoli (0x1EDC6F41, reflected 0x82F63B78) used by the frame
-/// checksum register at offset 0x64.
+/// CRC-32/Castagnoli (reflected poly 0x82F63B78) over the arena trailer.
 pub fn crc32c(data: &[u8]) -> u32 {
     let mut crc: u32 = !0;
     for &b in data {
@@ -173,14 +183,14 @@ pub const STINESPRING_ACTIVE_BYTES: usize = 640;
 pub const STINESPRING_DARK_BYTES: usize = 1472;
 pub const STINESPRING_BYTES: usize = STINESPRING_ACTIVE_BYTES + STINESPRING_DARK_BYTES;
 
-/// Q32.32 fixed-point encoding for v_s and beta^x registers.
+/// Q32.32 fixed-point encoding for v_s and acceleration registers.
 pub fn q32_32(v: f64) -> u64 {
     (v * 4294967296.0).round() as u64
 }
 
-/// Lapse-deviation interlock: |alpha - 1| > 1e-6 or a spacelike horizon
-/// anomaly (det(gamma) <= 0) must fire the crowbar quench.
-pub fn quench_interlock_ok(alpha: f64, det_gamma: f64, trigger_ns: f64) -> bool {
-    let fires = (alpha - 1.0).abs() > 1e-6 || det_gamma <= 0.0;
+/// Passenger-acceleration interlock: cavity_accel_raw above the 1e-7 m/s²
+/// residual bound (or a SECDED DUE flag) must fire the crowbar quench.
+pub fn quench_interlock_ok(accel_raw_q32: u64, secded_due: bool, trigger_ns: f64) -> bool {
+    let fires = accel_raw_q32 > 429 || secded_due;
     !fires || trigger_ns <= PCSS_HARD_LIMIT_NS
 }

@@ -16,7 +16,17 @@ use warp_hil_microkernel as hil;
 /// Minimum-jerk acceleration ceiling |s''| <= 5.7735.
 pub const MIN_JERK_ACC_MAX: f64 = 5.773502691896257;
 /// Subluminal inception terminal velocity (v_s / c).
-pub const INCEPTION_VS: f64 = 0.95;
+/// 5-stage velocity contract (warp1.txt): cold start (v=0, -60..0 s),
+/// subluminal ramp 0 -> 0.75c (0..120 s), superluminal cruise 4.25c
+/// (120..600 s), deceleration to 0.05c (600..720 s), field quench
+/// 0.05c -> 0 (720..780 s). Cavity radius R = 12.50 m, residual passenger
+/// acceleration |a| <= 1e-7 m/s^2.
+pub const INCEPTION_VS: f64 = 0.75;
+pub const CRUISE_VS: f64 = 4.25;
+pub const DECEL_VS: f64 = 0.05;
+pub const CAVITY_RADIUS_M: f64 = 12.50;
+pub const CAVITY_ACCEL_LIMIT: f64 = 1e-7;
+pub const STAGE_TIMES_S: [f64; 6] = [-60.0, 0.0, 120.0, 600.0, 720.0, 780.0];
 /// Superluminal cruise velocity window (v_s / c).
 pub const CRUISE_VS_MIN: f64 = 2.0;
 pub const CRUISE_VS_MAX: f64 = 5.0;
@@ -111,13 +121,12 @@ pub struct FlightPlan {
 ///
 /// Stage 1 (Cold): LANR starter grid energizes the 999.054 kW ledger and
 /// boundary excitation balances against the Landauer sink.
-/// Stage 2 (Inception): subluminal minimum-jerk ramp 0 -> 0.95c.
-/// Stage 3 (Cruise): superluminal cruise, v_s ramped 2.0c -> 5.0c under
-/// the acceleration bound.
-/// Stage 4 (Decel): symmetric minimum-jerk deceleration back to
-/// stationkeeping.
-/// Stage 5 (Quench/derender): Stinespring de-rendering, crowbar disarm,
-/// causal egress authorized on a timelike target.
+/// Stage 2 (Ramp-up): subluminal minimum-jerk ramp 0 -> 0.75c.
+/// Stage 3 (Cruise): superluminal cruise at v_s = 4.25c under the
+/// acceleration bound, Stinespring ledger balancing the dark sector.
+/// Stage 4 (Decel): symmetric minimum-jerk deceleration to 0.05c.
+/// Stage 5 (Quench): field quench & standdown, crowbar recovery at
+/// 94.20%, causal egress authorized on a timelike target.
 pub fn fly_mission(jerk_steps: usize) -> FlightPlan {
     let steps = jerk_steps.max(1);
 
@@ -138,7 +147,7 @@ pub fn fly_mission(jerk_steps: usize) -> FlightPlan {
     }
     let inception = StageResult {
         index: 1,
-        name: "Subluminal inception",
+        name: "Subluminal ramp-up",
         s_terminal: minimum_jerk(1.0) * INCEPTION_VS,
         accel_peak: accel2,
         passed: accel2 <= MIN_JERK_ACC_MAX + 1e-9,
@@ -154,11 +163,9 @@ pub fn fly_mission(jerk_steps: usize) -> FlightPlan {
     let cruise = StageResult {
         index: 2,
         name: "Superluminal cruise",
-        s_terminal: CRUISE_VS_MAX,
+        s_terminal: CRUISE_VS,
         accel_peak: accel3,
-        passed: accel3 <= MIN_JERK_ACC_MAX + 1e-9
-            && CRUISE_VS_MIN == 2.0
-            && CRUISE_VS_MAX == 5.0,
+        passed: accel3 <= MIN_JERK_ACC_MAX + 1e-9 && CRUISE_VS == 4.25,
     };
 
     // Stage 4: controlled deceleration, symmetric profile 1 - s(tau).
@@ -169,10 +176,10 @@ pub fn fly_mission(jerk_steps: usize) -> FlightPlan {
     }
     let decel = StageResult {
         index: 3,
-        name: "Controlled deceleration",
-        s_terminal: 1.0 - minimum_jerk(1.0),
+        name: "Subluminal deceleration",
+        s_terminal: DECEL_VS,
         accel_peak: accel4,
-        passed: accel4 <= MIN_JERK_ACC_MAX + 1e-9,
+        passed: accel4 <= MIN_JERK_ACC_MAX + 1e-9 && DECEL_VS == 0.05,
     };
 
     // Stage 5: Stinespring de-rendering & crowbar disarm — timelike egress
@@ -181,7 +188,7 @@ pub fn fly_mission(jerk_steps: usize) -> FlightPlan {
     let dst = CausalEvent { t: 10.0, x: 1.0, y: 0.0, z: 0.0 };
     let derender = StageResult {
         index: 4,
-        name: "Stinespring de-rendering",
+        name: "Field quench & standdown",
         s_terminal: 0.0,
         accel_peak: 0.0,
         passed: authorize(&src, &dst, 0.0).is_ok(),

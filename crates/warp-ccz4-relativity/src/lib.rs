@@ -9,8 +9,9 @@
 /// CFL factor used by the constraint-damping integrator.
 pub const CFL: f64 = 0.25;
 /// Gundlach damping parameters (kappa_1 > 0, kappa_2 > -1).
-pub const KAPPA_1: f64 = 0.5;
-pub const KAPPA_2: f64 = -0.5;
+/// Gundlach damping constants (warp1.txt): kappa_1 = 0.15, kappa_2 = 0.0.
+pub const KAPPA_1: f64 = 0.15;
+pub const KAPPA_2: f64 = 0.0;
 
 /// Required damped-constraint magnitude after the audit window.
 pub const CONSTRAINT_TARGET: f64 = 1e-120;

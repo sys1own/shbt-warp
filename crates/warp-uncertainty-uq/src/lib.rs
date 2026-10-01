@@ -11,6 +11,11 @@
 pub const TMSV_R: f64 = 2.50;
 /// Squeezing in dB: 20 log10(e^r).
 pub const TMSV_DB: f64 = 20.0 * std::f64::consts::LOG10_E * TMSV_R;
+
+/// TMSV squeezing (dB) for an arbitrary squeezing parameter r.
+pub fn tmsv_db(r: f64) -> f64 {
+    20.0 * std::f64::consts::LOG10_E * r
+}
 /// Displacement sensitivity floor (pm/sqrt(Hz)).
 pub const SIGMA_R_PM: f64 = 0.144;
 

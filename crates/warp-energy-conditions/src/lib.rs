@@ -16,6 +16,53 @@ pub const FORD_ROMAN_C: f64 = 3.0 / (32.0 * std::f64::consts::PI * std::f64::con
 pub const TAU_PLANCK_S: f64 = 5.39e-44;
 
 /// Dark-ledger sink fractions (topological NEC-violation budget).
+/// 124 Fibonacci braid descriptors in the dark ledger and their aggregate
+/// backreaction coefficient C_braid = sum_k Re(1 - exp(i 2 pi F_{k-1} /
+/// F_{k+2})) ~= 38.196601.
+pub const BRAID_DESCRIPTORS: usize = 124;
+pub const C_BRAID: f64 = 38.196601;
+
+/// Topological entanglement entropy floor: S_top = ln sqrt(2 + phi).
+pub fn topological_entropy() -> f64 {
+    let phi = (1.0 + 5.0f64.sqrt()) / 2.0;
+    (2.0 + phi).sqrt().ln()
+}
+
+/// Braid phase-continuity sum: sum_k arg(B_k) mod 2pi ~ 0.
+pub fn braid_phase_sum() -> f64 {
+    let mut f_prev = 1.0f64;
+    let mut f_cur = 1.0f64;
+    let mut acc = 0.0;
+    for _ in 0..BRAID_DESCRIPTORS {
+        let f_next = f_prev + f_cur;
+        let arg = 2.0 * std::f64::consts::PI * f_prev / f_next;
+        acc += arg.rem_euclid(2.0 * std::f64::consts::PI) - std::f64::consts::PI;
+        f_prev = f_cur;
+        f_cur = f_next;
+    }
+    acc.rem_euclid(2.0 * std::f64::consts::PI) - std::f64::consts::PI
+}
+
+/// Eulerian energy density in the warp wall (warp1.txt):
+/// rho = -v_s^2 exp(Delta_mod) / (32 pi) * (y^2+z^2)/r^2 * (df/dr)^2.
+/// Always <= 0 on the wall annulus.
+pub fn eulerian_rho(v_s: f64, delta_mod: f64, angular: f64, dfdr: f64) -> f64 {
+    -v_s * v_s * delta_mod.exp() / (32.0 * std::f64::consts::PI)
+        * angular.max(0.0)
+        * dfdr * dfdr
+}
+
+/// Net Ford-Roman margin including the dark-ledger topological
+/// backreaction: eta_D * C_braid hbar / (pi tau0^4) term keeps
+/// I_Q^net >= -3/(32 pi^2 tau0^4) down to the Planck scale.
+pub fn qi_net_margin(tau0: f64, rho_bare_abs: f64, hbar: f64) -> f64 {
+    let eta_a = ETA_A_NUM as f64 / PARTITION_DEN as f64;
+    let eta_d = ETA_D_NUM as f64 / PARTITION_DEN as f64;
+    let bound = -FORD_ROMAN_C / tau0.powi(4);
+    let net = -eta_a * rho_bare_abs + eta_d * C_BRAID * hbar / (std::f64::consts::PI * tau0.powi(4));
+    net - bound
+}
+
 pub const ETA_D_NUM: u64 = 23;
 pub const ETA_A_NUM: u64 = 10;
 pub const PARTITION_DEN: u64 = 33;

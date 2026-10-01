@@ -17,8 +17,53 @@ pub const LANDAUER_DEBT_KW: f64 = 906.00;
 /// Signed power reserve (kW): LANR net minus debt.
 pub const POWER_SURPLUS_KW: f64 = LANR_NET_KW - LANDAUER_DEBT_KW;
 
+/// Balance-of-plant budget (warp1.txt): gross LANR thermal generation,
+/// cascaded TPV/Seebeck conversion efficiency, and parasitic loads.
+pub const GROSS_THERMAL_KW: f64 = 1280.840;
+pub const CONVERSION_EFFICIENCY: f64 = 0.78;
+pub const CRYOCOOLER_KW: f64 = 42.150;
+pub const AVIONICS_KW: f64 = 12.800;
+pub const BATTERY_FLOAT_KW: f64 = 5.000;
+/// Net continuous system surplus after parasitics (kW).
+pub const NET_SURPLUS_KW: f64 =
+    POWER_SURPLUS_KW - CRYOCOOLER_KW - AVIONICS_KW - BATTERY_FLOAT_KW;
+
+/// Cryogenic chain (warp1.txt): two-phase helium at 4.20 K / 1.20 bar,
+/// CVD diamond submount, Kapitza jump, boiling layer and junction sum.
+pub const T_FLUID_K: f64 = 4.20;
+pub const DT_INP_K: f64 = 0.338;
+pub const DT_BOND_K: f64 = 0.049;
+pub const DT_DIAMOND_K: f64 = 0.042;
+pub const DT_KAPITZA_K: f64 = 3.546;
+pub const DT_BOIL_K: f64 = 12.955;
+pub const T_JUNCTION_K: f64 =
+    T_FLUID_K + DT_INP_K + DT_BOND_K + DT_DIAMOND_K + DT_KAPITZA_K + DT_BOIL_K;
+/// Nb3Sn/YBCO rail critical temperature at 4.5 T (K).
+pub const T_CRIT_K: f64 = 32.920;
+/// Two-phase boiling heat-transfer coefficient at G = 145 kg/m^2 s.
+pub const H_TP_W_M2K: f64 = 14280.0;
+pub const MASS_FLUX_KG_M2S: f64 = 145.0;
+/// Peak dissipation flux (W/m^2) driving the Kapitza jump.
+pub const PEAK_FLUX_W_M2: f64 = 1.850e5;
+/// Microchannel exit void-fraction limit (warp1.txt EXT-36).
+pub const VOID_FRACTION_LIMIT: f64 = 0.380;
+
+/// Junction temperature prediction (K) from the thermal-stack sum.
+pub fn junction_temperature_k() -> f64 {
+    T_JUNCTION_K
+}
+
+/// Cryogenic headroom below the superconductor critical temperature (K):
+/// T_c - T_junction = 32.920 - 21.130 = 11.790 K.
+pub fn cryo_headroom_k() -> f64 {
+    T_CRIT_K - T_JUNCTION_K
+}
+
 /// Kapitza conductance coefficient alpha_K (W m^-2 K^-4).
 pub const KAPITZA_ALPHA: f64 = 142.0;
+/// Kapitza boundary-resistance coefficient (warp1.txt): R_K = 1.42e-3/T^3
+/// (m^2 K/W); at 4.20 K and 1.85e5 W/m^2 this gives the 3.546 K jump.
+pub const KAPITZA_RK_COEFF: f64 = 1.42e-3;
 /// Minimum emitter-array cryogenic margin below T_c (K).
 pub const CRYO_MARGIN_K: f64 = 11.79;
 
@@ -77,7 +122,7 @@ pub struct TwoPhaseCell {
 /// fraction remains in the bubbly/slug window and the Kapitza-bounded heat
 /// flux keeps the wall below the Leidenfrost excursion.
 pub fn boiling_stable(cell: &TwoPhaseCell, wall_heat_flux_w_m2: f64) -> bool {
-    let in_window = (0.0..0.70).contains(&cell.void_fraction);
+    let in_window = (0.0..VOID_FRACTION_LIMIT).contains(&cell.void_fraction);
     let rk = kapitza_resistance(cell.temperature.max(1.0));
     in_window && wall_heat_flux_w_m2 * rk <= 1.0
 }

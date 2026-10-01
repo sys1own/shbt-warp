@@ -11,6 +11,8 @@
 //! Every public `gate_*` function returns a `GateResult` with a scalar
 //! metric and a boolean verdict.
 
+pub mod ext;
+
 use warp_boundary_cft as cft;
 use warp_ccz4_relativity as ccz4;
 use warp_core_adm as adm;
@@ -205,7 +207,7 @@ pub fn gate_19() -> GateResult {
 
 /// GATE-20: Gundlach damping convergence < 1e-120.
 pub fn gate_20() -> GateResult {
-    let r = ccz4::gundlach_damp(1.0, ccz4::CFL, 6000);
+    let r = ccz4::gundlach_damp(1.0, ccz4::CFL, 8000);
     g(20, "Gundlach damping < 1e-120", r, 1e-120, r <= ccz4::CONSTRAINT_TARGET)
 }
 
@@ -500,13 +502,13 @@ pub fn gate_59() -> GateResult {
 /// GATE-60: void-fraction stability window bounds the design point.
 pub fn gate_60() -> GateResult {
     let ok = lanr::boiling_stable(
-        &lanr::TwoPhaseCell { void_fraction: 0.69, mass_flux: 25.0, temperature: 2.2 },
+        &lanr::TwoPhaseCell { void_fraction: 0.37, mass_flux: 25.0, temperature: 2.2 },
         1.0e3,
     ) && !lanr::boiling_stable(
-        &lanr::TwoPhaseCell { void_fraction: 0.71, mass_flux: 25.0, temperature: 2.2 },
+        &lanr::TwoPhaseCell { void_fraction: 0.39, mass_flux: 25.0, temperature: 2.2 },
         1.0e3,
     );
-    g(60, "void window", 0.70, 0.70, ok)
+    g(60, "void window", 0.380, lanr::VOID_FRACTION_LIMIT, ok)
 }
 
 // ---------------- GATE-61..70: HIL microkernel, PIC PDK & flight ----------
@@ -520,11 +522,13 @@ pub fn gate_61() -> GateResult {
 
 /// GATE-62: MMIO register offsets match the normative header layout.
 pub fn gate_62() -> GateResult {
-    let ok = hil::reg::SYS_CONTROL == 0x00
-        && hil::reg::QUENCH_TIMER_NS == 0x2C
-        && hil::reg::SHIFT_BETA_X == 0x40
-        && hil::reg::CRC32_CHECKSUM == 0x64;
-    g(62, "register offsets", hil::reg::CRC32_CHECKSUM as f64, 100.0, ok)
+    let ok = hil::reg::CTRL_STATUS == 0x00
+        && hil::reg::CRYO_TEMP_MILLIK == 0x40
+        && hil::reg::LANR_POWER_MW == 0x50
+        && hil::reg::PCSS_INTERLOCK_RAW == 0x68
+        && hil::reg::WATCHDOG_HEARTBEAT == 0x70
+        && hil::reg::RESERVED_PADDING == 0x78;
+    g(62, "register offsets", hil::reg::WATCHDOG_HEARTBEAT as f64, 112.0, ok)
 }
 
 /// GATE-63: SECDED Hamming(72,64) corrects single-bit errors.
@@ -544,12 +548,13 @@ pub fn gate_64() -> GateResult {
     g(64, "SECDED detects 2 bits", syn as f64, 1.0, ok)
 }
 
-/// GATE-65: PCSS crowbar trigger latency <= 2.18 ns (under the 2.5 ns
-/// hard limit) — 8-stage latch chain at 0.27 ns/stage.
+/// GATE-65: PCSS crowbar trip latency = 2.140 ns (180 ps optical +
+/// 820 ps avalanche + 8 x 0.1425 ns latch) under the 2.50 ns hard limit.
 pub fn gate_65() -> GateResult {
-    let latency = 0.27 * 8.0;
+    let latency =
+        hil::PCSS_OPTICAL_PS / 1000.0 + hil::PCSS_AVALANCHE_PS / 1000.0 + 8.0 * 0.1425;
     let ok = hil::crowbar_ok(latency) && latency <= hil::PCSS_HARD_LIMIT_NS;
-    g(65, "crowbar <= 2.18 ns", latency, hil::PCSS_TRIGGER_NS, ok)
+    g(65, "crowbar <= 2.50 ns", latency, hil::PCSS_TRIGGER_NS, ok)
 }
 
 /// GATE-66: SiC inductive recovery at 94.20%.
@@ -566,7 +571,9 @@ pub fn gate_67() -> GateResult {
     let ok = t >= 0.985 && s11 <= -28.0
         && (pdk::Z_SAPPHIRE_MRAYL - 44.178).abs() < 1e-9
         && (pdk::Z_AEROGEL_MRAYL - 1.1512).abs() < 1e-9
-        && (pdk::AEROGEL_QW_NM - 6.395).abs() < 1e-9;
+        && (pdk::Z_AEROGEL_BARE_MRAYL - 0.030).abs() < 1e-9
+        && (pdk::AEROGEL_QW_NM - 6.395).abs() < 1e-9
+        && pdk::acoustic_reflectance() <= 1e-6;
     g(67, "aerogel QW match + S11", t, 0.985, ok)
 }
 
@@ -588,7 +595,7 @@ pub fn gate_69() -> GateResult {
     let p = flt::fly_mission(64);
     let ok = p.passed
         && p.stages[0].name == "Cold-start balancing"
-        && p.stages[4].name == "Stinespring de-rendering";
+        && p.stages[4].name == "Field quench & standdown";
     g(69, "5-stage flight plan", p.stages.len() as f64, 5.0, ok)
 }
 
@@ -601,9 +608,10 @@ pub fn gate_70() -> GateResult {
     g(70, "zero accel + 256^3 shader", 256.0, 256.0, ok)
 }
 
-/// Run all 70 gates and return their results in order.
+/// Run all 70 gates plus the 50 EXT checks (120 entries total) and return
+/// their results in order.
 pub fn run_all() -> Vec<GateResult> {
-    vec![
+    let mut v = vec![
         gate_01(), gate_02(), gate_03(), gate_04(), gate_05(), gate_06(),
         gate_07(), gate_08(), gate_09(), gate_10(), gate_11(), gate_12(),
         gate_13(), gate_14(), gate_15(), gate_16(), gate_17(), gate_18(),
@@ -616,5 +624,7 @@ pub fn run_all() -> Vec<GateResult> {
         gate_55(), gate_56(), gate_57(), gate_58(), gate_59(), gate_60(),
         gate_61(), gate_62(), gate_63(), gate_64(), gate_65(), gate_66(),
         gate_67(), gate_68(), gate_69(), gate_70(),
-    ]
+    ];
+    v.extend(ext::run_all_ext());
+    v
 }

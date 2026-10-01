@@ -28,10 +28,15 @@ sweep_results.csv
 *.toc
 *.synctex.gz
 mainNotes.bib
+warpNotes.bib
+warp.fdb_latexmk
+warp.fls
+warp.bbl
+warp.blg
 
 # All PDFs are generated, except the compiled paper (tracked as a convenience).
 *.pdf
-!main.pdf
+!warp.pdf
 
 # IDE
 .idea
