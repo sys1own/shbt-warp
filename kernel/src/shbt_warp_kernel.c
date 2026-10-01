@@ -23,7 +23,7 @@ extern uint8_t __stinespring_end[];
 #define BRAID_DESC_COUNT 124u
 
 /* PCSS crowbar budget and SiC inductive recovery constants. */
-#define PCSS_TRIGGER_NS 2.18
+#define PCSS_TRIGGER_NS 2.140
 #define PCSS_HARD_LIMIT_NS 2.50
 #define SIC_RECOVERY 0.9420
 
@@ -97,7 +97,7 @@ uint64_t shbt_warp_secded_decode(__uint128_t code, uint64_t *syndrome,
 }
 
 /* Scrub one 64-bit arena word: ECC-encode, decode, and correct a single-bit
- * upset in place. Returns the syndrome word (0 = clean). */
+ * upset in place. Returns 0 clean, 1 corrected, 2 uncorrectable (DUE). */
 static uint32_t secded_scrub(uint64_t *word)
 {
     __uint128_t code = shbt_warp_secded_encode(*word);
@@ -107,6 +107,10 @@ static uint32_t secded_scrub(uint64_t *word)
     if (syn && par) {
         *word = fixed;
         return 1;
+    }
+    if (syn && !par) {
+        mmio->ctrl_status |= CTRL_SECDED_ERR;
+        return 2;
     }
     return 0;
 }
@@ -188,16 +192,16 @@ shbt_warp_mmio_t *shbt_warp_mmio(void)
     return mmio;
 }
 
-uint32_t shbt_warp_reg_read(uint32_t offset)
+uint64_t shbt_warp_reg_read(uint32_t offset)
 {
-    const volatile uint32_t *base = (const volatile uint32_t *)mmio;
-    return base[offset / 4];
+    const volatile uint64_t *base = (const volatile uint64_t *)mmio;
+    return base[offset / 8];
 }
 
-void shbt_warp_reg_write(uint32_t offset, uint32_t value)
+void shbt_warp_reg_write(uint32_t offset, uint64_t value)
 {
-    volatile uint32_t *base = (volatile uint32_t *)mmio;
-    base[offset / 4] = value;
+    volatile uint64_t *base = (volatile uint64_t *)mmio;
+    base[offset / 8] = value;
 }
 
 /* ------------------------------------------------------------------ */
@@ -206,11 +210,26 @@ void shbt_warp_reg_write(uint32_t offset, uint32_t value)
 
 /* Quench trigger: latch and time-stamp the crowbar path. Returns the
  * modeled trigger latency in ns (PCSS gate + latch chain). */
+/* Internal sequencer state (not MMIO-mapped). */
+static uint32_t g_flight_stage = 0;
+static uint32_t g_frame_crc = 0;
+
+uint32_t shbt_warp_flight_stage(void)
+{
+    return g_flight_stage;
+}
+
+uint32_t shbt_warp_frame_crc(void)
+{
+    return g_frame_crc;
+}
+
 double shbt_warp_quench_trigger(void)
 {
-    mmio->sys_control |= CTRL_QUENCH_TRIGGER;
-    /* 8-stage PCSS latch chain at ~0.27 ns/stage -> 2.16 ns <= 2.18 ns. */
-    return 0.27 * 8.0;
+    mmio->ctrl_status |= CTRL_ABORT;
+    /* 180 ps optical trigger + 820 ps avalanche rise + 8 x 0.1425 ns
+     * latch chain = 2.140 ns total crowbar latency (limit 2.50 ns). */
+    return 0.180 + 0.820 + 8.0 * 0.1425;
 }
 
 void shbt_warp_kernel_init(void)
@@ -222,12 +241,17 @@ void shbt_warp_kernel_init(void)
     (void)dark;
     (void)__stinespring_end;
 
-    mmio->sys_control = CTRL_ENABLE;
-    mmio->lanr_power_mw = 999054u;      /* 999.054 kW in 1 W units   */
-    mmio->landauer_debt_mw = 906000u;   /* 906.00 kW in 1 W units    */
-    mmio->interlock_flags = 0;
-    mmio->flight_stage = 0;             /* Cold */
-    mmio->sys_status = STAT_LAPSE_UNITY;
+    mmio->ctrl_status = CTRL_ARM;
+    mmio->lanr_power_mw = 999054000ull;   /* 999.054 kW in mW units    */
+    mmio->dark_ledger_sink = 906000ull;   /* 906.00 kW Landauer debt   */
+    mmio->cryo_temp_millik = 21130ull;    /* T_junction = 21.130 K     */
+    mmio->kapitza_drop_uv = 3546ull;      /* dT_K = 3.546 K sensor     */
+    mmio->optical_power_mw = 15ull;       /* 15.0 mW probe carrier     */
+    mmio->bubble_radius_nm = 12500000000ull; /* R = 12.50 m            */
+    mmio->watchdog_heartbeat = 0;
+    mmio->pcss_interlock_raw = 0;
+    mmio->ecc_syndrome_reg = 0;
+    g_flight_stage = 0;                   /* Cold */
 }
 
 /* Periodic ECC scrub over the full Stinespring arena. */
@@ -235,10 +259,10 @@ uint32_t shbt_warp_scrub(void)
 {
     uint64_t *arena = (uint64_t *)__stinespring_start;
     uint32_t corrected = 0;
+    mmio->ctrl_status &= ~CTRL_SECDED_ERR;
     for (size_t i = 0; i < (ACTIVE_BYTES + DARK_BYTES) / 8; ++i)
         corrected += secded_scrub(&arena[i]);
-    mmio->sys_status |= STAT_ECC_OK;
-    mmio->ecc_syndrome = corrected;
+    mmio->ecc_syndrome_reg = corrected;
     return corrected;
 }
 
@@ -249,17 +273,19 @@ void shbt_warp_service(void)
     static double braid_x[BRAID_DESC_COUNT];
     static double braid_y[BRAID_DESC_COUNT];
 
-    /* Lapse/horizon interlock: a lapse deviation above 1e-6 or a
-     * spacelike horizon anomaly (det(gamma) <= 0, flagged in
-     * interlock_flags) fires the PCSS crowbar. */
-    uint32_t lapse_bad = mmio->lapse_error_raw > 1000000u; /* Q32.32 x 1e-6 */
-    uint32_t horizon_bad = mmio->interlock_flags &
-                           (ILK_SPACELIKE | ILK_HORIZON_RISK);
-    if (lapse_bad || horizon_bad) {
+    /* Passenger-acceleration / ECC interlock: residual cavity
+     * acceleration above 1e-7 m/s^2 (Q32.32 raw > 429) or a SECDED
+     * double-bit upset fires the PCSS crowbar within one 10 ns cycle. */
+    uint32_t accel_bad = mmio->cavity_accel_raw > 429ull;
+    uint32_t ecc_bad = mmio->ctrl_status & CTRL_SECDED_ERR;
+    if (accel_bad || ecc_bad) {
         double latency = shbt_warp_quench_trigger();
-        mmio->quench_timer_ns = (uint32_t)(latency * 100.0);
-        if (latency <= PCSS_HARD_LIMIT_NS)
-            mmio->flight_stage = 4; /* Quench */
+        mmio->pcss_interlock_raw = PCSS_TRIPPED |
+            ((uint64_t)(latency * 1000.0) << 8);
+        if (latency <= PCSS_HARD_LIMIT_NS) {
+            g_flight_stage = 4; /* Quench */
+            mmio->pcss_interlock_raw |= PCSS_SIC_RECOVERED;
+        }
     }
 
     uint32_t corrected = shbt_warp_scrub();
@@ -268,8 +294,9 @@ void shbt_warp_service(void)
     shbt_warp_givens_remap(braid_x, braid_y, BRAID_DESC_COUNT, 0.99995,
                            0.01);
 
-    mmio->crc32_checksum =
+    g_frame_crc =
         shbt_warp_crc32c(__stinespring_start, ACTIVE_BYTES + DARK_BYTES);
+    mmio->watchdog_heartbeat++;
 }
 
 void _start(void)

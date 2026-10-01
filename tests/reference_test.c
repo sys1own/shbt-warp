@@ -28,16 +28,16 @@
 
 int main(void)
 {
-    /* 1. 128-byte register block and offset contract. */
+    /* 1. 128-byte dual-cacheline register block and offset contract. */
     assert(sizeof(shbt_warp_mmio_t) == 128);
-    assert(REG_SYS_CONTROL == 0x00 && REG_SYS_STATUS == 0x04);
-    assert(REG_LANR_POWER_MW == 0x08 && REG_LANDAUER_DEBT_MW == 0x10);
-    assert(REG_BUBBLE_VELOCITY_C == 0x18 && REG_WALL_THICKNESS_NM == 0x20);
-    assert(REG_LAPSE_ERROR_RAW == 0x28 && REG_QUENCH_TIMER_NS == 0x2C);
-    assert(REG_INTERLOCK_FLAGS == 0x30 && REG_SHIFT_BETA_X == 0x40);
-    assert(REG_RICCI_SCALAR == 0x48 && REG_QI_INTEGRAL_BOUND == 0x50);
-    assert(REG_RF_EMITTER_PHASE == 0x58 && REG_ECC_SYNDROME == 0x5C);
-    assert(REG_FLIGHT_STAGE == 0x60 && REG_CRC32_CHECKSUM == 0x64);
+    assert(REG_CTRL_STATUS == 0x00 && REG_TARGET_VELOCITY == 0x08);
+    assert(REG_CURRENT_VELOCITY == 0x10 && REG_CAVITY_ACCEL_RAW == 0x18);
+    assert(REG_BUBBLE_RADIUS_NM == 0x20 && REG_WALL_THICKNESS_PM == 0x28);
+    assert(REG_RF_PHASE_GRAD_URAD == 0x30 && REG_OPTICAL_POWER_MW == 0x38);
+    assert(REG_CRYO_TEMP_MILLIK == 0x40 && REG_KAPITZA_DROP_UV == 0x48);
+    assert(REG_LANR_POWER_MW == 0x50 && REG_DARK_LEDGER_SINK == 0x58);
+    assert(REG_ECC_SYNDROME_REG == 0x60 && REG_PCSS_INTERLOCK_RAW == 0x68);
+    assert(REG_WATCHDOG_HEARTBEAT == 0x70 && REG_RESERVED_PADDING == 0x78);
 
     /* Map the fixed MMIO page so the kernel can touch 0x70000000. */
     void *page = mmap((void *)SHBT_WARP_MMIO_BASE, 4096,
@@ -78,35 +78,44 @@ int main(void)
         assert(fabs(n1 - n0) < 1e-9);
     }
 
-    /* 4. Kernel init writes the LANR/Landauer ledger registers. */
+    /* 4. Kernel init writes the ledger/thermal register contract. */
     shbt_warp_kernel_init();
-    assert(shbt_warp_mmio()->sys_control & CTRL_ENABLE);
-    assert(shbt_warp_mmio()->lanr_power_mw == 999054u);
-    assert(shbt_warp_mmio()->landauer_debt_mw == 906000u);
-    assert(shbt_warp_mmio()->sys_status & STAT_LAPSE_UNITY);
+    assert(shbt_warp_mmio()->ctrl_status & CTRL_ARM);
+    assert(shbt_warp_mmio()->lanr_power_mw == 999054000ull);
+    assert(shbt_warp_mmio()->dark_ledger_sink == 906000ull);
+    assert(shbt_warp_mmio()->cryo_temp_millik == 21130ull);
+    assert(shbt_warp_flight_stage() == 0);
 
-    /* 5. PCSS crowbar trigger: 8 x 0.27 ns = 2.16 ns under both the
-     * 2.18 ns target and the 2.50 ns hard limit. */
+    /* 5. PCSS crowbar trigger: 180 ps + 820 ps + 8x0.1425 ns = 2.140 ns,
+     * under the 2.50 ns sub-cycle hard limit. */
     {
         double latency = shbt_warp_quench_trigger();
-        assert(latency <= 2.18 + 1e-9);
+        assert(latency <= 2.140 + 1e-9);
         assert(latency < 2.50);
+        assert(shbt_warp_mmio()->ctrl_status & CTRL_ABORT);
+        shbt_warp_mmio()->ctrl_status &= ~CTRL_ABORT;
     }
 
-    /* 6. Interlock-driven quench: a spacelike anomaly flag fires the
-     * crowbar and moves the flight stage to Quench. */
-    shbt_warp_reg_write(REG_INTERLOCK_FLAGS, ILK_SPACELIKE);
+    /* 6. Interlock-driven quench: excessive residual cavity acceleration
+     * (Q32.32 > 1e-7 m/s^2) fires the crowbar and moves the flight stage
+     * to Quench with SiC inductive recovery latched. */
+    shbt_warp_reg_write(REG_CAVITY_ACCEL_RAW, 1ull << 20);
     shbt_warp_service();
-    assert(shbt_warp_mmio()->sys_control & CTRL_QUENCH_TRIGGER);
-    assert(shbt_warp_mmio()->flight_stage == 4);
-    assert(shbt_warp_mmio()->quench_timer_ns <= 218u);
+    assert(shbt_warp_mmio()->ctrl_status & CTRL_ABORT);
+    assert(shbt_warp_flight_stage() == 4);
+    assert(shbt_warp_mmio()->pcss_interlock_raw & PCSS_TRIPPED);
+    assert(shbt_warp_mmio()->pcss_interlock_raw & PCSS_SIC_RECOVERED);
+    assert(((shbt_warp_mmio()->pcss_interlock_raw >> 8) & 0xFFFFFFull) <= 2500ull);
 
     /* 7. One service pass: ECC scrub over the 2112 B arena, Givens remap
-     * of the braid descriptors, CRC-32C trailer update. */
-    shbt_warp_reg_write(REG_INTERLOCK_FLAGS, 0);
+     * of the braid descriptors, CRC-32C trailer update, watchdog tick. */
+    shbt_warp_reg_write(REG_CAVITY_ACCEL_RAW, 0);
+    shbt_warp_mmio()->ctrl_status &= ~CTRL_ABORT;
+    uint64_t hb0 = shbt_warp_mmio()->watchdog_heartbeat;
     shbt_warp_service();
-    assert(shbt_warp_mmio()->crc32_checksum != 0);
-    assert(shbt_warp_mmio()->sys_status & STAT_ECC_OK);
+    assert(shbt_warp_frame_crc() != 0);
+    assert(!(shbt_warp_mmio()->ctrl_status & CTRL_SECDED_ERR));
+    assert(shbt_warp_mmio()->watchdog_heartbeat > hb0);
 
     /* 8. Emitter phase word wraps into 16 bits. */
     assert(shbt_warp_emitter_phase_word(0.0) == 0);

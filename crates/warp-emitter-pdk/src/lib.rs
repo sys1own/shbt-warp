@@ -12,10 +12,58 @@ use std::io::{self, Write};
 
 /// Sapphire substrate acoustic impedance (MRayl).
 pub const Z_SAPPHIRE_MRAYL: f64 = 44.178;
-/// Silica aerogel quarter-wave matching-layer thickness (nm).
+/// Bare aerogel buffer-layer acoustic impedance (MRayl).
+pub const Z_AEROGEL_BARE_MRAYL: f64 = 0.030;
+/// Densified-silica quarter-wave matching-layer thickness (nm):
+/// d_m = v_m / (4 f_ac) = 2174 / (4 * 85 GHz) = 6.395 nm.
 pub const AEROGEL_QW_NM: f64 = 6.395;
-/// Aerogel matching-layer acoustic impedance (MRayl).
+/// Quarter-wave matching-layer impedance Z_m = sqrt(Z_sapp * Z_aero)
+/// (MRayl) = 1.1512.
 pub const Z_AEROGEL_MRAYL: f64 = 1.1512;
+/// Acoustic transient center frequency (GHz) and layer velocity (m/s).
+pub const F_AC_GHZ: f64 = 85.0;
+pub const V_MATCH_M_S: f64 = 2174.0;
+/// InP brittle fracture threshold and matched-stack peak stress (MPa).
+pub const SIGMA_CRIT_MPA: f64 = 350.0;
+pub const SIGMA_MAX_MPA: f64 = 124.6;
+
+/// PIC emitter array physics (warp1.txt): DFB carrier at 1550 nm,
+/// InGaAsP IQ modulators (V_pi = 1.65 V, L_m = 3.2 mm), 127 um pitch,
+/// 40 GHz RF steering, -118 dBc/Hz phase-noise floor at 10 kHz offset,
+/// 1.707 fs RMS timing jitter, <= 0.42 dB MMI splitter insertion loss.
+pub const LAMBDA_NM: f64 = 1550.00;
+pub const V_PI_V: f64 = 1.65;
+pub const L_M_MM: f64 = 3.2;
+pub const D_PITCH_UM: f64 = 127.0;
+pub const F_RF_GHZ: f64 = 40.0;
+pub const MMI_LOSS_DB: f64 = 0.42;
+pub const PHASE_NOISE_10KHZ_DBC: f64 = -118.00;
+pub const PHASE_NOISE_MEAS_DBC: f64 = -119.42;
+pub const PHASE_NOISE_1MHZ_DBC: f64 = -142.50;
+pub const JITTER_FS: f64 = 1.707;
+pub const PHASE_VARIANCE_MAX_RAD2: f64 = 1.84e-7;
+pub const RESIDUAL_ACCEL_LIMIT: f64 = 1e-6;
+/// Per-node optical transmission (dB).
+pub const T_NODE_DB: f64 = -2.18;
+
+/// RMS timing jitter bound (fs): sqrt(Var(phi)) / (2 pi f_RF).
+pub fn jitter_fs() -> f64 {
+    PHASE_VARIANCE_MAX_RAD2.sqrt() / (2.0 * std::f64::consts::PI * F_RF_GHZ * 1e9) * 1e15
+}
+
+/// RF phase gradient across adjacent columns (rad) for a steering angle.
+pub fn rf_phase_grad_rad(theta_steer: f64) -> f64 {
+    2.0 * std::f64::consts::PI * F_RF_GHZ * 1e9 / 299_792_458.0
+        * D_PITCH_UM * 1e-6
+        * theta_steer.sin()
+}
+
+/// Acoustic power reflectance of the matched stack (identically 0).
+pub fn acoustic_reflectance() -> f64 {
+    let num = Z_AEROGEL_MRAYL.powi(2) - Z_SAPPHIRE_MRAYL * Z_AEROGEL_BARE_MRAYL;
+    let den = Z_AEROGEL_MRAYL.powi(2) + Z_SAPPHIRE_MRAYL * Z_AEROGEL_BARE_MRAYL;
+    (num / den).powi(2)
+}
 /// PIC array dimension.
 pub const PIC_ARRAY: usize = 8;
 /// Interposer characteristic impedance target and tolerance (ohm).
