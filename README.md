@@ -59,31 +59,80 @@ baseline carries bookkeeping and balance of plant, while the isomer
 battery supplies the multi-terawatt burst envelope.
 
 ```
- CONTINUOUS BASELINE (housekeeping rail)
- ┌──────────────────────┐   999.054 kW DC @ 400 V
- │ 1,800-module LANR    │───────────┬──────────────────────────┐
- │ starter array        │           │                          │
- └──────────────────────┘           ▼                          ▼
-                          906.000 kW Landauer        59.950 kW BOP
-                          entropy debt              (LHe Brayton
-                          (emitter array)           cryocooler +
-                                                    avionics)
-   raw margin  +93.054 kW ── net operational surplus  +33.104 kW
+╭──────────────────────────────────────────────────────────────────────────────────────╮
+│                  SHBT-WARP DUAL-TIER ENERGY & SIGNAL TOPOLOGY MAP                    │
+╰──────────────────────────────────────────────────────────────────────────────────────╯
 
- HYPERLUMINAL BURST (flight sequencer)
- ┌──────────────────────┐  40.0 keV seed   ┌──────────────────┐
- │ ¹⁷⁸ᵐ²Hf isomer core  │───── laser ────▶│ Borrmann graser  │
- │ 376.99 kg · 500.0 TJ │   trigger        │ ε_B=0.985 G=61.15│
- │ ρ_E=1.32631 TJ/kg    │                  └────────┬─────────┘
- └──────────────────────┘                         ▼ gamma beam
-                              ┌──────────────────────────────────┐
-                              │ 3-stage relativistic DEC         │
-                              │ Compton 26.4% + Pair 12.1% +     │
-                              │ Electrostatic 7.3% = η 45.8%     │
-                              └────────┬─────────────────────────┘
-                                       ▼ 15–400 kV DC bus (PCSS ≤ 2.10 ns)
-                        Stage 2: 0 → 0.95c   12.50 TJ / 10.0 s   2.34 TW
-                        Stage 3: 2.0c → 5.0c 290.80 TJ / 5.0 s  109.05 TW
+ ┌── [ TIER 1: CONTINUOUS HOUSEKEEPING RAIL (400 V DC) ] ─────────────────────────────┐
+ │                                                                                    │
+ │  ╭──────────────────────────╮     999.054 kW DC      ╭──────────────────────────╮  │
+ │  │ 1,800-Module LANR Array  │───────────────────────►│ 400 V DC Housekeeping    │  │
+ │  │ • 555.03 W net/cell      │                        │ Distribution Bus         │  │
+ │  │ • N_min = 1,633 (N+167)  │◄───┐                   ╰─────────────┬────────────╯  │
+ │  ╰──────────────────────────╯    │ +48.000 kW TEG                  │               │
+ │                                  │ Reclaimed Standby Heat          │               │
+ │       ┌──────────────────────────┴─────────────────┐               │               │
+ │       │                                            │               ▼               │
+ │  ╭────┴─────────────────────╮             ╭────────┴────────╮ ╭─────────────────╮  │
+ │  │ Landauer Entropy Debt    │             │ LHe Cryocooler  │ │ Avionics & PIC  │  │
+ │  │ • 906.000 kW continuous  │             │ • 42.150 kW     │ │ • 12.800 kW RF  │  │
+ │  │ • Emitter microcavities  │             │ • 14.8 kg/s He  │ │ • 5.000 kW Bat  │  │
+ │  ╰──────────────────────────╯             ╰─────────────────╯ ╰─────────────────╯  │
+ │   Raw Surplus: +93.054 kW ──────────► Net Operating Margin: +33.104 kW             │
+ └───────────────────────────────────────────────────┬────────────────────────────────┘
+                                                     │ 42.150 kW Cryo Feed (21.13 K)
+                                                     ▼
+ ┌── [ TIER 2: HYPERLUMINAL BURST RAIL (15–400 kV DC) ] ──────────────────────────────┐
+ │                                                                                    │
+ │  ╭──────────────────────────────────────╮    40.0 keV Seed    ╭─────────────────╮  │
+ │  │ ¹⁷⁸ᵐ²Hf Nuclear Isomer Battery       │─── Laser Trigger ──►│ Borrmann Graser │  │
+ │  │ • 376.99 kg | 500.0 TJ (1.326 TJ/kg) │    (Gain G=61.15)   │ • ε_B = 0.985   │  │
+ │  │ • P_quiescent = 354.27 kW (standby)  │                     │ • f_M ≥ 0.74    │  │
+ │  │ • Top = 21.13 K (ΔT_headroom = 11.79K│                     ╰────────┬────────╯  │
+ │  ╰──────────────────┬───────────────────╯                              │           │
+ │                     │                                                  │ γ-beam    │
+ │                     └─► 48.0 kW Standby TEG Recovery ──► [To Tier 1]   ▼           │
+ │                                                                                    │
+ │  ╭──────────────────────────────────────────────────────────────────────────────╮  │
+ │  │ 3-Stage Relativistic Direct Energy Converter (DEC) — η_conv = 45.8%          │  │
+ │  │ ├─ Stage 1: Forward-Compton W/Ta Foils (cone < 18°) ────────► η₁ = 26.4%     │  │
+ │  │ ├─ Stage 2: Pair-Induction W Foam + REBCO HTS Turns ────────► η₂ = 12.1%     │  │
+ │  │ └─ Stage 3: 8-Stage Beryllium Retarding Grids ──────────────► η₃ =  7.3%     │  │
+ │  ╰──────────────────────────────────────┬───────────────────────────────────────╯  │
+ │                                         │ 15–400 kV DC High-Voltage Bus            │
+ │                                         ▼                                          │
+ │  ╭──────────────────────────────────────────────────────────────────────────────╮  │
+ │  │ Fast Interlock & Protection: Sub-2.10 ns PCSS GaN/SiC Crowbar Switch         │  │
+ │  │ • dI/dt ≤ 1.85×10¹⁴ A/s | dV/dt ≤ 4.20×10¹³ V/s | 94.20% Inductive Recovery  │  │
+ │  ╰──────────────────────────────────────┬───────────────────────────────────────╯  │
+ │                                         │                                          │
+ │                     ┌───────────────────┴───────────────────┐                      │
+ │                     ▼                                       ▼                      │
+ │     [ STAGE 2: INCEPTION RAMP ]              [ STAGE 3: HYPERLUMINAL CRUISE ]      │
+ │     • 0 ➔ 0.95c Flight Transition           • 2.0c ➔ 5.0c (Nominal v_s = 4.25c)  │
+ │     • 12.50 TJ / 10.0 s ➔ 2.34 TW gross     • 290.80 TJ / 5.0 s ➔ 109.05 TW gross│
+ │     • 1.07 TW Net Electric Injection         • 49.945 TW Net Electric Injection    │
+ └─────────────────────┬───────────────────────────────────────┬──────────────────────┘
+                       │                                       │
+                       └───────────────────┬───────────────────┘
+                                           │
+                                           ▼
+ ┌── [ SPACETIME METRIC ACTUATION & QUANTUM FOLIATION ] ──────────────────────────────┐
+ │  ╭──────────────────────────────────────────────────────────────────────────────╮  │
+ │  │ 8×8 InP/InGaAs Photonic Emitter Array (50.0 µm pitch, Au/InP Airbridges)     │  │
+ │  │ Modulates Shift Vector: βˣ(t, x) = -v_s exp(Δ_mod / 2) f_SHBT(x)             │  │
+ │  ╰──────────────────────────────────────┬───────────────────────────────────────╯  │
+ │                                         │                                          │
+ │  ╭──────────────────────────────────────┴───────────────────────────────────────╮  │
+ │  │ Ford–Roman Quantum Inequality Filter & Stinespring Dark Ledger               │  │
+ │  │ • Active residual: η_A = 10/33 | Dark ledger: η_D = 23/33 (124 braids)       │  │
+ │  │ • Kojima entropy: Ent(φ) = 0 | Passenger proper acceleration: a ≤ 10⁻⁷ m/s²  │  │
+ │  ╰──────────────────────────────────────────────────────────────────────────────╯  │
+ └────────────────────────────────────────────────────────────────────────────────────┘
+ ┌── [ BARE-METAL C11 MICROKERNEL CONTRACT (shbt-os @ 0x70000000) ] ──────────────────┐
+ │ • 128-byte dual-cacheline MMIO | SECDED Hamming(72,64) ECC | CRC-32C Castagnoli    │
+ │ • ADM 3+1 lapse α = 1.0, γ_ij = δ_ij | Spacetime metric error |det(g) + 1| ≤ 10⁻¹² │
+ └────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ## C11 memory layout
