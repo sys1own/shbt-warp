@@ -286,7 +286,7 @@ stages.
 | Total Stored Energy ($E_{\mathrm{total}}$) | $500.0$~TJ | $33{,}882{,}200$~TJ ($33.8822$~EJ) |
 | Net Usable Energy ($E_{\mathrm{net}}$) | $229.0$~TJ | $30{,}331{,}000$~TJ ($30.3310$~EJ) |
 | DEC Efficiency ($\eta_{\mathrm{conv}}$) | $45.8\%$ (3-stage) | $89.519\%$ (5-stage) |
-| Continuous Cruise Velocity | $4.25c$--$5.0c$ | $89.6c$ ($21\times$ baseline) |
+| Continuous Cruise Velocity | $4.25c\text{--}5.0c$ | $89.6c$ ($21\times$ baseline) |
 | Sustained Burst Velocity | $5.0c$ | $681.2c$ ($136\times$ baseline) |
 | Unrefueled Range | $3.2$~ly | $423{,}839$~ly ($132{,}450\times$) |
 
