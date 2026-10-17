@@ -15,5 +15,6 @@ warp-lanr-thermo = { path = "../warp-lanr-thermo" }
 warp-power-battery = { path = "../warp-power-battery" }
 warp-gpu-shaders = { path = "../warp-gpu-shaders" }
 warp-uncertainty-uq = { path = "../warp-uncertainty-uq" }
+warp-wormhole-ew312 = { path = "../warp-wormhole-ew312" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"

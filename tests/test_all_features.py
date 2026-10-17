@@ -59,6 +59,8 @@ def main():
     check("Z3 THM-01..05 PROVED", p.returncode == 0 and "ALL 5 THEOREMS PROVED" in p.stdout)
     p = run([sys.executable, "formal/verify_isomer_graser.py"], timeout=300)
     check("Z3 THM-MAR-01..03 PROVED", p.returncode == 0 and "ALL 3 MAR-312 THEOREMS FORMALLY DISCHARGED" in p.stdout)
+    p = run([sys.executable, "formal/verify_wormhole_ew312.py"], timeout=300)
+    check("Z3 EW-312 GATES PROVED", p.returncode == 0 and "ALL 8 EW-312 FORMAL GATES DISCHARGED" in p.stdout)
 
     # 3. CLI subcommands.
     p = run([sys.executable, "-m", "shbt_warp.cli", "build-kernel"], timeout=300)
@@ -68,10 +70,12 @@ def main():
     mpath = REPO / "verification_matrix.json"
     if mpath.exists():
         m = json.loads(mpath.read_text())
-        matrix_ok = m["passed"] == 148 == m["total"]
-    check("cli verify 148/148", p.returncode == 0 and matrix_ok)
+        matrix_ok = m["passed"] == 173 == m["total"]
+    check("cli verify 173/173", p.returncode == 0 and matrix_ok)
     check("warp_results.tex", (REPO / "warp_results.tex").stat().st_size > 0)
 
+    p = run([sys.executable, "-m", "shbt_warp.cli", "wormhole", "--mode", "mode-a"], timeout=300)
+    check("cli wormhole", p.returncode == 0 and "SHBT-EW-312" in p.stdout)
     p = run([sys.executable, "-m", "shbt_warp.cli", "sim"], timeout=300)
     check("cli sim", p.returncode == 0)
     p = run([sys.executable, "-m", "shbt_warp.cli", "hud", "--headless"], timeout=60)

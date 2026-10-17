@@ -13,6 +13,7 @@
 #include <stdbool.h>
 #include <stdalign.h>
 #include <stddef.h>
+#include "shbt_ew312_mmio.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -130,14 +131,30 @@ _Static_assert(offsetof(shbt_mar312_mmio_t, tqec_latency_ps) == 0x74,
 
 /**
  * @brief 2,112-Byte SRAM Unified Stinespring Arena at 0x70001000
+ *        Active visible: 640 B (eta_A = 10/33)
+ *        Dark braids: 992 B (124 Fibonacci braid channels x 8 B)
+ *        SECDED ECC & syndrome metadata: 480 B
  */
 typedef struct {
-    _Alignas(64) uint8_t active_frame[SHBT_MAR312_ACTIVE_BYTES];  /* 640 B  (eta_A = 10/33) */
-    uint8_t              dark_ledger[SHBT_MAR312_DARK_BYTES];    /* 1472 B (eta_D = 23/33) */
+    union {
+        struct {
+            _Alignas(64) uint8_t active_visible[SHBT_MAR312_ACTIVE_BYTES]; /* 0x000..0x280: 640 B  */
+            uint8_t              dark_braids[992];                         /* 0x280..0x660: 992 B  */
+            uint8_t              ecc_syndrome_meta[480];                   /* 0x660..0x840: 480 B  */
+        };
+        struct {
+            _Alignas(64) uint8_t active_frame[SHBT_MAR312_ACTIVE_BYTES];   /* 640 B  (eta_A = 10/33) */
+            uint8_t              dark_ledger[SHBT_MAR312_DARK_BYTES];     /* 1472 B (eta_D = 23/33) */
+        };
+    };
 } UnifiedStinespringFrame_t;
 
 _Static_assert(sizeof(UnifiedStinespringFrame_t) == SHBT_MAR312_FRAME_TOTAL_SIZE,
                "UnifiedStinespringFrame_t must be exactly 2112 bytes");
+_Static_assert(offsetof(UnifiedStinespringFrame_t, dark_braids) == 0x280,
+               "dark_braids must sit at offset 0x280 (640 B)");
+_Static_assert(offsetof(UnifiedStinespringFrame_t, ecc_syndrome_meta) == 0x660,
+               "ecc_syndrome_meta must sit at offset 0x660 (1632 B)");
 
 static inline volatile shbt_mar312_mmio_t* shbt_get_mar312_hw(void) {
     return (volatile shbt_mar312_mmio_t*)((uintptr_t)SHBT_MAR312_MMIO_BASE_ADDR);

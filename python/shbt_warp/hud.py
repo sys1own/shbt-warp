@@ -33,6 +33,7 @@ STAGES = ["COLD", "INCEPTION", "CRUISE", "DECEL", "QUENCH"]
 def frame_state(t):
     rng = random.Random(int(t * 10))
     stage = min(int(t) % 5, 4)
+    ew_states = ["STANDBY_STASIS", "INGEST_DERENDER", "DARK_LEDGER_LOCK", "CORRIDOR_TRACTION", "CAUSAL_EGRESS"]
     return {
         "stage": STAGES[stage],
         "lanr_kw": 999.054,
@@ -41,30 +42,33 @@ def frame_state(t):
         "ccz4_residual": 1e-123 * (1.0 + rng.random()),
         "lapse_err": rng.random() * 1e-7,
         "quench_ns": 2.100,
-        "v_c": [0.0, 5.0, 89.6, 681.2, 0.0][stage],
+        "v_c": [0.0, 5.0, 89.6, 681.2, 89618.0][stage],
         "stored_ej": 33.8822,
         "dec_eff": 89.519,
+        "ew_mode": "MODE-B JUMP-CRUISER" if stage in (2, 3, 4) else "MODE-A STARGATE",
+        "ew_fsm": ew_states[stage],
         "tick": int(t * 100),
     }
 
 
 def render(stdscr, st):
     stdscr.erase()
-    stdscr.addstr(0, 2, "SHBT-WARP TELEMETRY HUD  @0x70000000 (SHBT-MAR-312)", curses.A_BOLD)
+    stdscr.addstr(0, 2, "SHBT-WARP TELEMETRY HUD  @0x70000000 (SHBT-MAR-312 / SHBT-EW-312)", curses.A_BOLD)
     stdscr.addstr(2, 2, f"Flight Stage     : {st['stage']}")
     stdscr.addstr(3, 2, f"Bubble Velocity  : {st['v_c']:>10.2f} c")
-    stdscr.addstr(4, 2, f"Core Stored E    : {st['stored_ej']:>10.4f} EJ")
-    stdscr.addstr(5, 2, f"5-Stage DEC Eff  : {st['dec_eff']:>10.3f} %")
-    stdscr.addstr(6, 2, f"Housekeeping Bus : +{st['margin_kw']:>9.3f} kW")
-    stdscr.addstr(7, 2, f"CCZ4 Residual    : {st['ccz4_residual']:.3e}")
-    stdscr.addstr(8, 2, f"Lapse Error      : {st['lapse_err']:.3e}  (unity lock)")
-    stdscr.addstr(9, 2, f"PCSS Quench      : {st['quench_ns']:.2f} ns  (limit 2.10)")
-    stdscr.addstr(11, 2, "MMIO REGISTERS", curses.A_BOLD)
+    stdscr.addstr(4, 2, f"EW-312 FSM State : {st['ew_fsm']} ({st['ew_mode']})")
+    stdscr.addstr(5, 2, f"Core Stored E    : {st['stored_ej']:>10.4f} EJ")
+    stdscr.addstr(6, 2, f"5-Stage DEC Eff  : {st['dec_eff']:>10.3f} %")
+    stdscr.addstr(7, 2, f"Housekeeping Bus : +{st['margin_kw']:>9.3f} kW")
+    stdscr.addstr(8, 2, f"CCZ4 Residual    : {st['ccz4_residual']:.3e}")
+    stdscr.addstr(9, 2, f"Lapse Error      : {st['lapse_err']:.3e}  (unity lock)")
+    stdscr.addstr(10, 2, f"PCSS Quench      : {st['quench_ns']:.2f} ns  (limit 2.10)")
+    stdscr.addstr(12, 2, "MMIO REGISTERS", curses.A_BOLD)
     rng = random.Random(st["tick"])
     for i, (name, off) in enumerate(REGS):
         row, col = divmod(i, 2)
         val = rng.getrandbits(32)
-        stdscr.addstr(12 + row, 2 + col * 40,
+        stdscr.addstr(13 + row, 2 + col * 40,
                       f"0x{BASE + off:08X}  {name:<18} = 0x{val:08X}")
     stdscr.refresh()
 
@@ -73,7 +77,7 @@ def run_headless(frames=30):
     for i in range(frames):
         st = frame_state(i * 0.1)
         print(f"[tick {st['tick']}] stage={st['stage']:<9} v={st['v_c']:.2f}c "
-              f"margin=+{st['margin_kw']:.3f} kW lapse_err={st['lapse_err']:.2e} "
+              f"fsm={st['ew_fsm']:<17} margin=+{st['margin_kw']:.3f} kW "
               f"quench={st['quench_ns']:.2f} ns ccz4={st['ccz4_residual']:.2e}")
         time.sleep(0.1)
     return 0

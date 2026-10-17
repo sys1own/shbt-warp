@@ -32,14 +32,25 @@ def test_build_kernel_and_reference_c():
     assert "all checks passed" in proc.stdout
 
 
-def test_verify_128_gates():
+def test_verify_173_gates():
     proc = cli("verify", timeout=900)
     assert proc.returncode == 0, proc.stdout + proc.stderr
     matrix = json.loads((REPO / "verification_matrix.json").read_text())
-    assert matrix["total"] == 148
-    assert matrix["passed"] == 148
+    assert matrix["total"] == 173
+    assert matrix["passed"] == 173
     assert all(g["passed"] for g in matrix["gates"])
     assert (REPO / "warp_results.tex").stat().st_size > 0
+
+
+def test_wormhole_cli():
+    proc = cli("wormhole", "--mode", "mode-a", "--tier", "burst")
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert "SHBT-EW-312" in proc.stdout
+    assert "Mode A" in proc.stdout
+
+    proc_b = cli("wormhole", "--mode", "mode-b", "--tier", "impulse")
+    assert proc_b.returncode == 0, proc_b.stdout + proc_b.stderr
+    assert "Mode B" in proc_b.stdout
 
 
 def test_sim_canonical():

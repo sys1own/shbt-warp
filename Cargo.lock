@@ -502,6 +502,7 @@ dependencies = [
  "warp-lanr-thermo",
  "warp-power-battery",
  "warp-uncertainty-uq",
+ "warp-wormhole-ew312",
 ]
 
 [[package]]
@@ -559,6 +560,18 @@ name = "warp-uncertainty-uq"
 version = "0.1.0"
 dependencies = [
  "serde",
+]
+
+[[package]]
+name = "warp-wormhole-ew312"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "warp-boundary-cft",
+ "warp-core-adm",
+ "warp-flight-dynamics",
+ "warp-hil-microkernel",
+ "warp-power-battery",
 ]
 
 [[package]]

@@ -10,6 +10,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <math.h>
 
 #include "shbt_warp_hardware.h"
 
@@ -365,4 +367,100 @@ uint32_t shbt_mar312_tick_dispatch(volatile shbt_mar312_mmio_t *mar,
     mar->active_drive_ratio_q32 = (uint32_t)((10.0 / 33.0) * 4294967296.0);
     return 0;
 }
+
+static inline double shbt_sqrt(double x)
+{
+    if (x <= 0.0) return 0.0;
+    double res;
+#if defined(__x86_64__) || defined(__i386__)
+    __asm__ ("sqrtsd %1, %0" : "=x"(res) : "x"(x));
+    return res;
+#else
+    /* Newton-Raphson fallback */
+    res = x;
+    for (int i = 0; i < 20; ++i) {
+        res = 0.5 * (res + x / res);
+    }
+    return res;
+#endif
+}
+
+void shbt_ew312_causal_init(volatile shbt_ew312_mmio_t *ew)
+{
+    if (!ew) return;
+    ew->causal_cone_lo = 0x00000000U;
+    ew->causal_cone_hi = 0x00000000U;
+    ew->pn2_metric_m0 = EW312_M_SUN;
+    ew->pn2_metric_j2 = EW312_J2_SUN;
+    ew->pn2_spin_vec[0] = 0.0f;
+    ew->pn2_spin_vec[1] = 0.0f;
+    ew->pn2_spin_vec[2] = 1.92e33f;
+    ew->target_vel_gamma = 0x00010000U;
+    ew->ds2_interval_lo = 0U;
+    ew->ds2_interval_hi = 0;
+    ew->quench_time_ns = 0U;
+    ew->z3_contract_sig = SHBT_EW312_Z3_CONTRACT_SIG;
+}
+
+bool shbt_ew312_evaluate_2pn(volatile shbt_ew312_mmio_t *ew,
+                             double dt, double dx, double dy, double dz,
+                             double vx, double vy, double vz)
+{
+    if (!ew) return false;
+    double r = shbt_sqrt(dx * dx + dy * dy + dz * dz);
+    if (r < 1.0) r = 1.0;
+    double v2 = vx * vx + vy * vy + vz * vz;
+    double beta2 = v2 / (EW312_C_LIGHT * EW312_C_LIGHT);
+
+    if (beta2 >= 1.0) {
+        ew->causal_cone_hi |= 0x80000000U;
+        return false;
+    }
+
+    double gamma = 1.0 / shbt_sqrt(1.0 - beta2);
+    ew->target_vel_gamma = (uint32_t)(gamma * 65536.0);
+
+    double gm_over_rc2 = (EW312_G_CONST * ew->pn2_metric_m0) /
+                         (EW312_C_LIGHT * EW312_C_LIGHT * r);
+    double g00 = -(1.0 - 2.0 * gm_over_rc2
+                 + 2.0 * gm_over_rc2 * gm_over_rc2
+                 + (3.0 * EW312_G_CONST * ew->pn2_metric_m0
+                    * ew->pn2_metric_j2 * EW312_R_SUN * EW312_R_SUN)
+                       / (EW312_C_LIGHT * EW312_C_LIGHT * r * r * r));
+    double g_ij = 1.0 + 2.0 * gm_over_rc2;
+    double dr2 = dx * dx + dy * dy + dz * dz;
+    double ds2_2pn = g00 * EW312_C_LIGHT * EW312_C_LIGHT * dt * dt + g_ij * dr2;
+
+    int64_t ds2_fixed = (int64_t)(ds2_2pn * 1e-6);
+    ew->ds2_interval_lo = (uint32_t)(ds2_fixed & 0xFFFFFFFFLL);
+    ew->ds2_interval_hi = (int32_t)((ds2_fixed >> 32) & 0xFFFFFFFFLL);
+
+    if (ds2_2pn > 0.0) {
+        ew->causal_cone_hi |= 0x80000000U;
+        ew->quench_time_ns = 2; /* 2.10 ns PCSS crowbar trip */
+        return false;
+    }
+
+    ew->causal_cone_lo |= 0x00000001U;
+    return true;
+}
+
+uint8_t shbt_ew312_fsm_step(volatile shbt_ew312_mmio_t *ew, uint8_t next_state)
+{
+    if (!ew) return SHBT_STATE_EMERGENCY_QUENCH;
+    if (ew->z3_contract_sig != SHBT_EW312_Z3_CONTRACT_SIG) {
+        return SHBT_STATE_EMERGENCY_QUENCH;
+    }
+    switch (next_state) {
+        case SHBT_STATE_STANDBY_STASIS:
+        case SHBT_STATE_INGEST_DERENDER:
+        case SHBT_STATE_DARK_LEDGER_LOCK:
+        case SHBT_STATE_CORRIDOR_TRACTION:
+        case SHBT_STATE_CAUSAL_EGRESS:
+            return next_state;
+        default:
+            return SHBT_STATE_EMERGENCY_QUENCH;
+    }
+}
+
 

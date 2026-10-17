@@ -330,3 +330,113 @@ pub fn mar312_tick_dispatch(
     }
 }
 
+pub mod ew312 {
+    pub const SHBT_EW312_MMIO_BASE: u64 = 0x7000_0000;
+    pub const SHBT_EW312_MMIO_SIZE: usize = 56;
+    pub const SHBT_EW312_Z3_CONTRACT_SIG: u32 = 0x3120CAFE;
+
+    pub const SHBT_STATE_STANDBY_STASIS: u8 = 0x00;
+    pub const SHBT_STATE_INGEST_DERENDER: u8 = 0x01;
+    pub const SHBT_STATE_DARK_LEDGER_LOCK: u8 = 0x02;
+    pub const SHBT_STATE_CORRIDOR_TRACTION: u8 = 0x03;
+    pub const SHBT_STATE_CAUSAL_EGRESS: u8 = 0x04;
+    pub const SHBT_STATE_EMERGENCY_QUENCH: u8 = 0xFF;
+
+    pub const G_CONST: f64 = 6.67430e-11;
+    pub const C_LIGHT: f64 = 299_792_458.0;
+    pub const M_SUN: f64 = 1.98847e30;
+    pub const J2_SUN: f64 = 2.20e-7;
+    pub const R_SUN: f64 = 6.96342e8;
+
+    #[repr(C, packed)]
+    #[derive(Clone, Copy, Debug)]
+    pub struct ShbtEw312Mmio {
+        pub causal_cone_lo: u32,
+        pub causal_cone_hi: u32,
+        pub pn2_metric_m0: f64,
+        pub pn2_metric_j2: f64,
+        pub pn2_spin_vec: [f32; 3],
+        pub target_vel_gamma: u32,
+        pub ds2_interval_lo: u32,
+        pub ds2_interval_hi: i32,
+        pub quench_time_ns: u32,
+        pub z3_contract_sig: u32,
+    }
+
+    const _: [(); 56] = [(); std::mem::size_of::<ShbtEw312Mmio>()];
+
+    impl ShbtEw312Mmio {
+        pub fn init() -> Self {
+            Self {
+                causal_cone_lo: 0,
+                causal_cone_hi: 0,
+                pn2_metric_m0: M_SUN,
+                pn2_metric_j2: J2_SUN,
+                pn2_spin_vec: [0.0, 0.0, 1.92e33],
+                target_vel_gamma: 0x00010000,
+                ds2_interval_lo: 0,
+                ds2_interval_hi: 0,
+                quench_time_ns: 0,
+                z3_contract_sig: SHBT_EW312_Z3_CONTRACT_SIG,
+            }
+        }
+
+        pub fn evaluate_2pn(
+            &mut self,
+            dt: f64,
+            dx: f64,
+            dy: f64,
+            dz: f64,
+            vx: f64,
+            vy: f64,
+            vz: f64,
+        ) -> bool {
+            let r = (dx * dx + dy * dy + dz * dz).sqrt().max(1.0);
+            let v2 = vx * vx + vy * vy + vz * vz;
+            let beta2 = v2 / (C_LIGHT * C_LIGHT);
+            if beta2 >= 1.0 {
+                self.causal_cone_hi |= 0x8000_0000;
+                return false;
+            }
+            let gamma = 1.0 / (1.0 - beta2).sqrt();
+            self.target_vel_gamma = (gamma * 65536.0) as u32;
+
+            let gm_over_rc2 = (G_CONST * self.pn2_metric_m0) / (C_LIGHT * C_LIGHT * r);
+            let g00 = -(1.0 - 2.0 * gm_over_rc2 + 2.0 * gm_over_rc2 * gm_over_rc2
+                + (3.0 * G_CONST * self.pn2_metric_m0 * self.pn2_metric_j2 * R_SUN * R_SUN)
+                    / (C_LIGHT * C_LIGHT * r * r * r));
+            let g_ij = 1.0 + 2.0 * gm_over_rc2;
+            let dr2 = dx * dx + dy * dy + dz * dz;
+            let ds2_2pn = g00 * C_LIGHT * C_LIGHT * dt * dt + g_ij * dr2;
+
+            let ds2_fixed = (ds2_2pn * 1e-6) as i64;
+            self.ds2_interval_lo = (ds2_fixed & 0xFFFF_FFFF) as u32;
+            self.ds2_interval_hi = ((ds2_fixed >> 32) & 0xFFFF_FFFF) as i32;
+
+            if ds2_2pn > 0.0 {
+                self.causal_cone_hi |= 0x8000_0000;
+                self.quench_time_ns = 2;
+                false
+            } else {
+                self.causal_cone_lo |= 0x01;
+                true
+            }
+        }
+
+        pub fn fsm_step(&mut self, next_state: u8) -> u8 {
+            if self.z3_contract_sig != SHBT_EW312_Z3_CONTRACT_SIG {
+                return SHBT_STATE_EMERGENCY_QUENCH;
+            }
+            match next_state {
+                SHBT_STATE_STANDBY_STASIS
+                | SHBT_STATE_INGEST_DERENDER
+                | SHBT_STATE_DARK_LEDGER_LOCK
+                | SHBT_STATE_CORRIDOR_TRACTION
+                | SHBT_STATE_CAUSAL_EGRESS => next_state,
+                _ => SHBT_STATE_EMERGENCY_QUENCH,
+            }
+        }
+    }
+}
+
+

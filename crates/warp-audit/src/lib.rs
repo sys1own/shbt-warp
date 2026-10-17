@@ -13,6 +13,7 @@
 
 pub mod bat;
 pub mod ext;
+pub mod ew;
 
 use warp_boundary_cft as cft;
 use warp_boundary_cft::rug;
@@ -630,5 +631,6 @@ pub fn run_all() -> Vec<GateResult> {
     v.extend(ext::run_all_ext());
     v.extend(bat::run_all_bat());
     v.extend(bat::run_all_mar());
+    v.extend(ew::run_all_ew());
     v
 }

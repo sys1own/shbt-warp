@@ -222,6 +222,37 @@ int main(void)
         assert(mar.mar_state == MAR_STATE_EMERGENCY_QUENCH);
     }
 
+    /* 11. EW-312 MMIO, 2PN Causal Lightcone & 6-State FSM */
+    {
+        assert(sizeof(shbt_ew312_mmio_t) == 56);
+        assert(offsetof(shbt_ew312_mmio_t, z3_contract_sig) == 0x34);
+        assert(offsetof(UnifiedStinespringFrame_t, dark_braids) == 0x280);
+        assert(offsetof(UnifiedStinespringFrame_t, ecc_syndrome_meta) == 0x660);
+
+        volatile shbt_ew312_mmio_t ew = {0};
+        shbt_ew312_causal_init(&ew);
+        assert(ew.z3_contract_sig == SHBT_EW312_Z3_CONTRACT_SIG);
+
+        /* Timelike authorized interval */
+        bool auth = shbt_ew312_evaluate_2pn(&ew, 1.0, 1000.0, 0.0, 0.0, 1000.0, 0.0, 0.0);
+        assert(auth == true);
+        assert(ew.causal_cone_lo & 0x01);
+
+        /* Spacelike unauthorized interval */
+        bool unauth = shbt_ew312_evaluate_2pn(&ew, 1.0e-5, 1.0e9, 0.0, 0.0, 1000.0, 0.0, 0.0);
+        assert(unauth == false);
+        assert(ew.causal_cone_hi & 0x80000000U);
+        assert(ew.quench_time_ns <= 2);
+
+        /* 6-State FSM transitions */
+        assert(shbt_ew312_fsm_step(&ew, SHBT_STATE_STANDBY_STASIS) == SHBT_STATE_STANDBY_STASIS);
+        assert(shbt_ew312_fsm_step(&ew, SHBT_STATE_INGEST_DERENDER) == SHBT_STATE_INGEST_DERENDER);
+        assert(shbt_ew312_fsm_step(&ew, SHBT_STATE_DARK_LEDGER_LOCK) == SHBT_STATE_DARK_LEDGER_LOCK);
+        assert(shbt_ew312_fsm_step(&ew, SHBT_STATE_CORRIDOR_TRACTION) == SHBT_STATE_CORRIDOR_TRACTION);
+        assert(shbt_ew312_fsm_step(&ew, SHBT_STATE_CAUSAL_EGRESS) == SHBT_STATE_CAUSAL_EGRESS);
+        assert(shbt_ew312_fsm_step(&ew, 0x99) == SHBT_STATE_EMERGENCY_QUENCH);
+    }
+
     puts("reference_test: all checks passed");
     return 0;
 }

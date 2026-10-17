@@ -1,0 +1,12 @@
+[package]
+name = "warp-wormhole-ew312"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+warp-boundary-cft = { path = "../warp-boundary-cft" }
+warp-core-adm = { path = "../warp-core-adm" }
+warp-power-battery = { path = "../warp-power-battery" }
+warp-hil-microkernel = { path = "../warp-hil-microkernel" }
+warp-flight-dynamics = { path = "../warp-flight-dynamics" }
+serde = { version = "1.0", features = ["derive"] }
