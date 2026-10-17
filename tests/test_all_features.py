@@ -19,8 +19,10 @@ REPO = Path(__file__).resolve().parents[1]
 
 
 def run(cmd, timeout=900):
+    env = dict(os.environ)
+    env["PYTHONPATH"] = str(REPO / "python") + (os.pathsep + env["PYTHONPATH"] if "PYTHONPATH" in env else "")
     proc = subprocess.run(cmd, cwd=REPO, capture_output=True, text=True,
-                          timeout=timeout)
+                          timeout=timeout, env=env)
     return proc
 
 
