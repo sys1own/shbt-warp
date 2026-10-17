@@ -5,6 +5,7 @@
 
 use crate::GateResult;
 use warp_boundary_cft as cft;
+use warp_boundary_cft::rug;
 use warp_ccz4_relativity as ccz4;
 use warp_core_adm as adm;
 use warp_emitter_pdk as pdk;

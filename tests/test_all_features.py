@@ -41,19 +41,24 @@ def main():
           (REPO / "kernel/build/shbt_warp_reference.so").stat().st_size > 0
           and (REPO / "kernel/build/libshbt_warp_reference.so").stat().st_size > 0)
     (REPO / "build").mkdir(exist_ok=True)
+    out_bin = "build/test_c_abi.exe" if os.name == "nt" else "build/test_c_abi"
     p = run(["gcc", "-std=c11", "-Wall", "-Wextra", "-pedantic",
              "tests/reference_test.c", "-Ikernel/include",
-             "-Lkernel/build", "-lshbt_warp_reference", "-lm",
-             "-o", "build/test_c_abi"], timeout=120)
+             "kernel/build/libshbt_warp_reference.so", "-lm",
+             "-o", out_bin], timeout=120)
     check("gcc reference build", p.returncode == 0, p.stderr[-200:])
-    env = dict(os.environ, LD_LIBRARY_PATH=str(REPO / "kernel/build"))
-    p = subprocess.run(["./build/test_c_abi"], cwd=REPO, env=env,
+    env = dict(os.environ,
+               LD_LIBRARY_PATH=str(REPO / "kernel/build"),
+               PATH=str(REPO / "kernel/build") + os.pathsep + os.environ.get("PATH", ""))
+    p = subprocess.run([str(REPO / out_bin)], cwd=REPO, env=env,
                        capture_output=True, text=True, timeout=60)
     check("reference test run", p.returncode == 0 and "all checks passed" in p.stdout)
 
     # 2. Formal Z3 suite.
     p = run([sys.executable, "formal/formal_verification.py"], timeout=300)
     check("Z3 THM-01..05 PROVED", p.returncode == 0 and "ALL 5 THEOREMS PROVED" in p.stdout)
+    p = run([sys.executable, "formal/verify_isomer_graser.py"], timeout=300)
+    check("Z3 THM-MAR-01..03 PROVED", p.returncode == 0 and "ALL 3 MAR-312 THEOREMS FORMALLY DISCHARGED" in p.stdout)
 
     # 3. CLI subcommands.
     p = run([sys.executable, "-m", "shbt_warp.cli", "build-kernel"], timeout=300)
@@ -63,8 +68,8 @@ def main():
     mpath = REPO / "verification_matrix.json"
     if mpath.exists():
         m = json.loads(mpath.read_text())
-        matrix_ok = m["passed"] == 128 == m["total"]
-    check("cli verify 128/128", p.returncode == 0 and matrix_ok)
+        matrix_ok = m["passed"] == 148 == m["total"]
+    check("cli verify 148/148", p.returncode == 0 and matrix_ok)
     check("warp_results.tex", (REPO / "warp_results.tex").stat().st_size > 0)
 
     p = run([sys.executable, "-m", "shbt_warp.cli", "sim"], timeout=300)
@@ -92,6 +97,9 @@ def main():
     # 4. Publication artifact.
     p = run(["latexmk", "-pdf", "-interaction=nonstopmode",
              "-jobname=warp", "main.tex"], timeout=600)
+    if p.returncode != 0:
+        p = run(["pdflatex", "-interaction=nonstopmode",
+                 "-jobname=warp", "main.tex"], timeout=600)
     check("warp.pdf compiles", p.returncode == 0 and (REPO / "warp.pdf").stat().st_size > 0)
 
     print()

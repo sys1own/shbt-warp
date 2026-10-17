@@ -44,7 +44,6 @@ warp.blg
 kernel/build/
 test_c_abi
 verification_matrix.json
-warp_results.tex
 *.fits
 *.h5
 eda_outputs/

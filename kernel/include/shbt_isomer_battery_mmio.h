@@ -13,6 +13,8 @@
 #include <stdalign.h>
 #include <stddef.h>
 
+#include "shbt_mar312_mmio.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

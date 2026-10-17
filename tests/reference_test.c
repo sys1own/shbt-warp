@@ -20,10 +20,15 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <math.h>
+#ifdef _WIN32
+#include <windows.h>
+#else
 #include <sys/mman.h>
+#endif
 
 #include "shbt_warp_hardware.h"
 #include "shbt_isomer_battery_mmio.h"
+#include "shbt_mar312_mmio.h"
 
 /* Arena symbols are provided by the hosted arena TU inside
  * libshbt_warp_reference.so (kernel/src/arena_stubs.c). */
@@ -42,9 +47,14 @@ int main(void)
     assert(REG_WATCHDOG_HEARTBEAT == 0x70 && REG_RESERVED_PADDING == 0x78);
 
     /* Map the fixed MMIO page so the kernel can touch 0x70000000. */
+#ifdef _WIN32
+    void *page = VirtualAlloc((void *)SHBT_WARP_MMIO_BASE, 4096,
+                              MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+#else
     void *page = mmap((void *)SHBT_WARP_MMIO_BASE, 4096,
                       PROT_READ | PROT_WRITE,
                       MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
+#endif
     assert(page == (void *)SHBT_WARP_MMIO_BASE);
 
     /* 2. SECDED Hamming(72,64). */
@@ -176,6 +186,40 @@ int main(void)
         /* crowbar_trip_count increments are visible through the block. */
         bat.crowbar_trip_count += 1;
         assert(bat.crowbar_trip_count == 1u);
+    }
+
+    /* 10. MAR-312 MMIO & state machine dispatch qualification */
+    {
+        volatile shbt_mar312_mmio_t mar = {0};
+        assert(sizeof(shbt_mar312_mmio_t) == 128);
+        assert(sizeof(UnifiedStinespringFrame_t) == 2112);
+        assert(SHBT_MAR312_ACTIVE_BYTES == 640);
+        assert(SHBT_MAR312_DARK_BYTES == 1472);
+
+        /* Nominal dispatch test */
+        shbt_mar312_telemetry_t telem_nom = {
+            .t_core_kelvin = 21.13,
+            .t_nbn_kelvin = 4.21,
+            .sigma_vessel_mpa = 120.0,
+            .rmhd_mach_alfven = 0.044,
+            .adm_det_g_err = 0.0,
+            .wake_mu_err = 0.0,
+            .lhe_void_fraction = 0.162,
+            .tqec_latency_ps = 23700,
+            .entropy_headroom = 1000ULL,
+        };
+        uint32_t f_nom = shbt_mar312_tick_dispatch(&mar, &telem_nom);
+        assert(f_nom == MAR_FAULT_NONE);
+        assert(mar.pcss_crowbar_cmd == 0);
+        assert(mar.mar_state == MAR_STATE_BURST_TRACTION);
+
+        /* Fault condition test: thermal over-limit triggers emergency quench */
+        shbt_mar312_telemetry_t telem_fault = telem_nom;
+        telem_fault.t_core_kelvin = 33.0; /* above 32.92 K quench threshold */
+        uint32_t f_trip = shbt_mar312_tick_dispatch(&mar, &telem_fault);
+        assert(f_trip & MAR_FAULT_CRYO_QUENCH_WARN);
+        assert(mar.pcss_crowbar_cmd == 0xFFFFFFFFU);
+        assert(mar.mar_state == MAR_STATE_EMERGENCY_QUENCH);
     }
 
     puts("reference_test: all checks passed");

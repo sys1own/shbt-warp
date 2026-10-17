@@ -7,7 +7,10 @@ PCSS crowbar quench latency budget.
 ``--headless`` renders frames for ~3 s and exits 0 for CI use.
 """
 import argparse
-import curses
+try:
+    import curses
+except ImportError:
+    curses = None
 import random
 import sys
 import time
@@ -34,26 +37,28 @@ def frame_state(t):
         "stage": STAGES[stage],
         "lanr_kw": 999.054,
         "debt_kw": 906.0,
-        "margin_kw": 999.054 - 906.0,
+        "margin_kw": 999.054 - 906.0 + 48.0, # +81.104 kW w/ TEG
         "ccz4_residual": 1e-123 * (1.0 + rng.random()),
         "lapse_err": rng.random() * 1e-7,
-        "quench_ns": 2.140,
-        "v_c": [0.0, 0.75, 4.25, 0.05, 0.0][stage],
+        "quench_ns": 2.100,
+        "v_c": [0.0, 5.0, 89.6, 681.2, 0.0][stage],
+        "stored_ej": 33.8822,
+        "dec_eff": 89.519,
         "tick": int(t * 100),
     }
 
 
 def render(stdscr, st):
     stdscr.erase()
-    stdscr.addstr(0, 2, "SHBT-WARP TELEMETRY HUD  @0x70000000", curses.A_BOLD)
+    stdscr.addstr(0, 2, "SHBT-WARP TELEMETRY HUD  @0x70000000 (SHBT-MAR-312)", curses.A_BOLD)
     stdscr.addstr(2, 2, f"Flight Stage     : {st['stage']}")
     stdscr.addstr(3, 2, f"Bubble Velocity  : {st['v_c']:>10.2f} c")
-    stdscr.addstr(4, 2, f"LANR Net Output  : {st['lanr_kw']:>10.3f} kW")
-    stdscr.addstr(5, 2, f"Landauer Debt    : {st['debt_kw']:>10.3f} kW")
-    stdscr.addstr(6, 2, f"Energy Margin    : +{st['margin_kw']:>9.3f} kW")
+    stdscr.addstr(4, 2, f"Core Stored E    : {st['stored_ej']:>10.4f} EJ")
+    stdscr.addstr(5, 2, f"5-Stage DEC Eff  : {st['dec_eff']:>10.3f} %")
+    stdscr.addstr(6, 2, f"Housekeeping Bus : +{st['margin_kw']:>9.3f} kW")
     stdscr.addstr(7, 2, f"CCZ4 Residual    : {st['ccz4_residual']:.3e}")
     stdscr.addstr(8, 2, f"Lapse Error      : {st['lapse_err']:.3e}  (unity lock)")
-    stdscr.addstr(9, 2, f"PCSS Quench      : {st['quench_ns']:.2f} ns  (limit 2.50)")
+    stdscr.addstr(9, 2, f"PCSS Quench      : {st['quench_ns']:.2f} ns  (limit 2.10)")
     stdscr.addstr(11, 2, "MMIO REGISTERS", curses.A_BOLD)
     rng = random.Random(st["tick"])
     for i, (name, off) in enumerate(REGS):

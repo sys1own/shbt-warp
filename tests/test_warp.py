@@ -3,6 +3,7 @@
 import csv
 import math
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -59,7 +60,10 @@ def test_cli_generates_outputs(tmp_path):
     figs = tmp_path / "figures"
     subprocess.run(
         [
-            "shbt-warp-sim",
+            sys.executable,
+            "-m",
+            "shbt_warp.cli",
+            "sim",
             "--grid-points",
             "101",
             "--tex-output",
@@ -99,7 +103,10 @@ def test_cli_sweep_outputs_csv(tmp_path):
     csv_path = tmp_path / "sweep.csv"
     subprocess.run(
         [
-            "shbt-warp-sim",
+            sys.executable,
+            "-m",
+            "shbt_warp.cli",
+            "sim",
             "--sweep-radius",
             "5:15:5",
             "--sweep-output",

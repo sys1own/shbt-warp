@@ -15,6 +15,7 @@ pub mod bat;
 pub mod ext;
 
 use warp_boundary_cft as cft;
+use warp_boundary_cft::rug;
 use warp_ccz4_relativity as ccz4;
 use warp_core_adm as adm;
 use warp_emitter_pdk as pdk;
@@ -609,8 +610,8 @@ pub fn gate_70() -> GateResult {
     g(70, "zero accel + 256^3 shader", 256.0, 256.0, ok)
 }
 
-/// Run all 70 gates plus the 50 EXT checks and the 8 isomer-battery BAT
-/// checks (128 entries total) and return their results in order.
+/// Run all 70 gates plus the 50 EXT checks, the 8 isomer-battery BAT
+/// checks, and the 20 MAR-312 checks (148 entries total) and return their results in order.
 pub fn run_all() -> Vec<GateResult> {
     let mut v = vec![
         gate_01(), gate_02(), gate_03(), gate_04(), gate_05(), gate_06(),
@@ -628,5 +629,6 @@ pub fn run_all() -> Vec<GateResult> {
     ];
     v.extend(ext::run_all_ext());
     v.extend(bat::run_all_bat());
+    v.extend(bat::run_all_mar());
     v
 }

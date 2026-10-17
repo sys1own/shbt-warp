@@ -89,7 +89,12 @@ fn main() {
         if link.exists() {
             let _ = fs::remove_file(&link);
         }
+        #[cfg(unix)]
         if std::os::unix::fs::symlink(&actual, &link).is_ok() {
+            println!("cargo:rustc-link-search=native={}", out_dir.display());
+        }
+        #[cfg(windows)]
+        if fs::copy(&actual, &link).is_ok() {
             println!("cargo:rustc-link-search=native={}", out_dir.display());
         }
     }

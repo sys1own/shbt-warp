@@ -13,6 +13,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <assert.h>
+#include "shbt_mar312_mmio.h"
 
 #define SHBT_WARP_MMIO_BASE_ADDR (0x70000000UL)
 #define SHBT_WARP_MMIO_BASE      SHBT_WARP_MMIO_BASE_ADDR

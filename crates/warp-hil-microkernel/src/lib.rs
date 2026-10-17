@@ -240,3 +240,93 @@ pub const ISOMER_CORE_OP_UK: u64 = 21_130_000;
 pub fn isomer_crowbar_ok(close_ns: f64, recovery: f64) -> bool {
     close_ns <= ISOMER_CROWBAR_CLOSE_NS && recovery >= SIC_RECOVERY
 }
+
+// ---- SHBT-MAR-312 4th-Gen Mass-Annihilation Microkernel Mirror -------------
+
+pub mod mar312 {
+    pub const MAR_STATE_STANDBY_STASIS: u32 = 0x01;
+    pub const MAR_STATE_TRIGGER_ARMED: u32 = 0x02;
+    pub const MAR_STATE_BURST_TRACTION: u32 = 0x04;
+    pub const MAR_STATE_DEC_COOLDOWN: u32 = 0x08;
+    pub const MAR_STATE_EMERGENCY_QUENCH: u32 = 0x10;
+
+    pub const MAR_FAULT_NONE: u32 = 0x0000_0000;
+    pub const MAR_FAULT_ANOMALY_CLOSURE: u32 = 0x0000_0001;
+    pub const MAR_FAULT_CRYO_QUENCH_WARN: u32 = 0x0000_0002;
+    pub const MAR_FAULT_NBN_TRANSITION: u32 = 0x0000_0004;
+    pub const MAR_FAULT_VESSEL_STRESS: u32 = 0x0000_0008;
+    pub const MAR_FAULT_RMHD_ALFVEN: u32 = 0x0000_0010;
+    pub const MAR_FAULT_ADM_DET_UNLOCK: u32 = 0x0000_0020;
+    pub const MAR_FAULT_WAKE_RIGIDITY: u32 = 0x0000_0040;
+    pub const MAR_FAULT_TQEC_DEADLINE: u32 = 0x0000_0080;
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct ShbtMar312Telemetry {
+    pub t_core_kelvin: f64,
+    pub t_nbn_kelvin: f64,
+    pub sigma_vessel_mpa: f64,
+    pub rmhd_mach_alfven: f64,
+    pub adm_det_g_err: f64,
+    pub wake_mu_err: f64,
+    pub lhe_void_fraction: f64,
+    pub tqec_latency_ps: u32,
+    pub entropy_headroom: u64,
+}
+
+#[repr(C, align(64))]
+#[derive(Clone, Copy, Debug)]
+pub struct ShbtMar312Mmio {
+    pub regs: [u64; 16],
+}
+
+impl ShbtMar312Mmio {
+    pub fn zeroed() -> Self {
+        Self { regs: [0; 16] }
+    }
+}
+
+pub fn mar312_tick_dispatch(
+    mar: &mut ShbtMar312Mmio,
+    telem: &ShbtMar312Telemetry,
+) -> u32 {
+    let mut fault = mar312::MAR_FAULT_NONE;
+
+    if telem.entropy_headroom == 0 {
+        fault |= mar312::MAR_FAULT_ANOMALY_CLOSURE;
+    }
+    if telem.t_core_kelvin >= 32.92 || telem.lhe_void_fraction > 0.380 {
+        fault |= mar312::MAR_FAULT_CRYO_QUENCH_WARN;
+    }
+    if telem.t_nbn_kelvin >= 16.00 || telem.t_nbn_kelvin > 8.00 {
+        fault |= mar312::MAR_FAULT_NBN_TRANSITION;
+    }
+    if telem.sigma_vessel_mpa > 124.60 {
+        fault |= mar312::MAR_FAULT_VESSEL_STRESS;
+    }
+    if telem.rmhd_mach_alfven > 0.120 {
+        fault |= mar312::MAR_FAULT_RMHD_ALFVEN;
+    }
+    if telem.adm_det_g_err > 1.0e-12 {
+        fault |= mar312::MAR_FAULT_ADM_DET_UNLOCK;
+    }
+    if telem.wake_mu_err > 1.0e-12 {
+        fault |= mar312::MAR_FAULT_WAKE_RIGIDITY;
+    }
+    if telem.tqec_latency_ps > 45000 {
+        fault |= mar312::MAR_FAULT_TQEC_DEADLINE;
+    }
+
+    if fault != mar312::MAR_FAULT_NONE {
+        mar.regs[13] = (0xFFFF_FFFFu64) | ((mar312::MAR_STATE_EMERGENCY_QUENCH as u64) << 32);
+        mar.regs[14] = (fault as u64) | ((telem.tqec_latency_ps as u64) << 32);
+        mar.regs[10] = (0.9420 * 4294967296.0) as u64;
+        fault
+    } else {
+        mar.regs[13] = 0 | ((mar312::MAR_STATE_BURST_TRACTION as u64) << 32);
+        mar.regs[14] = 0 | ((telem.tqec_latency_ps as u64) << 32);
+        mar.regs[10] = (0.9420 * 4294967296.0) as u64;
+        mar312::MAR_FAULT_NONE
+    }
+}
+

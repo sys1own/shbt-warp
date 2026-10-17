@@ -305,3 +305,64 @@ void _start(void)
     for (;;)
         shbt_warp_service();
 }
+
+uint32_t shbt_mar312_tick_dispatch(volatile shbt_mar312_mmio_t *mar,
+                                   const shbt_mar312_telemetry_t *telem)
+{
+    if (!mar || !telem) return MAR_FAULT_ANOMALY_CLOSURE;
+
+    uint32_t fault = MAR_FAULT_NONE;
+
+    if (telem->entropy_headroom == 0ULL) {
+        fault |= MAR_FAULT_ANOMALY_CLOSURE;
+    }
+    if (telem->t_core_kelvin >= 32.92 || telem->lhe_void_fraction > 0.380) {
+        fault |= MAR_FAULT_CRYO_QUENCH_WARN;
+    }
+    if (telem->t_nbn_kelvin >= 16.00 || telem->t_nbn_kelvin > 8.00) {
+        fault |= MAR_FAULT_NBN_TRANSITION;
+    }
+    if (telem->sigma_vessel_mpa > 124.60) {
+        fault |= MAR_FAULT_VESSEL_STRESS;
+    }
+    if (telem->rmhd_mach_alfven > 0.120) {
+        fault |= MAR_FAULT_RMHD_ALFVEN;
+    }
+    if (telem->adm_det_g_err > 1.0e-12) {
+        fault |= MAR_FAULT_ADM_DET_UNLOCK;
+    }
+    if (telem->wake_mu_err > 1.0e-12) {
+        fault |= MAR_FAULT_WAKE_RIGIDITY;
+    }
+    if (telem->tqec_latency_ps > 45000U) {
+        fault |= MAR_FAULT_TQEC_DEADLINE;
+    }
+
+    mar->tqec_latency_ps = telem->tqec_latency_ps;
+    mar->core_temperature_uk = (uint64_t)(telem->t_core_kelvin * 1000000.0);
+    mar->transient_shear_stress_kpa = (uint32_t)(telem->sigma_vessel_mpa * 1000.0);
+
+    if (fault != MAR_FAULT_NONE) {
+        mar->mar_fault_word |= fault;
+        mar->mar_state = MAR_STATE_EMERGENCY_QUENCH;
+        mar->pcss_crowbar_cmd = 0xFFFFFFFFU;
+        mar->system_status_flags |= (1U << 3) | (1U << 5);
+        mar->inductive_recovery_eff_q32 = (uint32_t)(0.9420 * 4294967296.0);
+        mar->crowbar_trip_count++;
+        return fault;
+    }
+
+    mar->mar_fault_word = MAR_FAULT_NONE;
+    mar->pcss_crowbar_cmd = 0U;
+    if (mar->mar_state == MAR_STATE_STANDBY_STASIS || mar->mar_state == 0) {
+        mar->mar_state = MAR_STATE_BURST_TRACTION;
+    }
+    mar->system_status_flags |= (1U << 0) | (1U << 1) | (1U << 2);
+    mar->system_status_flags &= ~((1U << 3) | (1U << 5));
+    mar->inductive_recovery_eff_q32 = (uint32_t)(0.9420 * 4294967296.0);
+    mar->net_conversion_eff_q32 = (uint32_t)(0.89519 * 4294967296.0);
+    mar->dark_ledger_sink_q32 = (uint32_t)((23.0 / 33.0) * 4294967296.0);
+    mar->active_drive_ratio_q32 = (uint32_t)((10.0 / 33.0) * 4294967296.0);
+    return 0;
+}
+
