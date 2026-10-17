@@ -424,6 +424,8 @@ dependencies = [
  "pyo3",
  "rand",
  "rand_distr",
+ "warp-power-battery",
+ "warp-wormhole-ew312",
 ]
 
 [[package]]
@@ -554,6 +556,9 @@ version = "0.1.0"
 [[package]]
 name = "warp-power-battery"
 version = "0.1.0"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "warp-uncertainty-uq"

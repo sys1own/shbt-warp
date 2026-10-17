@@ -305,6 +305,96 @@ impl Simulation {
     }
 }
 
+fn parse_foundry_mode(mode: &str) -> warp_power_battery::FoundrySynthesisMode {
+    match mode.to_ascii_lowercase().as_str() {
+        "mode-1c" | "1c" | "salvage" => warp_power_battery::FoundrySynthesisMode::Mode1cSalvageIsomerBaryons,
+        "mode-1b" | "1b" | "regolith" => warp_power_battery::FoundrySynthesisMode::Mode1bAsteroidRegolith,
+        "mode-2" | "2" | "vacuum" => warp_power_battery::FoundrySynthesisMode::Mode2VacuumPairCreation,
+        _ => warp_power_battery::FoundrySynthesisMode::Mode1aNaturalFeedstock,
+    }
+}
+
+fn parse_operating_tier(tier: &str) -> warp_power_battery::OperatingTier {
+    match tier.to_ascii_lowercase().as_str() {
+        "baseline" | "baseline-hf178" => warp_power_battery::OperatingTier::BaselineHf178,
+        "cruise" | "cruise-pw" => warp_power_battery::OperatingTier::CruisePw,
+        "impulse" | "impulse-ew" => warp_power_battery::OperatingTier::ImpulseEw,
+        _ => warp_power_battery::OperatingTier::BurstPw,
+    }
+}
+
+/// Synthesize a 376.99 kg SHBT-MAR-312 dual-sector fuel core via R_synth^MAR and return diagnostics.
+#[pyfunction]
+#[pyo3(signature = (mode="mode-1a"))]
+pub fn synthesize_mar312_core<'py>(py: Python<'py>, mode: &str) -> PyResult<Bound<'py, PyDict>> {
+    let fmode = parse_foundry_mode(mode);
+    let fold = warp_power_battery::apply_mar312_coset_fold(
+        warp_power_battery::MAR312_TOTAL_MASS_KG,
+        warp_power_battery::ANTIBARYON_PARTITION_RATIO,
+    );
+    let breeder = warp_power_battery::evaluate_breeder_turnaround(fmode);
+    let cryo = warp_power_battery::cryogenic_margin_audit();
+
+    let dict = PyDict::new(py);
+    dict.set_item("mode", mode)?;
+    dict.set_item("total_core_mass_kg", fold.total_core_mass_kg)?;
+    dict.set_item("visible_baryon_mass_kg", fold.visible_baryon_mass_kg)?;
+    dict.set_item("visible_hfb2_mass_kg", fold.visible_hfb2_mass_kg)?;
+    dict.set_item("visible_diamond_mass_kg", fold.visible_diamond_mass_kg)?;
+    dict.set_item("folded_antibaryon_mass_kg", fold.folded_antibaryon_mass_kg)?;
+    dict.set_item("c_visible", fold.c_visible)?;
+    dict.set_item("c_parent", fold.c_parent)?;
+    dict.set_item("c_coset", fold.c_coset)?;
+    dict.set_item("delta_h_vis", fold.delta_h_vis)?;
+    dict.set_item("delta_h_per_braid", fold.delta_h_per_braid)?;
+    dict.set_item("framing_defect", fold.framing_defect)?;
+    dict.set_item("standby_render_cost_j", fold.standby_render_cost_j)?;
+    dict.set_item("boiloff_rate_s_inv", fold.boiloff_rate_s_inv)?;
+    dict.set_item("unitarity_residual", fold.unitarity_residual)?;
+    dict.set_item("input_energy_pj", breeder.input_energy_pj)?;
+    dict.set_item("amplification_q_fuel", breeder.amplification_q_fuel)?;
+    dict.set_item("parent_core_fraction", breeder.parent_core_fraction)?;
+    dict.set_item("daughter_cores_per_parent", breeder.daughter_cores_per_parent)?;
+    dict.set_item("tau_baseline_s", breeder.tau_baseline_s)?;
+    dict.set_item("tau_cruise_s", breeder.tau_cruise_s)?;
+    dict.set_item("tau_burst_s", breeder.tau_burst_s)?;
+    dict.set_item("tau_impulse_s", breeder.tau_impulse_s)?;
+    dict.set_item("landauer_power_w", cryo.landauer_power_w)?;
+    dict.set_item("t_core_peak_k", cryo.t_core_peak_k)?;
+    dict.set_item("margin_passed", cryo.margin_passed)?;
+    Ok(dict)
+}
+
+/// Simulate a multi-hop SHBT-EW-312 wormhole jump with closed-loop in-situ breeder refueling.
+#[pyfunction]
+#[pyo3(signature = (mission_id=4, hops=3, mode="mode-1b", tier="burst-pw"))]
+pub fn simulate_wormhole_refuel_hop<'py>(
+    py: Python<'py>,
+    mission_id: u32,
+    hops: u32,
+    mode: &str,
+    tier: &str,
+) -> PyResult<Bound<'py, PyDict>> {
+    let fmode = parse_foundry_mode(mode);
+    let rtier = parse_operating_tier(tier);
+    let prof = warp_wormhole_ew312::simulate_wormhole_refuel_hop(mission_id, hops, fmode, rtier);
+
+    let dict = PyDict::new(py);
+    dict.set_item("mission_id", prof.mission_id)?;
+    dict.set_item("mission_name", prof.mission_name)?;
+    dict.set_item("distance_ly", prof.distance_ly)?;
+    dict.set_item("total_hops", prof.total_hops)?;
+    dict.set_item("refuel_stops", prof.refuel_stops)?;
+    dict.set_item("single_refuel_time_s", prof.single_refuel_time_s)?;
+    dict.set_item("total_refuel_downtime_s", prof.total_refuel_downtime_s)?;
+    dict.set_item("active_transit_time_s", prof.active_transit_time_s)?;
+    dict.set_item("refuel_downtime_ratio", prof.refuel_downtime_ratio)?;
+    dict.set_item("reserve_energy_fraction_per_breed", prof.reserve_energy_fraction_per_breed)?;
+    dict.set_item("stage4_co_crystallization_passed", prof.stage4_co_crystallization_passed)?;
+    dict.set_item("profile_passed", prof.profile_passed)?;
+    Ok(dict)
+}
+
 #[pymodule(name = "_core")]
 fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Simulation>()?;
@@ -314,8 +404,11 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<shbt::emitter_array::EmitterArrayController>()?;
     m.add_class::<shbt::emitter_array::HardwareNoiseAuditor>()?;
     m.add_class::<shbt::flight_phases::FlightDynamicsEngine>()?;
+    m.add_function(wrap_pyfunction!(synthesize_mar312_core, m)?)?;
+    m.add_function(wrap_pyfunction!(simulate_wormhole_refuel_hop, m)?)?;
     Ok(())
 }
+
 
 #[cfg(test)]
 mod tests {

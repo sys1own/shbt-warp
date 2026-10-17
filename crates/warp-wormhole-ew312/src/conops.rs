@@ -129,3 +129,77 @@ pub fn get_benchmark_missions() -> [MissionSpec; 4] {
         },
     ]
 }
+
+/// Closed-loop multi-hop wormhole jump and in-situ breeder refueling profile.
+#[derive(Clone, Debug, serde::Serialize)]
+pub struct WormholeRefuelProfile {
+    pub mission_id: u32,
+    pub mission_name: String,
+    pub distance_ly: f64,
+    pub total_hops: u32,
+    pub refuel_stops: u32,
+    pub synthesis_mode: warp_power_battery::FoundrySynthesisMode,
+    pub breeder_tier: warp_power_battery::OperatingTier,
+    pub single_refuel_time_s: f64,
+    pub total_refuel_downtime_s: f64,
+    pub active_transit_time_s: f64,
+    pub refuel_downtime_ratio: f64,
+    pub reserve_energy_fraction_per_breed: f64,
+    pub stage4_co_crystallization_passed: bool,
+    pub profile_passed: bool,
+}
+
+/// Simulate a multi-hop galactic/trans-galactic `SHBT-EW-312` jump with closed-loop
+/// `SHBT-RECON-SYNTH-MAR312` breeder refueling between hops.
+pub fn simulate_wormhole_refuel_hop(
+    mission_id: u32,
+    hops: u32,
+    mode: warp_power_battery::FoundrySynthesisMode,
+    tier: warp_power_battery::OperatingTier,
+) -> WormholeRefuelProfile {
+    let missions = get_benchmark_missions();
+    let idx = mission_id.saturating_sub(1).min(3) as usize;
+    let m = &missions[idx];
+    let total_hops = hops.max(1);
+    let refuel_stops = total_hops.saturating_sub(1);
+
+    let single_refuel_time_s = warp_power_battery::breeder_turnaround_time_s(mode, tier);
+    let total_refuel_downtime_s = (refuel_stops as f64) * single_refuel_time_s;
+
+    let active_transit_time_s = match tier {
+        warp_power_battery::OperatingTier::CruisePw => m.cruise_travel_time_sec,
+        warp_power_battery::OperatingTier::BurstPw => m.burst_travel_time_sec,
+        warp_power_battery::OperatingTier::ImpulseEw => m.impulse_travel_time_sec,
+        warp_power_battery::OperatingTier::BaselineHf178 => m.cruise_travel_time_sec * (89.6 / 5.0),
+    };
+
+    let refuel_downtime_ratio = if active_transit_time_s > 0.0 {
+        total_refuel_downtime_s / active_transit_time_s
+    } else {
+        0.0
+    };
+    let reserve_energy_fraction_per_breed = mode.parent_core_fraction();
+    let s4 = crate::pipeline::execute_stage4_with_synthesis(true);
+
+    let profile_passed = s4.stage_passed
+        && reserve_energy_fraction_per_breed < 0.00071
+        && single_refuel_time_s > 0.0;
+
+    WormholeRefuelProfile {
+        mission_id: m.id as u32,
+        mission_name: m.name.clone(),
+        distance_ly: m.distance_ly,
+        total_hops,
+        refuel_stops,
+        synthesis_mode: mode,
+        breeder_tier: tier,
+        single_refuel_time_s,
+        total_refuel_downtime_s,
+        active_transit_time_s,
+        refuel_downtime_ratio,
+        reserve_energy_fraction_per_breed,
+        stage4_co_crystallization_passed: s4.stage_passed,
+        profile_passed,
+    }
+}
+

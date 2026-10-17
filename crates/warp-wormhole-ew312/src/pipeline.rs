@@ -169,32 +169,54 @@ pub fn execute_stage3(velocity_c: f64) -> Stage3CorridorRouting {
     }
 }
 
-/// Stage 4: Causal Egress & Adjoint Re-rendering
+/// Stage 4: Causal Egress & Adjoint Re-rendering (with optional `R_synth^MAR` core co-crystallization)
 #[derive(Clone, Debug, serde::Serialize)]
 pub struct Stage4Egress {
     pub destination_lapse_alpha: f64,
     pub destination_shift_beta: f64,
     pub egress_entropy_delta: f64,
     pub adjoint_reconstruction_fidelity: f64,
+    pub coset_fold_diagnostics: Option<warp_power_battery::CosetFoldDiagnostics>,
     pub stage_passed: bool,
 }
 
 pub fn execute_stage4() -> Stage4Egress {
+    execute_stage4_with_synthesis(false)
+}
+
+pub fn execute_stage4_with_synthesis(synthesize_core: bool) -> Stage4Egress {
     let destination_lapse_alpha: f64 = 1.0;
     let destination_shift_beta: f64 = 0.0;
     let egress_entropy_delta: f64 = 0.0; // Delta S_egress = 0
     let adjoint_reconstruction_fidelity: f64 = 1.0 - 1.2e-16; // 1.0 within numerical eps
+    let coset_fold_diagnostics = if synthesize_core {
+        Some(warp_power_battery::apply_mar312_coset_fold(
+            warp_power_battery::MAR312_TOTAL_MASS_KG,
+            warp_power_battery::ANTIBARYON_PARTITION_RATIO,
+        ))
+    } else {
+        None
+    };
+
+    let synth_ok = coset_fold_diagnostics.as_ref().map_or(true, |d| {
+        d.rg_lock_verified
+            && d.cbarb_zero_verified
+            && d.framing_defect == 0.0
+            && d.unitarity_residual <= warp_power_battery::SYNTH_UNITARITY_LIMIT
+    });
 
     let stage_passed = (destination_lapse_alpha - 1.0).abs() < 1e-12
         && destination_shift_beta.abs() < 1e-12
         && egress_entropy_delta == 0.0
-        && (1.0 - adjoint_reconstruction_fidelity).abs() < 1e-15;
+        && (1.0 - adjoint_reconstruction_fidelity).abs() < 1e-15
+        && synth_ok;
 
     Stage4Egress {
         destination_lapse_alpha,
         destination_shift_beta,
         egress_entropy_delta,
         adjoint_reconstruction_fidelity,
+        coset_fold_diagnostics,
         stage_passed,
     }
 }

@@ -11,6 +11,9 @@
 //! - Standardized integrated propulsion nacelle: 4,096.99 kg / 1.3114 m^3.
 //! - Four canonical operating tiers: BASELINE-HF178, CRUISE-PW, BURST-PW, IMPULSE-EW.
 
+pub mod synthesizer;
+pub use synthesizer::*;
+
 // ---- Algebraic & Stinespring Closure Invariants ----------------------------
 
 pub const WZW_K_LEPTON: u32 = 26;
@@ -180,13 +183,15 @@ pub fn nacelle_volume_m3() -> f64 {
 
 // ---- Four Canonical Operating Tiers ----------------------------------------
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum OperatingTier {
     BaselineHf178,
     CruisePw,
     BurstPw,
     ImpulseEw,
 }
+
+pub type ReactorTier = OperatingTier;
 
 #[derive(Clone, Copy, Debug)]
 pub struct TierSpec {

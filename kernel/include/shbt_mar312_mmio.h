@@ -44,6 +44,14 @@ extern "C" {
 #define MAR_FAULT_WAKE_RIGIDITY    ((uint32_t)0x00000040U) /* |mu_comp-mu_0| > 1e-12 */
 #define MAR_FAULT_TQEC_DEADLINE    ((uint32_t)0x00000080U) /* t_decode > 45.0 ns     */
 
+/* SHBT-RECON-SYNTH-MAR312 Bipartite Coset Spinor Synthesis Constants */
+#define SHBT_SYNTH_STATE_COSET_ANTIBARYON_FOLD      ((uint8_t)0x06U)
+#define SHBT_SYNTH_STATE_SYMPLECTIC_CRYSTALLIZATION ((uint8_t)0x08U)
+#define SHBT_SYNTH_ANTIBARYON_RATIO_50_50_Q16       ((uint16_t)0x8000U) /* 0.500 in Q0.16         */
+#define SHBT_SYNTH_COSET_WEIGHT_45_64_Q16           ((uint16_t)0xB400U) /* 45/64 = 0.703125 Q0.16 */
+#define SHBT_SYNTH_RG_LOCK_312                      ((uint32_t)(1U << 16))
+#define SHBT_SYNTH_CBARB_ZERO_VERIFIED              ((uint32_t)(1U << 17))
+
 /**
  * @brief Telemetry snapshot fed to shbt_mar312_tick_dispatch()
  */
@@ -172,6 +180,13 @@ static inline volatile UnifiedStinespringFrame_t* shbt_get_stinespring_frame(voi
  */
 uint32_t shbt_mar312_tick_dispatch(volatile shbt_mar312_mmio_t *mar,
                                    const shbt_mar312_telemetry_t *telem);
+
+/**
+ * @brief Validate SHBT-RECON-SYNTH-MAR312 bipartite coset fold MMIO words
+ */
+bool shbt_mar312_synth_fold_ok(uint16_t antibaryon_ratio_q16,
+                               uint16_t coset_weight_q16,
+                               uint32_t synth_status_flags);
 
 #ifdef __cplusplus
 }

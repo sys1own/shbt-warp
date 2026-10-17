@@ -632,5 +632,6 @@ pub fn run_all() -> Vec<GateResult> {
     v.extend(bat::run_all_bat());
     v.extend(bat::run_all_mar());
     v.extend(ew::run_all_ew());
+    v.extend(bat::run_all_synth());
     v
 }

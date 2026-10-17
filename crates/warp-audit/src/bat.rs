@@ -260,6 +260,141 @@ pub fn run_all_mar() -> Vec<GateResult> {
     ]
 }
 
+// ---- GATE-SYNTH-01..08 Bipartite Coset Synthesizer & Breeder Suite ---------
+
+fn s(n: u32, name: &str, metric: f64, tolerance: f64, passed: bool) -> GateResult {
+    GateResult {
+        gate: format!("GATE-SYNTH-{n:02}"),
+        name: name.to_string(),
+        metric,
+        tolerance,
+        passed,
+    }
+}
+
+/// GATE-SYNTH-01: Bipartite so(10)_312 Coset Central Charge & RG Threshold Lock (c_coset = 21727/616, Delta_1..3 verified).
+pub fn gate_synth_01() -> GateResult {
+    let diag = bat::apply_mar312_coset_fold(bat::MAR312_TOTAL_MASS_KG, bat::ANTIBARYON_PARTITION_RATIO);
+    let c_coset_exact = 21727.0 / 616.0;
+    let ok = diag.wzw_levels == (26, 8, 312)
+        && (diag.c_coset - c_coset_exact).abs() < 1e-12
+        && (diag.c_parent - diag.c_visible - diag.c_coset).abs() < 1e-12
+        && (diag.callan_symanzik_shifts.0 - 24.071227).abs() < 1e-6
+        && (diag.callan_symanzik_shifts.1 - 19.973448).abs() < 1e-6
+        && (diag.callan_symanzik_shifts.2 - 36.712129).abs() < 1e-6
+        && diag.rg_lock_verified;
+    s(1, "Bipartite so(10)_312 Coset Central Charge & RG Lock", diag.c_coset, c_coset_exact, ok)
+}
+
+/// GATE-SYNTH-02: Sugawara Weight Shift & 124-Braid Absorption (Delta h_vis = 45/64 = 0.703125, delta h_braid = -45/7936, Delta_fr == 0).
+pub fn gate_synth_02() -> GateResult {
+    let diag = bat::apply_mar312_coset_fold(bat::MAR312_TOTAL_MASS_KG, bat::ANTIBARYON_PARTITION_RATIO);
+    let ok = (diag.delta_h_vis - 45.0 / 64.0).abs() < 1e-15
+        && (diag.delta_h_per_braid - (-45.0 / 7936.0)).abs() < 1e-15
+        && (diag.delta_h_vis + 124.0 * diag.delta_h_per_braid).abs() < 1e-15
+        && diag.framing_defect == 0.0;
+    s(2, "Sugawara Weight Shift & 124-Braid Absorption", diag.delta_h_vis, 0.703125, ok)
+}
+
+/// GATE-SYNTH-03: 50/50 Bipartite Core Stoichiometry (188.495 kg visible 178m2HfB2/12C + 188.495 kg dark-ledger 16-bar, 376.99 kg total).
+pub fn gate_synth_03() -> GateResult {
+    let diag = bat::apply_mar312_coset_fold(bat::MAR312_TOTAL_MASS_KG, bat::ANTIBARYON_PARTITION_RATIO);
+    let ok = (diag.total_core_mass_kg - 376.99).abs() < 1e-9
+        && (diag.visible_baryon_mass_kg - 188.495).abs() < 1e-9
+        && (diag.folded_antibaryon_mass_kg - 188.495).abs() < 1e-9
+        && (diag.visible_hfb2_mass_kg - 171.323).abs() < 1e-2
+        && (diag.visible_diamond_mass_kg - 17.172).abs() < 1e-2;
+    s(3, "50/50 Bipartite Core Stoichiometry", diag.visible_baryon_mass_kg, 188.495, ok)
+}
+
+/// GATE-SYNTH-04: Foundry Synthesis Modes & Amplification (Q_fuel = 119,094 Mode 1c, 15,967 Mode 1a, 1,581 Mode 1b).
+pub fn gate_synth_04() -> GateResult {
+    let m1c = bat::evaluate_breeder_turnaround(bat::FoundrySynthesisMode::Mode1cSalvageIsomerBaryons);
+    let m1a = bat::evaluate_breeder_turnaround(bat::FoundrySynthesisMode::Mode1aNaturalFeedstock);
+    let m1b = bat::evaluate_breeder_turnaround(bat::FoundrySynthesisMode::Mode1bAsteroidRegolith);
+    let ok = m1c.amplification_q_fuel == 119_094.0
+        && m1a.amplification_q_fuel == 15_967.0
+        && m1b.amplification_q_fuel == 1_581.0
+        && (m1c.input_energy_pj - 0.2845).abs() < 1e-9
+        && (m1a.input_energy_pj - 2.1220).abs() < 1e-9
+        && (m1b.input_energy_pj - 21.4300).abs() < 1e-9;
+    s(4, "Foundry Synthesis Modes & Amplification Q_fuel", m1a.amplification_q_fuel, 15967.0, ok)
+}
+
+/// GATE-SYNTH-05: Zero-Boil-Off Dark-Ledger Anti-Baryon Stasis (C_Bbar = 0 J, Gamma_Bbar->B = 0 s^-1, unitarity residual <= 1e-15).
+pub fn gate_synth_05() -> GateResult {
+    let diag = bat::apply_mar312_coset_fold(bat::MAR312_TOTAL_MASS_KG, bat::ANTIBARYON_PARTITION_RATIO);
+    let mmio_ok = hil::mar312::synth_fold_ok(
+        hil::SHBT_SYNTH_ANTIBARYON_RATIO_50_50_Q16,
+        hil::SHBT_SYNTH_COSET_WEIGHT_45_64_Q16,
+        hil::SHBT_SYNTH_RG_LOCK_312 | hil::SHBT_SYNTH_CBARB_ZERO_VERIFIED,
+    );
+    let ok = diag.standby_render_cost_j == 0.0
+        && diag.boiloff_rate_s_inv == 0.0
+        && diag.unitarity_residual <= 1.0e-15
+        && diag.cbarb_zero_verified
+        && mmio_ok;
+    s(5, "Zero-Boil-Off Dark-Ledger Anti-Baryon Stasis", diag.unitarity_residual, 1.0e-15, ok)
+}
+
+/// GATE-SYNTH-06: Breeder Turnaround Latency (2.368 s Cruise / 0.3115 s Burst / 2.368 ms Impulse in Mode 1a; 14,293 daughter cores/parent).
+pub fn gate_synth_06() -> GateResult {
+    let m1a = bat::evaluate_breeder_turnaround(bat::FoundrySynthesisMode::Mode1aNaturalFeedstock);
+    let ok = (m1a.tau_cruise_s - 2.368).abs() < 1e-6
+        && (m1a.tau_burst_s - 0.3115).abs() < 1e-6
+        && (m1a.tau_impulse_s - 0.002_368).abs() < 1e-8
+        && m1a.daughter_cores_per_parent == 14_293;
+    s(6, "Breeder Turnaround Latency & Daughter Yield", m1a.tau_burst_s, 0.3115, ok)
+}
+
+/// GATE-SYNTH-07: Cryogenic & Electrical Bus Margin During Crystallization (P_Landauer = 665.2 W << 999.054 kW, T_core = 21.37 K < 32.92 K).
+pub fn gate_synth_07() -> GateResult {
+    let cryo = bat::cryogenic_margin_audit();
+    let ok = cryo.margin_passed
+        && (cryo.landauer_power_w - 665.2).abs() < 1e-6
+        && (cryo.t_core_peak_k - 21.37).abs() < 1e-6
+        && cryo.t_core_peak_k < 32.92;
+    s(7, "Cryogenic & Bus Margin During Crystallization", cryo.t_core_peak_k, 32.92, ok)
+}
+
+/// GATE-SYNTH-08: Multi-Hop SHBT-EW-312 Wormhole In-Situ Breeder Refueling Closure (Mission 3 10-hop & Mission 4 3-hop/39-hop downtime < 1e-7).
+pub fn gate_synth_08() -> GateResult {
+    let m3 = warp_wormhole_ew312::simulate_wormhole_refuel_hop(
+        3,
+        10,
+        bat::FoundrySynthesisMode::Mode1aNaturalFeedstock,
+        bat::OperatingTier::ImpulseEw,
+    );
+    let m4_burst = warp_wormhole_ew312::simulate_wormhole_refuel_hop(
+        4,
+        3,
+        bat::FoundrySynthesisMode::Mode1bAsteroidRegolith,
+        bat::OperatingTier::BurstPw,
+    );
+    let m4_imp = warp_wormhole_ew312::simulate_wormhole_refuel_hop(
+        4,
+        39,
+        bat::FoundrySynthesisMode::Mode1aNaturalFeedstock,
+        bat::OperatingTier::ImpulseEw,
+    );
+    let max_ratio = m3
+        .refuel_downtime_ratio
+        .max(m4_burst.refuel_downtime_ratio)
+        .max(m4_imp.refuel_downtime_ratio);
+    let ok = m3.profile_passed
+        && m4_burst.profile_passed
+        && m4_imp.profile_passed
+        && max_ratio < 1.0e-7;
+    s(8, "Multi-Hop EW-312 In-Situ Breeder Refueling Closure", max_ratio, 1.0e-7, ok)
+}
+
+pub fn run_all_synth() -> Vec<GateResult> {
+    vec![
+        gate_synth_01(), gate_synth_02(), gate_synth_03(), gate_synth_04(),
+        gate_synth_05(), gate_synth_06(), gate_synth_07(), gate_synth_08(),
+    ]
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -270,5 +405,13 @@ mod tests {
             assert!(res.passed, "gate {} ({}) failed: metric={}, tol={}", res.gate, res.name, res.metric, res.tolerance);
         }
     }
+
+    #[test]
+    fn test_gate_synth_all() {
+        for res in run_all_synth() {
+            assert!(res.passed, "gate {} ({}) failed: metric={}, tol={}", res.gate, res.name, res.metric, res.tolerance);
+        }
+    }
 }
+
 

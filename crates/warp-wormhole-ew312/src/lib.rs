@@ -9,8 +9,11 @@ pub mod causal_2pn;
 
 pub use constants::*;
 pub use classical_nogo::{verify_classical_bulk_nogo, verify_effective_corridor, ClassicalWormholeAudit, EffectiveCorridorAudit};
-pub use pipeline::{execute_wormhole_pipeline, PowerTier, WormholePipelineResult};
-pub use conops::{evaluate_mode_a, get_benchmark_missions, ConOpsMode, MissionSpec, StargateMetrics};
+pub use pipeline::{execute_stage4_with_synthesis, execute_wormhole_pipeline, PowerTier, WormholePipelineResult};
+pub use conops::{
+    evaluate_mode_a, get_benchmark_missions, simulate_wormhole_refuel_hop, ConOpsMode, MissionSpec,
+    StargateMetrics, WormholeRefuelProfile,
+};
 pub use causal_2pn::{evaluate_2pn_metric, interval_2pn, interval_2pn_with_shift, is_causally_authorized, Metric2pn};
 
 #[cfg(test)]

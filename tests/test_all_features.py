@@ -72,12 +72,14 @@ def main():
     mpath = REPO / "verification_matrix.json"
     if mpath.exists():
         m = json.loads(mpath.read_text())
-        matrix_ok = m["passed"] == 173 == m["total"]
-    check("cli verify 173/173", p.returncode == 0 and matrix_ok)
+        matrix_ok = m["passed"] == 181 == m["total"]
+    check("cli verify 181/181", p.returncode == 0 and matrix_ok)
     check("warp_results.tex", (REPO / "warp_results.tex").stat().st_size > 0)
 
     p = run([sys.executable, "-m", "shbt_warp.cli", "wormhole", "--mode", "mode-a"], timeout=300)
     check("cli wormhole", p.returncode == 0 and "SHBT-EW-312" in p.stdout)
+    p = run([sys.executable, "-m", "shbt_warp.cli", "synthesize-fuel", "--mode", "mode-1a", "--tier", "burst-pw"], timeout=300)
+    check("cli synthesize-fuel", p.returncode == 0 and "SHBT-RECON-SYNTH-MAR312" in p.stdout)
     p = run([sys.executable, "-m", "shbt_warp.cli", "sim"], timeout=300)
     check("cli sim", p.returncode == 0)
     p = run([sys.executable, "-m", "shbt_warp.cli", "hud", "--headless"], timeout=60)

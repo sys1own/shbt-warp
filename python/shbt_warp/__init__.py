@@ -2,7 +2,7 @@
 
 from shbt_warp._core import Simulation
 from shbt_warp.cad_engine import SHBTCADEngine, SimulationReport
-from shbt_warp.cli import main
+from shbt_warp.cli import main, simulate_wormhole_refuel_hop, synthesize_mar312_core
 from shbt_warp.custom_sim import BoundaryRegister, BulkSliceMetric, FGSliceProjector
 from shbt_warp.latex import LaTeXMacroExporter
 from shbt_warp.plots import PlotGenerator
@@ -19,6 +19,8 @@ __all__ = [
     "PlotGenerator",
     "main",
     "run_simulation",
+    "synthesize_mar312_core",
+    "simulate_wormhole_refuel_hop",
 ]
 
 

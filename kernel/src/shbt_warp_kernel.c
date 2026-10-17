@@ -463,4 +463,14 @@ uint8_t shbt_ew312_fsm_step(volatile shbt_ew312_mmio_t *ew, uint8_t next_state)
     }
 }
 
+bool shbt_mar312_synth_fold_ok(uint16_t antibaryon_ratio_q16,
+                               uint16_t coset_weight_q16,
+                               uint32_t synth_status_flags)
+{
+    const uint32_t req = SHBT_SYNTH_RG_LOCK_312 | SHBT_SYNTH_CBARB_ZERO_VERIFIED;
+    return (antibaryon_ratio_q16 == SHBT_SYNTH_ANTIBARYON_RATIO_50_50_Q16) &&
+           (coset_weight_q16 == SHBT_SYNTH_COSET_WEIGHT_45_64_Q16) &&
+           ((synth_status_flags & req) == req);
+}
+
 

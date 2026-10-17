@@ -259,7 +259,31 @@ pub mod mar312 {
     pub const MAR_FAULT_ADM_DET_UNLOCK: u32 = 0x0000_0020;
     pub const MAR_FAULT_WAKE_RIGIDITY: u32 = 0x0000_0040;
     pub const MAR_FAULT_TQEC_DEADLINE: u32 = 0x0000_0080;
+
+    pub const SHBT_SYNTH_STATE_COSET_ANTIBARYON_FOLD: u8 = 0x06;
+    pub const SHBT_SYNTH_STATE_SYMPLECTIC_CRYSTALLIZATION: u8 = 0x08;
+    pub const SHBT_SYNTH_ANTIBARYON_RATIO_50_50_Q16: u16 = 0x8000;
+    pub const SHBT_SYNTH_COSET_WEIGHT_45_64_Q16: u16 = 0xB400;
+    pub const SHBT_SYNTH_RG_LOCK_312: u32 = 1 << 16;
+    pub const SHBT_SYNTH_CBARB_ZERO_VERIFIED: u32 = 1 << 17;
+
+    pub fn synth_fold_ok(
+        antibaryon_ratio_q16: u16,
+        coset_weight_q16: u16,
+        synth_status_flags: u32,
+    ) -> bool {
+        let req = SHBT_SYNTH_RG_LOCK_312 | SHBT_SYNTH_CBARB_ZERO_VERIFIED;
+        antibaryon_ratio_q16 == SHBT_SYNTH_ANTIBARYON_RATIO_50_50_Q16
+            && coset_weight_q16 == SHBT_SYNTH_COSET_WEIGHT_45_64_Q16
+            && (synth_status_flags & req) == req
+    }
 }
+
+pub use mar312::{
+    SHBT_SYNTH_ANTIBARYON_RATIO_50_50_Q16, SHBT_SYNTH_CBARB_ZERO_VERIFIED,
+    SHBT_SYNTH_COSET_WEIGHT_45_64_Q16, SHBT_SYNTH_RG_LOCK_312,
+    SHBT_SYNTH_STATE_COSET_ANTIBARYON_FOLD, SHBT_SYNTH_STATE_SYMPLECTIC_CRYSTALLIZATION,
+};
 
 #[derive(Clone, Copy, Debug)]
 pub struct ShbtMar312Telemetry {
