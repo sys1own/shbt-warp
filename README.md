@@ -96,13 +96,13 @@ battery-reactor supplies the multi-petawatt burst and hyperluminal envelope.
                                                      ▼
  ┌── [ TIER 2: 4th-GEN SO(10)₃₁₂ MASS-ANNIHILATION REACTOR (0.015–2.700 MV DC) ] ─────┐
  │                                                                                    │
- │  ╭──────────────────────────────────────╮    40.0 keV Seed    ╭─────────────────╮  │
- │  │ SHBT-MAR-312 Fuel Core               │─── Laser Trigger ──►│ Borrmann Cavity │  │
- │  │ • 376.99 kg | 33.8822 EJ (c^2)       │    (Gain G=61.15)   │ • ε_B = 0.9852  │  │
+ │  ╭───────────────────────────────────────╮   40.0 keV Seed    ╭─────────────────╮  │
+ │  │ SHBT-MAR-312 Fuel Core                │── Laser Trigger ──►│ Borrmann Cavity │  │
+ │  │ • 376.99 kg | 33.8822 EJ (c^2)        │   (Gain G=61.15)   │ • ε_B = 0.9852  │  │
  │  │ • 188.495 kg B_vis + 188.495 kg B_dark│                    │ • f_M = 0.782   │  │
- │  │ • Zero Standby Annihilation (0 s^-1) │                     ╰────────┬────────╯  │
- │  │ • P_quiescent = 354.27 kW (48 kW TEG)│                              │           │
- │  ╰──────────────────┬───────────────────╯                              │ Transmuted│
+ │  │ • Zero Standby Annihilation (0 s^-1)  │                    ╰────────┬────────╯  │
+ │  │ • P_quiescent = 354.27 kW (48 kW TEG) │                             │           │
+ │  ╰──────────────────┬────────────────────╯                             │ Transmuted│
  │                     │                                                  │ γ / plasma│
  │                     └─► 48.0 kW Standby TEG Recovery ──► [To Tier 1]   ▼           │
  │                                                                                    │
@@ -123,11 +123,11 @@ battery-reactor supplies the multi-petawatt burst and hyperluminal envelope.
  │                                         │                                          │
  │         ┌───────────────────────────────┴───────────────────────────────┐          │
  │         ▼                                                               ▼          │
- │  [ OPERATING TIER: CRUISE-PW ]                               [ OPERATING TIER: BURST-PW ]  │
- │  • v_s = 89.6c Continuous Cruise                             • v_s = 681.2c Sustained Burst│
- │  • P_gross = 1.00 PW | P_net = 895.19 TW                     • P_gross = 7.60 PW | 6.80 PW │
- │  • Range: 423,839 light-years                                • Range: 36,312.4 light-years │
- └─────────────────────┬───────────────────────────────────────────────────┬──────────┘
+ │  [ OPERATING TIER: CRUISE-PW ]                       [ OPERATING TIER: BURST-PW ]  │
+ │  • v_s = 89.6c Continuous Cruise                     • v_s = 681.2c Sustained Burst│
+ │  • P_gross = 1.00 PW | P_net = 895.19 TW             • P_gross = 7.60 PW | 6.80 PW │
+ │  • Range: 423,839 light-years                        • Range: 36,312.4 light-years │
+ └─────────────────────┬───────────────────────────────────────┬──────────────────────┘
                        │                                       │
                        └───────────────────┬───────────────────┘
                                            │
