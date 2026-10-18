@@ -16,7 +16,8 @@ __pycache__
 .pytest_cache
 
 # Generated simulation outputs (produced by `make` or `shbt-warp-sim`)
-/figures
+/figures/*
+!/figures/shbt_mar312_ibr_cutaway.png
 /sim_results.tex
 /cad_sim_results.tex
 sweep_results.csv

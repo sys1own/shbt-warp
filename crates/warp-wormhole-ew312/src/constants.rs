@@ -34,6 +34,7 @@ pub const ETA_D: f64 = 23.0 / 33.0;
 /// Number of independent topological Fibonacci anyon braid channels.
 pub const FIBONACCI_BRAID_CHANNELS: usize = 124;
 /// Quantum dimension of Fibonacci anyon tau: (1 + sqrt(5))/2.
+#[allow(clippy::approx_constant)]
 pub const D_TAU: f64 = 1.618033988749895;
 /// Braid capacity in nats / weight units: 124 * ln(d_tau) = 38.196601.
 pub const C_BRAID_NATS: f64 = 38.196601;

@@ -3,7 +3,7 @@
 use crate::constants::*;
 
 /// Power tier for folding latency calculation.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum PowerTier {
     BaselineHf178,
     ContinuousCruise,
@@ -56,8 +56,7 @@ pub fn execute_stage1(nucleons: f64, tier: PowerTier) -> Stage1Ingestion {
     let unitarity_defect = 5.0e-125; // < 1e-120
     let code_norm_operator = CODE_NORM_OPERATOR;
 
-    let stage_passed = nucleons >= N_LOCAL_MIN
-        && nucleons <= N_LOCAL_MAX
+    let stage_passed = (N_LOCAL_MIN..=N_LOCAL_MAX).contains(&nucleons)
         && cycle_loss_j <= 45.575e12
         && unitarity_defect < TRACE_NORM_PRESERVATION_BOUND
         && code_norm_operator <= CODE_NORM_LIMIT;
@@ -198,7 +197,7 @@ pub fn execute_stage4_with_synthesis(synthesize_core: bool) -> Stage4Egress {
         None
     };
 
-    let synth_ok = coset_fold_diagnostics.as_ref().map_or(true, |d| {
+    let synth_ok = coset_fold_diagnostics.as_ref().is_none_or(|d| {
         d.rg_lock_verified
             && d.cbarb_zero_verified
             && d.framing_defect == 0.0

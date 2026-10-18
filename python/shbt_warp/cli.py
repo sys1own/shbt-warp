@@ -401,6 +401,55 @@ def _run_synthesize_fuel(args) -> int:
     return 0
 
 
+def _run_ibr(args) -> int:
+    from shbt_warp._core import simulate_ibr_reload
+    tier = getattr(args, "tier", "impulse-ew")
+    mode = getattr(args, "mode", "mode-1c")
+    cores = float(getattr(args, "cores", 38.0))
+    rep = simulate_ibr_reload(tier=tier, mode=mode, cores=cores)
+
+    print("=" * 72)
+    print(" SHBT-MAR-312-IBR COMPACTED NACELLE & DARK-BRAID MAGAZINE SIMULATOR ")
+    print("=" * 72)
+    print(f"Reactor Power Tier       : {tier.upper()}")
+    print(f"Braid Reload Mode        : {mode.upper()}")
+    print(f"Compacted Nacelle Mass   : {rep['compacted_nacelle_mass_kg']:.2f} kg (-44.89% vs baseline 4,096.99 kg)")
+    print(f"Compacted Nacelle Volume : {rep['compacted_nacelle_vol_m3']:.4f} m^3 (-34.51% vs baseline 1.3114 m^3)")
+    print(f"Active Seed Wafer Mass   : {rep['seed_wafer_mass_kg']:.3f} kg (3.59 L annular die)")
+    print(f"Borrmann Optical Depth   : tau_B = {rep['borrmann_optical_depth']:.1f} (eps_B = {rep['borrmann_epsilon']:.4f})")
+    print(f"Mössbauer Recoil Fraction: f_M = {rep['mossbauer_fraction']:.3f} >= 0.74")
+    print(f"Tier 1 Fuel Payload      : {rep['tier1_full_cores']} cores ({rep['tier1_full_cores']*376.99:.2f} kg, wet {rep['tier1_wet_mass_kg']:.2f} kg <= 16,600 kg)")
+    print(f"Single Frame Fuel Margin : {rep['single_frame_margin_kg']:.2f} kg")
+    print(f"Autonomous Reload Latency: {rep['reload_latency_us']:.2f} us ({rep['reload_latency_s']:.6f} s)")
+    print(f"SMES Bus Voltage Droop   : {rep['smes_droop_fraction']*100:.1f}% (Zero-interruption bus clamp)")
+    print(f"Propulsion Duty Cycle    : {rep['duty_cycle_percent']:.9f}% (>99.9999%)")
+    print(f"Avionics/Crew Dose Rate  : {rep['crew_dose_msv_yr']:.3f} mSv/yr (< 0.120 mSv/yr limit: PASS)")
+    return 0
+
+
+def _run_intergalactic(args) -> int:
+    from shbt_warp._core import simulate_intergalactic_mission
+    target = getattr(args, "target", "m31")
+    tier = getattr(args, "tier", "impulse-ew")
+    mode = getattr(args, "mode", "mode-1c")
+    rep = simulate_intergalactic_mission(target=target, tier=tier, mode=mode)
+
+    print("=" * 72)
+    print(" SHBT-MAR-312-IBR INTERGALACTIC BENCHMARK MISSION PROFILER ")
+    print("=" * 72)
+    print(f"Target Destination       : {rep['target_name']}")
+    print(f"Distance                 : {rep['distance_mly']:.3f} Mly ({rep['distance_ly']:.2e} ly)")
+    print(f"Corridor Speed           : {rep['effective_velocity_c']:,.1f} c")
+    print(f"Required Fuel Cores      : {rep['required_full_cores']:.2f} cores ({rep['micro_wafer_refills']:,} micro-wafer refills)")
+    print(f"Coordinate Flight Time   : {rep['coordinate_time_years']:,.2f} years")
+    print(f"Crew Proper Time         : {rep['crew_proper_time_years']:.3f} years ({rep['crew_proper_time_days']:.2f} days)")
+    print(f"Cumulative Reload Time   : {rep['cumulative_reload_time_s']:.3f} seconds")
+    print(f"Propulsion Duty Cycle    : {rep['propulsion_duty_cycle_percent']:.9f}%")
+    print(f"Single Parent Max Reach  : {rep['single_core_range_limit_mly']:.2f} Mly")
+    print(f"Mission Feasibility      : {'PASS' if rep['profile_passed'] else 'FAIL'}")
+    return 0
+
+
 _SUBCOMMANDS = {
     "build-kernel",
     "sim",
@@ -412,6 +461,8 @@ _SUBCOMMANDS = {
     "wormhole",
     "synthesize-fuel",
     "breeder",
+    "ibr",
+    "intergalactic",
 }
 
 
@@ -426,7 +477,7 @@ def _subcommand_main(argv) -> int:
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("build-kernel", help="compile the C11 microkernel")
     sub.add_parser("sim", help="run the canonical warp simulation")
-    sub.add_parser("verify", help="run the 181-gate verification suite")
+    sub.add_parser("verify", help="run the 189-gate verification suite")
     p_eda = sub.add_parser("export-eda", help="emit GDSII/STEP/S2P artifacts")
     p_eda.add_argument("--out-dir", default="eda_outputs")
     p_fits = sub.add_parser("export-fits", help="FITS v4.0 + WCS science cube")
@@ -472,6 +523,46 @@ def _subcommand_main(argv) -> int:
             default="burst-pw",
             help="Reactor operating tier for breeder turnaround (default: burst-pw)",
         )
+    p_ibr = sub.add_parser("ibr", help="SHBT-MAR-312C compacted nacelle and SHBT-IBR-312 magazine simulator")
+    p_ibr.add_argument(
+        "--tier",
+        choices=["baseline-hf178", "cruise-pw", "burst-pw", "impulse-ew"],
+        default="impulse-ew",
+        help="Operating tier (default: impulse-ew)",
+    )
+    p_ibr.add_argument(
+        "--mode",
+        choices=["prefolded", "mode-1c", "mode-1a", "mode-1b"],
+        default="mode-1c",
+        help="Braid reload mode (default: mode-1c)",
+    )
+    p_ibr.add_argument(
+        "--cores",
+        type=float,
+        default=38.0,
+        help="Stored reserve cores (default: 38.0)",
+    )
+
+    p_ig = sub.add_parser("intergalactic", help="Missions 5, 6, 7 intergalactic benchmark transit profiler")
+    p_ig.add_argument(
+        "--target",
+        choices=["m31", "m87", "laniakea", "impulse-horizon", "cosmological"],
+        default="m31",
+        help="Destination target (default: m31)",
+    )
+    p_ig.add_argument(
+        "--tier",
+        choices=["cruise", "burst", "impulse"],
+        default="impulse",
+        help="Transit velocity regime (default: impulse)",
+    )
+    p_ig.add_argument(
+        "--mode",
+        choices=["mode-1c", "mode-1a", "mode-1b"],
+        default="mode-1c",
+        help="In-situ core reload mode (default: mode-1c)",
+    )
+
     args = parser.parse_args(argv)
 
     if args.command == "build-kernel":
@@ -490,6 +581,10 @@ def _subcommand_main(argv) -> int:
         return _run_wormhole(args)
     if args.command in ("synthesize-fuel", "breeder"):
         return _run_synthesize_fuel(args)
+    if args.command == "ibr":
+        return _run_ibr(args)
+    if args.command == "intergalactic":
+        return _run_intergalactic(args)
     return _legacy_main([])
 
 

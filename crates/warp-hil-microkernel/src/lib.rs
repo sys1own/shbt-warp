@@ -347,8 +347,8 @@ pub fn mar312_tick_dispatch(
         mar.regs[10] = (0.9420 * 4294967296.0) as u64;
         fault
     } else {
-        mar.regs[13] = 0 | ((mar312::MAR_STATE_BURST_TRACTION as u64) << 32);
-        mar.regs[14] = 0 | ((telem.tqec_latency_ps as u64) << 32);
+        mar.regs[13] = (mar312::MAR_STATE_BURST_TRACTION as u64) << 32;
+        mar.regs[14] = (telem.tqec_latency_ps as u64) << 32;
         mar.regs[10] = (0.9420 * 4294967296.0) as u64;
         mar312::MAR_FAULT_NONE
     }
@@ -405,6 +405,7 @@ pub mod ew312 {
             }
         }
 
+        #[allow(clippy::too_many_arguments)]
         pub fn evaluate_2pn(
             &mut self,
             dt: f64,
@@ -462,5 +463,68 @@ pub mod ew312 {
         }
     }
 }
+
+pub mod ibr312 {
+    pub const SHBT_IBR312_MAGAZINE_BANKS: usize = 16;
+    pub const SHBT_IBR312_MAGAZINE_SIZE: usize = 33792;
+
+    pub const SHBT_MAR_SYMPLECTIC_SHIELD_LOCK: u32 = 1 << 8;
+    pub const SHBT_MAR_REBCO_DEFLECTOR_18T5: u32 = 1 << 9;
+    pub const SHBT_IBR_AUTO_RELOAD_ARMED: u32 = 1 << 10;
+    pub const SHBT_IBR_RELOAD_IN_PROGRESS: u32 = 1 << 11;
+    pub const SHBT_IBR_ZERO_VOLUME_LOCK: u32 = 1 << 12;
+    pub const SHBT_IBR_ADM_FRAME_COMPLIANT: u32 = 1 << 13;
+
+    pub const SYMPLECTIC_S_FACTOR_Q32: u32 = 0x1782_9CBC;
+    pub const SYMPLECTIC_SHIELD_MASS_G: u32 = 384_880;
+    pub const COMPACTED_NACELLE_MASS_G: u32 = 2_257_700;
+    pub const CREW_DOSE_NSV_YR: u32 = 114_000;
+
+    #[repr(C, align(64))]
+    #[derive(Clone, Copy, Debug)]
+    pub struct ShbtIbr312Mmio {
+        pub regs: [u64; 16],
+    }
+
+    const _: [(); 128] = [(); std::mem::size_of::<ShbtIbr312Mmio>()];
+    const _: [(); 64] = [(); std::mem::align_of::<ShbtIbr312Mmio>()];
+
+    impl ShbtIbr312Mmio {
+        pub fn init() -> Self {
+            let mut s = Self { regs: [0; 16] };
+            // Set 0x58 (low word of regs[11]) to SYMPLECTIC_S_FACTOR_Q32,
+            // 0x5C (high word of regs[11]) to SYMPLECTIC_SHIELD_MASS_G
+            s.regs[11] = (SYMPLECTIC_S_FACTOR_Q32 as u64) | ((SYMPLECTIC_SHIELD_MASS_G as u64) << 32);
+            // 0x60 (low word of regs[12]) to COMPACTED_NACELLE_MASS_G
+            s.regs[12] = COMPACTED_NACELLE_MASS_G as u64;
+            // 0x74 (low word of regs[14]) to CREW_DOSE_NSV_YR
+            s.regs[14] = (CREW_DOSE_NSV_YR as u64) << 32;
+            s
+        }
+    }
+
+    #[repr(C, align(64))]
+    #[derive(Clone, Copy, Debug)]
+    pub struct ShbtStinespringMagazine {
+        pub frames: [[u8; 2112]; 16],
+    }
+
+    const _: [(); 33792] = [(); std::mem::size_of::<ShbtStinespringMagazine>()];
+
+    impl ShbtStinespringMagazine {
+        pub fn new() -> Self {
+            Self {
+                frames: [[0u8; 2112]; 16],
+            }
+        }
+    }
+
+    impl Default for ShbtStinespringMagazine {
+        fn default() -> Self {
+            Self::new()
+        }
+    }
+}
+
 
 

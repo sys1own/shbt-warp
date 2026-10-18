@@ -32,12 +32,12 @@ def test_build_kernel_and_reference_c():
     assert "all checks passed" in proc.stdout
 
 
-def test_verify_173_gates():
+def test_verify_189_gates():
     proc = cli("verify", timeout=900)
     assert proc.returncode == 0, proc.stdout + proc.stderr
     matrix = json.loads((REPO / "verification_matrix.json").read_text())
-    assert matrix["total"] == 173
-    assert matrix["passed"] == 173
+    assert matrix["total"] == 189
+    assert matrix["passed"] == 189
     assert all(g["passed"] for g in matrix["gates"])
     assert (REPO / "warp_results.tex").stat().st_size > 0
 
@@ -51,6 +51,20 @@ def test_wormhole_cli():
     proc_b = cli("wormhole", "--mode", "mode-b", "--tier", "impulse")
     assert proc_b.returncode == 0, proc_b.stdout + proc_b.stderr
     assert "Mode B" in proc_b.stdout
+
+
+def test_ibr_cli():
+    proc = cli("ibr", "--tier", "impulse-ew", "--mode", "mode-1c", "--cores", "38")
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert "SHBT-MAR-312-IBR" in proc.stdout
+    assert "Compacted Nacelle Mass" in proc.stdout
+
+
+def test_intergalactic_cli():
+    proc = cli("intergalactic", "--target", "m31", "--tier", "impulse", "--mode", "mode-1c")
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert "Andromeda (M31)" in proc.stdout
+    assert "Mission Feasibility      : PASS" in proc.stdout
 
 
 def test_sim_canonical():

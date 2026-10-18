@@ -101,25 +101,52 @@ typedef struct {
     volatile uint32_t inductive_recovery_eff_q32;
     /* 0x54 - 0x57: 5-Stage DEC Net Conversion Efficiency (Q0.32) */
     volatile uint32_t net_conversion_eff_q32;
-    /* 0x58 - 0x5B: Dark Ledger Coupling Ratio (eta_D = 23/33 in Q0.32) */
-    volatile uint32_t dark_ledger_sink_q32;
-    /* 0x5C - 0x5F: Active Drive Ratio (eta_A = 10/33 in Q0.32) */
-    volatile uint32_t active_drive_ratio_q32;
-    /* 0x60 - 0x63: TMSV Squeezing Parameter (r = 2.50 in Q16.16) */
-    volatile uint32_t tmsv_squeezing_r_q16;
-    /* 0x64 - 0x67: Hardware Interlock Control Command Register */
-    volatile uint32_t interlock_cmd_reg;
+    /* 0x58 - 0x7F: Dual-View Register Extension (MAR-312 Base & MAR-312-IBR) */
+    union {
+        struct {
+            /* 0x58 - 0x5B: Dark Ledger Coupling Ratio (eta_D = 23/33 in Q0.32) */
+            volatile uint32_t dark_ledger_sink_q32;
+            /* 0x5C - 0x5F: Active Drive Ratio (eta_A = 10/33 in Q0.32) */
+            volatile uint32_t active_drive_ratio_q32;
+            /* 0x60 - 0x63: TMSV Squeezing Parameter (r = 2.50 in Q16.16) */
+            volatile uint32_t tmsv_squeezing_r_q16;
+            /* 0x64 - 0x67: Hardware Interlock Control Command Register */
+            volatile uint32_t interlock_cmd_reg;
 
-    /* 0x68 - 0x6B: Sub-2.10 ns PCSS Crowbar Command Register (0xFFFFFFFF = TRIP) */
-    volatile uint32_t pcss_crowbar_cmd;
-    /* 0x6C - 0x6F: 5-Phase Dispatch State Machine Word */
-    volatile uint32_t mar_state;
-    /* 0x70 - 0x73: MAR-312 Hardware Fault Word */
-    volatile uint32_t mar_fault_word;
-    /* 0x74 - 0x77: Blossom-V TQEC Decoding Latency in picoseconds (<= 45,000 ps) */
-    volatile uint32_t tqec_latency_ps;
-    /* 0x78 - 0x7F: Hardware Alignment Padding */
-    volatile uint8_t  padding[8];
+            /* 0x68 - 0x6B: Sub-2.10 ns PCSS Crowbar Command Register (0xFFFFFFFF = TRIP) */
+            volatile uint32_t pcss_crowbar_cmd;
+            /* 0x6C - 0x6F: 5-Phase Dispatch State Machine Word */
+            volatile uint32_t mar_state;
+            /* 0x70 - 0x73: MAR-312 Hardware Fault Word */
+            volatile uint32_t mar_fault_word;
+            /* 0x74 - 0x77: Blossom-V TQEC Decoding Latency in picoseconds (<= 45,000 ps) */
+            volatile uint32_t tqec_latency_ps;
+            /* 0x78 - 0x7F: Hardware Alignment Padding */
+            volatile uint8_t  padding[8];
+        };
+        struct {
+            /* 0x58 - 0x5B: Symplectic S Factor (0x17829CBC) */
+            volatile uint32_t symplectic_s_factor_q32;
+            /* 0x5C - 0x5F: Symplectic Shield Mass in grams (384,880 g) */
+            volatile uint32_t symplectic_shield_mass_g;
+            /* 0x60 - 0x63: Compacted Nacelle Mass in grams (2,257,700 g) */
+            volatile uint32_t compacted_nacelle_mass_g;
+            /* 0x64 - 0x65: Active Bank Selector (0..15) */
+            volatile uint16_t ibr_frame_bank_select;
+            /* 0x66 - 0x67: Reload Mode (0..3) */
+            volatile uint16_t ibr_reload_mode;
+            /* 0x68 - 0x6B: Stored Micro-Batches Remaining */
+            volatile uint32_t ibr_stored_micro_batches;
+            /* 0x6C - 0x6F: Total Hot-Swap Reload Count */
+            volatile uint32_t ibr_reload_count;
+            /* 0x70 - 0x73: Last Reload Execution Latency in nanoseconds */
+            volatile uint32_t ibr_last_latency_ns;
+            /* 0x74 - 0x77: Crew Cabin Dose Rate in nSv/yr (114,000 nSv/yr) */
+            volatile uint32_t ibr_crew_dose_nsv_yr;
+            /* 0x78 - 0x7F: Frame Decoupling Angle (cos^2 theta in Q0.64) */
+            volatile uint64_t ibr_frame_angle_q64;
+        };
+    };
 } shbt_mar312_mmio_t;
 
 _Static_assert(sizeof(shbt_mar312_mmio_t) == SHBT_MAR312_MMIO_TOTAL_SIZE,
@@ -136,6 +163,12 @@ _Static_assert(offsetof(shbt_mar312_mmio_t, mar_fault_word) == 0x70,
                "mar_fault_word offset must be 0x70");
 _Static_assert(offsetof(shbt_mar312_mmio_t, tqec_latency_ps) == 0x74,
                "tqec_latency_ps offset must be 0x74");
+_Static_assert(offsetof(shbt_mar312_mmio_t, symplectic_s_factor_q32) == 0x58,
+               "symplectic_s_factor_q32 offset must be 0x58");
+_Static_assert(offsetof(shbt_mar312_mmio_t, compacted_nacelle_mass_g) == 0x60,
+               "compacted_nacelle_mass_g offset must be 0x60");
+_Static_assert(offsetof(shbt_mar312_mmio_t, ibr_frame_angle_q64) == 0x78,
+               "ibr_frame_angle_q64 offset must be 0x78");
 
 /**
  * @brief 2,112-Byte SRAM Unified Stinespring Arena at 0x70001000

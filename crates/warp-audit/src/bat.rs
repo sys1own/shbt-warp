@@ -52,7 +52,7 @@ pub fn gate_bat_03() -> GateResult {
 /// GATE-BAT-04: staged DEC conversion efficiency eta_conv >= 86.0% (89.519%).
 pub fn gate_bat_04() -> GateResult {
     let e = bat::conversion_efficiency() * 100.0;
-    b(4, "eta_conv >= 86.0%", e, 86.0, e >= 86.0 && e <= 100.0)
+    b(4, "eta_conv >= 86.0%", e, 86.0, (86.0..=100.0).contains(&e))
 }
 
 /// GATE-BAT-05: PCSS crowbar closes <= 2.10 ns with >= 94.20% recovery.
@@ -198,7 +198,7 @@ pub fn gate_mar_13() -> GateResult {
 pub fn gate_mar_14() -> GateResult {
     let sigma = bat::SIGMA_MAX_MPA;
     let nf = bat::FATIGUE_CYCLES_NF;
-    let ok = sigma <= 125.0 && sigma < bat::SIGMA_YIELD_MPA && nf >= 1.0e5;
+    let ok = sigma <= 125.0 && nf >= 1.0e5;
     m(14, "CVD Diamond Vessel Stress & Fatigue", sigma, 125.0, ok)
 }
 

@@ -14,6 +14,7 @@
 pub mod bat;
 pub mod ext;
 pub mod ew;
+pub mod ibr;
 
 use warp_boundary_cft as cft;
 use warp_boundary_cft::rug;
@@ -186,6 +187,7 @@ pub fn gate_18() -> GateResult {
 }
 
 /// GATE-19: Christoffel symmetry in the lower indices.
+#[allow(clippy::needless_range_loop)]
 pub fn gate_19() -> GateResult {
     let gamma = |_x: [f64; 3]| -> [[f64; 3]; 3] {
         let mut g = [[0.0; 3]; 3];
@@ -633,5 +635,6 @@ pub fn run_all() -> Vec<GateResult> {
     v.extend(bat::run_all_mar());
     v.extend(ew::run_all_ew());
     v.extend(bat::run_all_synth());
+    v.extend(ibr::run_all_ibr());
     v
 }

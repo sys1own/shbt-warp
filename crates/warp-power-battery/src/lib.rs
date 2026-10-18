@@ -14,6 +14,9 @@
 pub mod synthesizer;
 pub use synthesizer::*;
 
+pub mod compacted_nacelle;
+pub use compacted_nacelle::*;
+
 // ---- Algebraic & Stinespring Closure Invariants ----------------------------
 
 pub const WZW_K_LEPTON: u32 = 26;
@@ -33,6 +36,7 @@ pub const ETA_A: f64 = 10.0 / 33.0;
 pub const ETA_D: f64 = 23.0 / 33.0;
 
 pub const FIBONACCI_CHANNELS: usize = 124;
+#[allow(clippy::approx_constant)]
 pub const FIBONACCI_QUANTUM_DIM: f64 = 1.618033988749895; // (1 + sqrt(5))/2
 pub const BRAID_CAPACITY_BITS: f64 = 86.084964; // 124 * log2(phi)
 pub const BRAID_CAPACITY_NATS: f64 = 38.196601;

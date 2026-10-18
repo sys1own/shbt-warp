@@ -63,6 +63,8 @@ def main():
     check("Z3 THM-MAR-01..03 PROVED", p.returncode == 0 and "ALL 3 MAR-312 THEOREMS FORMALLY DISCHARGED" in p.stdout)
     p = run([sys.executable, "formal/verify_wormhole_ew312.py"], timeout=300)
     check("Z3 EW-312 GATES PROVED", p.returncode == 0 and "ALL 8 EW-312 FORMAL GATES DISCHARGED" in p.stdout)
+    p = run([sys.executable, "formal/verify_ibr312.py"], timeout=300)
+    check("Z3 IBR-312 THEOREMS PROVED", p.returncode == 0 and "2/2 SHBT-MAR-312-IBR THEOREMS PROVED" in p.stdout)
 
     # 3. CLI subcommands.
     p = run([sys.executable, "-m", "shbt_warp.cli", "build-kernel"], timeout=300)
@@ -72,14 +74,18 @@ def main():
     mpath = REPO / "verification_matrix.json"
     if mpath.exists():
         m = json.loads(mpath.read_text())
-        matrix_ok = m["passed"] == 181 == m["total"]
-    check("cli verify 181/181", p.returncode == 0 and matrix_ok)
+        matrix_ok = m["passed"] == 189 == m["total"]
+    check("cli verify 189/189", p.returncode == 0 and matrix_ok)
     check("warp_results.tex", (REPO / "warp_results.tex").stat().st_size > 0)
 
     p = run([sys.executable, "-m", "shbt_warp.cli", "wormhole", "--mode", "mode-a"], timeout=300)
     check("cli wormhole", p.returncode == 0 and "SHBT-EW-312" in p.stdout)
     p = run([sys.executable, "-m", "shbt_warp.cli", "synthesize-fuel", "--mode", "mode-1a", "--tier", "burst-pw"], timeout=300)
     check("cli synthesize-fuel", p.returncode == 0 and "SHBT-RECON-SYNTH-MAR312" in p.stdout)
+    p = run([sys.executable, "-m", "shbt_warp.cli", "ibr", "--tier", "impulse-ew", "--mode", "mode-1c"], timeout=300)
+    check("cli ibr", p.returncode == 0 and "SHBT-MAR-312-IBR" in p.stdout)
+    p = run([sys.executable, "-m", "shbt_warp.cli", "intergalactic", "--target", "m31", "--tier", "impulse"], timeout=300)
+    check("cli intergalactic", p.returncode == 0 and "SHBT-MAR-312-IBR" in p.stdout)
     p = run([sys.executable, "-m", "shbt_warp.cli", "sim"], timeout=300)
     check("cli sim", p.returncode == 0)
     p = run([sys.executable, "-m", "shbt_warp.cli", "hud", "--headless"], timeout=60)

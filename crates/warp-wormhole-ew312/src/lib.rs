@@ -6,6 +6,7 @@ pub mod classical_nogo;
 pub mod pipeline;
 pub mod conops;
 pub mod causal_2pn;
+pub mod intergalactic;
 
 pub use constants::*;
 pub use classical_nogo::{verify_classical_bulk_nogo, verify_effective_corridor, ClassicalWormholeAudit, EffectiveCorridorAudit};
@@ -15,10 +16,12 @@ pub use conops::{
     StargateMetrics, WormholeRefuelProfile,
 };
 pub use causal_2pn::{evaluate_2pn_metric, interval_2pn, interval_2pn_with_shift, is_causally_authorized, Metric2pn};
+pub use intergalactic::*;
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use warp_power_battery::BraidReloadMode;
 
     #[test]
     fn test_classical_nogo_and_corridor() {
@@ -73,6 +76,34 @@ mod tests {
         let r = [1.496e11, 0.0, 0.0];
         assert!(is_causally_authorized(1.0, [1.0e5, 0.0, 0.0], r));
         assert!(!is_causally_authorized(1.0e-5, [1.0e9, 0.0, 0.0], r));
+    }
+
+    #[test]
+    fn test_intergalactic_missions() {
+        let m5_cruise = IntergalacticBraidMission::compute_profile(
+            IntergalacticTarget::Mission5AndromedaM31,
+            PowerTier::ContinuousCruise,
+            BraidReloadMode::Mode1cIsobaricRecycle,
+        );
+        assert!(m5_cruise.profile_passed);
+        assert!(m5_cruise.required_full_cores < 6.5);
+        assert!(m5_cruise.propulsion_duty_cycle > 0.999999);
+
+        let m5_imp = IntergalacticBraidMission::compute_profile(
+            IntergalacticTarget::Mission5AndromedaM31,
+            PowerTier::ExawattImpulse,
+            BraidReloadMode::Mode1cIsobaricRecycle,
+        );
+        assert!(m5_imp.profile_passed);
+        assert!((m5_imp.crew_proper_time_years * 365.25 - 10.33).abs() < 0.5);
+
+        let m7_core = IntergalacticBraidMission::compute_profile(
+            IntergalacticTarget::Mission7LaniakeaCore,
+            PowerTier::SustainedBurst,
+            BraidReloadMode::Mode1cIsobaricRecycle,
+        );
+        assert!(m7_core.profile_passed);
+        assert!(m7_core.propulsion_duty_cycle > 0.999999);
     }
 }
 

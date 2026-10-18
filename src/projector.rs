@@ -1,4 +1,5 @@
 //! Fefferman–Graham slice projectors and 3-D metric calculators.
+#![allow(clippy::manual_is_multiple_of)]
 
 use crate::constants::*;
 use ndarray as nd;

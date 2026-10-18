@@ -29,6 +29,7 @@
 #include "shbt_warp_hardware.h"
 #include "shbt_isomer_battery_mmio.h"
 #include "shbt_mar312_mmio.h"
+#include "shbt_ibr312_mmio.h"
 
 /* Arena symbols are provided by the hosted arena TU inside
  * libshbt_warp_reference.so (kernel/src/arena_stubs.c). */
@@ -37,6 +38,9 @@ int main(void)
 {
     /* 1. 128-byte dual-cacheline register block and offset contract. */
     assert(sizeof(shbt_warp_mmio_t) == 128);
+    assert(sizeof(shbt_mar312_mmio_t) == 128);
+    assert(sizeof(shbt_ibr312_mmio_t) == 128);
+    assert(sizeof(shbt_stinespring_magazine_t) == 33792);
     assert(REG_CTRL_STATUS == 0x00 && REG_TARGET_VELOCITY == 0x08);
     assert(REG_CURRENT_VELOCITY == 0x10 && REG_CAVITY_ACCEL_RAW == 0x18);
     assert(REG_BUBBLE_RADIUS_NM == 0x20 && REG_WALL_THICKNESS_PM == 0x28);

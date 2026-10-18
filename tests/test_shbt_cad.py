@@ -185,11 +185,14 @@ def test_cad_engine_render_figures(tmp_path):
 
 
 def test_shbt_cad_sim_cli(tmp_path):
+    import shutil
+    import sys
     tex = tmp_path / "sim_results.tex"
     figs = tmp_path / "cad_figures"
+    which = shutil.which("shbt-cad-sim")
+    cmd = [which] if which else [sys.executable, "-m", "shbt_warp.cli", "cad"]
     subprocess.run(
-        [
-            "shbt-cad-sim",
+        cmd + [
             "--tex-output",
             str(tex),
             "--figures-directory",

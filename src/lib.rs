@@ -395,6 +395,96 @@ pub fn simulate_wormhole_refuel_hop<'py>(
     Ok(dict)
 }
 
+/// Simulate SHBT-MAR-312C compacted nacelle & SHBT-IBR-312 dark-braid reload telemetry.
+#[pyfunction]
+#[pyo3(signature = (tier="impulse-ew", mode="mode-1c", cores=38.0))]
+pub fn simulate_ibr_reload<'py>(
+    py: Python<'py>,
+    tier: &str,
+    mode: &str,
+    cores: f64,
+) -> PyResult<Bound<'py, PyDict>> {
+    let rtier = parse_operating_tier(tier);
+    let bmode = match mode.to_lowercase().as_str() {
+        "prefolded" | "direct" => warp_power_battery::BraidReloadMode::PreFoldedDirectUnfold,
+        "mode-1c" | "1c" => warp_power_battery::BraidReloadMode::Mode1cIsobaricRecycle,
+        "mode-1a" | "1a" => warp_power_battery::BraidReloadMode::Mode1aMatchedFoundry,
+        "mode-1b" | "1b" => warp_power_battery::BraidReloadMode::Mode1bRawSlagScoop,
+        _ => warp_power_battery::BraidReloadMode::Mode1cIsobaricRecycle,
+    };
+    let mut mag = warp_power_battery::DarkBraidMagazine::new_tier3(cores);
+    let telem = mag.execute_ibr_core_reload(bmode, rtier);
+
+    let dict = PyDict::new(py);
+    dict.set_item("reload_latency_s", telem.reload_latency_s)?;
+    dict.set_item("reload_latency_us", telem.reload_latency_s * 1.0e6)?;
+    dict.set_item("smes_droop_fraction", telem.smes_droop_fraction)?;
+    dict.set_item("stored_energy_after_ej", telem.stored_energy_after_ej)?;
+    dict.set_item("duty_cycle_fraction", telem.duty_cycle_fraction)?;
+    dict.set_item("duty_cycle_percent", telem.duty_cycle_fraction * 100.0)?;
+    dict.set_item("crew_dose_msv_yr", telem.crew_dose_msv_yr)?;
+    dict.set_item("cores_remaining", telem.cores_remaining)?;
+    dict.set_item("compacted_nacelle_mass_kg", warp_power_battery::MAR312C_COMPACTED_NACELLE_MASS_KG)?;
+    dict.set_item("compacted_nacelle_vol_m3", warp_power_battery::MAR312C_COMPACTED_NACELLE_VOL_M3)?;
+    dict.set_item("seed_wafer_mass_kg", warp_power_battery::MAR312C_SEED_WAFER_MASS_KG)?;
+    dict.set_item("borrmann_optical_depth", warp_power_battery::MAR312C_BORRMANN_OPTICAL_DEPTH)?;
+    dict.set_item("borrmann_epsilon", warp_power_battery::MAR312C_BORRMANN_EPSILON)?;
+    dict.set_item("mossbauer_fraction", warp_power_battery::MAR312C_MOSSBAUER_FRACTION)?;
+    dict.set_item("crew_dose_limit_msv_yr", 0.12)?;
+    dict.set_item("single_frame_margin_kg", warp_power_battery::DarkBraidMagazine::single_frame_fuel_margin_kg())?;
+    dict.set_item("tier1_full_cores", warp_power_battery::DarkBraidMagazine::max_tier1_full_cores())?;
+    dict.set_item("tier1_wet_mass_kg", warp_power_battery::DarkBraidMagazine::tier1_wet_mass_kg())?;
+    Ok(dict)
+}
+
+/// Simulate intergalactic missions 5, 6, 7 under SHBT-EW-312 & SHBT-MAR-312-IBR.
+#[pyfunction]
+#[pyo3(signature = (target="m31", tier="impulse-ew", mode="mode-1c"))]
+pub fn simulate_intergalactic_mission<'py>(
+    py: Python<'py>,
+    target: &str,
+    tier: &str,
+    mode: &str,
+) -> PyResult<Bound<'py, PyDict>> {
+    let itarget = match target.to_lowercase().as_str() {
+        "m31" | "andromeda" | "mission5" => warp_wormhole_ew312::IntergalacticTarget::Mission5AndromedaM31,
+        "m87" | "virgo" | "mission6" => warp_wormhole_ew312::IntergalacticTarget::Mission6VirgoClusterM87,
+        "laniakea" | "mission7a" => warp_wormhole_ew312::IntergalacticTarget::Mission7LaniakeaCore,
+        "impulse-horizon" | "mission7b" => warp_wormhole_ew312::IntergalacticTarget::Mission7ImpulseHorizon,
+        "cosmological" | "horizon" | "mission7c" => warp_wormhole_ew312::IntergalacticTarget::Mission7CosmologicalHorizon,
+        _ => warp_wormhole_ew312::IntergalacticTarget::Mission5AndromedaM31,
+    };
+    let ptier = match tier.to_lowercase().as_str() {
+        "cruise" | "cruise-pw" => warp_wormhole_ew312::PowerTier::ContinuousCruise,
+        "burst" | "burst-pw" => warp_wormhole_ew312::PowerTier::SustainedBurst,
+        "impulse" | "impulse-ew" => warp_wormhole_ew312::PowerTier::ExawattImpulse,
+        _ => warp_wormhole_ew312::PowerTier::ExawattImpulse,
+    };
+    let bmode = match mode.to_lowercase().as_str() {
+        "mode-1a" | "1a" => warp_power_battery::BraidReloadMode::Mode1aMatchedFoundry,
+        "mode-1b" | "1b" => warp_power_battery::BraidReloadMode::Mode1bRawSlagScoop,
+        _ => warp_power_battery::BraidReloadMode::Mode1cIsobaricRecycle,
+    };
+    let prof = warp_wormhole_ew312::IntergalacticBraidMission::compute_profile(itarget, ptier, bmode);
+
+    let dict = PyDict::new(py);
+    dict.set_item("target_name", prof.target_name)?;
+    dict.set_item("distance_mly", prof.distance_mly)?;
+    dict.set_item("distance_ly", prof.distance_ly)?;
+    dict.set_item("effective_velocity_c", prof.effective_velocity_c)?;
+    dict.set_item("required_full_cores", prof.required_full_cores)?;
+    dict.set_item("micro_wafer_refills", prof.micro_wafer_refills)?;
+    dict.set_item("coordinate_time_years", prof.coordinate_time_years)?;
+    dict.set_item("crew_proper_time_years", prof.crew_proper_time_years)?;
+    dict.set_item("crew_proper_time_days", prof.crew_proper_time_years * 365.25)?;
+    dict.set_item("cumulative_reload_time_s", prof.cumulative_reload_time_s)?;
+    dict.set_item("propulsion_duty_cycle", prof.propulsion_duty_cycle)?;
+    dict.set_item("propulsion_duty_cycle_percent", prof.propulsion_duty_cycle * 100.0)?;
+    dict.set_item("single_core_range_limit_mly", prof.single_core_range_limit_mly)?;
+    dict.set_item("profile_passed", prof.profile_passed)?;
+    Ok(dict)
+}
+
 #[pymodule(name = "_core")]
 fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Simulation>()?;
@@ -406,6 +496,8 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<shbt::flight_phases::FlightDynamicsEngine>()?;
     m.add_function(wrap_pyfunction!(synthesize_mar312_core, m)?)?;
     m.add_function(wrap_pyfunction!(simulate_wormhole_refuel_hop, m)?)?;
+    m.add_function(wrap_pyfunction!(simulate_ibr_reload, m)?)?;
+    m.add_function(wrap_pyfunction!(simulate_intergalactic_mission, m)?)?;
     Ok(())
 }
 

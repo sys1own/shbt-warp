@@ -12,3 +12,7 @@
 uint8_t __stinespring_start[2112] __attribute__((aligned(64)));
 uint8_t __active_end[1];
 uint8_t __stinespring_end[1];
+
+uint8_t __stinespring_magazine_start[33792] __attribute__((aligned(64)));
+uint8_t __stinespring_magazine_end[1];
+

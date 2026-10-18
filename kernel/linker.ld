@@ -59,5 +59,15 @@ SECTIONS
         __stinespring_end = .;
     } > RAM
 
+    /*
+     * Stinespring 16-bank dark magazine arena: 33,792 B (16 x 2112 B), 64-byte aligned, NOLOAD.
+     */
+    .stinespring_magazine (NOLOAD) : ALIGN(64) {
+        __stinespring_magazine_start = .;
+        . = . + 33792;
+        __stinespring_magazine_end = .;
+    } > RAM
+
     __end = .;
 }
+

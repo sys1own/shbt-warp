@@ -80,7 +80,7 @@ fn main() {
                 && path
                     .file_name()
                     .and_then(|n| n.to_str())
-                    .map_or(false, |name| name.starts_with(ld_library) && name != ld_library)
+                    .is_some_and(|name| name.starts_with(ld_library) && name != ld_library)
         });
 
     if let Some(actual) = actual_so {
