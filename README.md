@@ -10,7 +10,7 @@ hardware control contract down to the nanosecond PCSS crowbar.
 ### Quick Navigation
 - [1. System Highlights at a Glance](#1-system-highlights-at-a-glance)
 - [2. Hybrid Power Plant & Unified Reactor–Magazine Topology](#2-hybrid-power-plant--unified-reactormagazine-topology)
-- [3. 4th-Gen Stinespring–so(10)₃₁₂ Mass-Annihilation Battery-Reactor (SHBT-MAR-312)](#3-4th-gen-stinespring-so10312-mass-annihilation-battery-reactor-shbt-mar-312)
+- [3. 4th-Gen Stinespring–so(10)₃₁₂ Mass-Annihilation Battery-Reactor (SHBT-MAR-312)](#3-4th-gen-stinespring-so10₃₁₂-mass-annihilation-battery-reactor-shbt-mar-312)
 - [4. Compacted Catalytic Wafer Nacelle (SHBT-MAR-312C) & Dark-Braid Reload Magazine (SHBT-IBR-312)](#4-compacted-catalytic-wafer-nacelle-shbt-mar-312c--dark-braid-reload-magazine-shbt-ibr-312)
 - [5. Effective Traversable Wormhole System (SHBT-EW-312) & Intergalactic Transit Corridors](#5-effective-traversable-wormhole-system-shbt-ew-312--intergalactic-transit-corridors)
 - [6. Bare-Metal C11 Microkernel, SRAM Arena & Hardware MMIO Contracts (0x70000000)](#6-bare-metal-c11-microkernel-sram-arena--hardware-mmio-contracts-0x70000000)
