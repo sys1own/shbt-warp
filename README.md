@@ -28,7 +28,7 @@ hardware control contract down to the nanosecond PCSS crowbar.
 - **Effective Traversable Wormhole System (`SHBT-EW-312`):** 4-stage Alcubierre–Stinespring superluminal topological corridor (`V_unified^macro` macroscopic ingestion, 124 Fibonacci braid dark buffer `η_D = 23/33`, Heegaard–Floer `Sp(2g, Z)` routing over shift-sheared ADM soliton, and `(V_unified^macro)† Π_history` causal egress with optional `R_synth^MAR` in-situ fuel core co-crystallization)
 - Mode A Fixed Stargate Network (`743,438` dispatches per `376.99 kg` core, `1.234 × 10⁷ t` cumulative, `878,824 t/hr` burst throughput) & Mode B Mobile Jump-Cruiser (`N_local ≤ 10²⁸` nucleons / `16.6 t`)
 - **Galactic & Intergalactic Benchmark Missions:**
-  - Mission 1 (Earth--Mars): `1.0988 s` (`8.3522 ms` Impulse)
+  - Mission 1 (Earth-Mars): `1.0988 s` (`8.3522 ms` Impulse)
   - Mission 2 (Alpha Centauri): `56.2352 hr` (`25.647 min` Impulse)
   - Mission 3 (Sagittarius A*): `39.20 hr` active burn (`108.819 d` Impulse)
   - Mission 4 (Milky Way): `105.7 kly` in `155.167 yr` (`1.1795 yr` Impulse; `423,839 ly` max single-core range)
@@ -83,7 +83,7 @@ shbt-warp/
 > The `shbt-warp` mass-annihilation powertrain is governed by the invariant Core Equivalent Unit identity:
 > **`1.0 CEU ≡ 376.99 kg ≡ 10 × (37.699 kg SHBT-MAR-312C Annular Catalytic Seed Wafer)`**
 > - **Mode A (Fixed Stargate Hub):** Uses the stationary `SHBT-MAR-312` monolithic core (`376.99 kg`, `0.0359 m³`, `1.0 CEU`, `33.8822 EJ` gross / `30.3310 EJ` net electric) housed inside the passive-shielded `4,096.99 kg` (`1.3114 m³`) nacelle to power high-throughput planetary and orbital gateway corridors (`743,438` dispatches of `16.6 t` cargo per core).
-> - **Mode B (Mobile Jump-Cruiser & Intergalactic Flight):** Operates the compacted `SHBT-MAR-312C` propulsion nacelle (`2,257.70 kg`, `0.8589 m³`, `-44.89%` mass reduction) utilizing a `37.699 kg` (`3.59 L`, `0.1 CEU`, `3.03310 EJ` net) catalytic seed wafer and an active 8-layer Heegaard--Floer symplectic shield sleeve (`384.88 kg`, `S = 100/1089`, `0.114 mSv/yr` dose). The reaction zone is autonomously replenished by the `SHBT-IBR-312` dark-sector anyon braid reload magazine in sub-millisecond hot-swaps (`50.80 μs` micro-batch, `317.8 μs` full CEU) with zero physical steric volume (`V_braid = 0.0 m³`) and zero moving parts.
+> - **Mode B (Mobile Jump-Cruiser & Intergalactic Flight):** Operates the compacted `SHBT-MAR-312C` propulsion nacelle (`2,257.70 kg`, `0.8589 m³`, `-44.89%` mass reduction) utilizing a `37.699 kg` (`3.59 L`, `0.1 CEU`, `3.03310 EJ` net) catalytic seed wafer and an active 8-layer Heegaard-Floer symplectic shield sleeve (`384.88 kg`, `S = 100/1089`, `0.114 mSv/yr` dose). The reaction zone is autonomously replenished by the `SHBT-IBR-312` dark-sector anyon braid reload magazine in sub-millisecond hot-swaps (`50.80 μs` micro-batch, `317.8 μs` full CEU) with zero physical steric volume (`V_braid = 0.0 m³`) and zero moving parts.
 
 Two independent power trains share the vehicle: the continuous LANR
 baseline carries bookkeeping and balance of plant, while the mass-annihilation
