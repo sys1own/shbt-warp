@@ -272,6 +272,175 @@ pub fn get_tier_spec(tier: OperatingTier) -> TierSpec {
     }
 }
 
+// ---- Unified Architecture: 1.0 CEU = 10 x Wafer Identity ------------------
+
+/// 1.0 CEU (Core Equivalent Unit) fuel mass: 376.99 kg.
+pub const CEU_CORE_EQUIVALENT_UNIT_KG: f64 = 376.99;
+pub const CEU_CORE_GROSS_EJ: f64 = 33.8822;
+pub const CEU_CORE_NET_EJ: f64 = 30.3310;
+
+/// Exact ratio: 10 micro-wafer refills = 1.0 full CEU core.
+pub const WAFER_REFILLS_PER_CEU: u32 = 10;
+pub const CEU_PER_WAFER_REFILL: f64 = 0.1;
+
+/// Micro-wafer catalytic seed die parameters (0.1 CEU).
+pub const WAFER_SEED_MASS_KG: f64 = 37.699;
+pub const WAFER_SEED_VOLUME_M3: f64 = 0.00359; // 3.59 L
+pub const WAFER_SEED_GROSS_EJ: f64 = 3.38822;
+pub const WAFER_SEED_NET_EJ: f64 = 3.03310;
+pub const WAFER_AUTORELOAD_SOC_THRESHOLD: f64 = 0.05; // <= 5% (151.655 PJ)
+pub const WAFER_AUTORELOAD_LATENCY_US: f64 = 50.80; // 50.80 us
+
+/// Reactor nacelle operational mode.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub enum ReactorNacelleMode {
+    /// Canonical Flight & Mobile Gateway: Compacted 37.699 kg (3.59 L) seed wafer
+    /// inside the 2,257.70 kg (0.8589 m^3) active Heegaard-Floer symplectic nacelle
+    /// fed by the attached SHBT-IBR-312 dark-braid magazine.
+    CompactedWaferMar312cIbr,
+    /// Stationary Baseline / Mode A Stargate: 376.99 kg monolithic fuel core
+    /// inside the 4,096.99 kg (1.3114 m^3) passive-shielded stationary nacelle.
+    StationaryMonolithicMar312,
+}
+
+/// Primary MAR-312 / MAR-312C unified reactor state machine.
+#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+pub struct Mar312ReactorState {
+    pub mode: ReactorNacelleMode,
+    pub tier: OperatingTier,
+    /// Active reaction zone state-of-charge (0.0 .. 1.0) relative to active wafer (0.1 CEU) or monolith (1.0 CEU).
+    pub active_wafer_soc: f64,
+    /// Net electrical energy remaining in active reaction zone (EJ).
+    pub active_energy_net_ej: f64,
+    /// Attached dark-sector magazine (populated in CompactedWaferMar312cIbr mode).
+    pub magazine: Option<DarkBraidMagazine>,
+    /// Cumulative core equivalent units consumed.
+    pub total_ceu_consumed: f64,
+    /// Active FSM state of the reload mechanism.
+    pub fsm_state: IbrFsmState,
+    /// Hot-swap reload count.
+    pub hot_swaps_completed: u64,
+    /// Cumulative autonomous reload downtime (seconds).
+    pub cumulative_reload_latency_s: f64,
+    /// Dry nacelle mass (kg).
+    pub dry_nacelle_mass_kg: f64,
+    /// Dry nacelle enclosed volume (m^3).
+    pub dry_nacelle_vol_m3: f64,
+}
+
+impl Mar312ReactorState {
+    /// Create canonical flight propulsion plant: Compacted SHBT-MAR-312C nacelle with SHBT-IBR-312 magazine.
+    pub fn new_flight_compacted(tier: OperatingTier, magazine_tier: usize) -> Self {
+        let mag = match magazine_tier {
+            2 => DarkBraidMagazine::new_tier2(16),
+            3 => DarkBraidMagazine::new_tier3(106_611.0),
+            _ => DarkBraidMagazine::new_tier1(),
+        };
+        Self {
+            mode: ReactorNacelleMode::CompactedWaferMar312cIbr,
+            tier,
+            active_wafer_soc: 1.0,
+            active_energy_net_ej: WAFER_SEED_NET_EJ,
+            magazine: Some(mag),
+            total_ceu_consumed: 0.0,
+            fsm_state: IbrFsmState::S0_NOMINAL_BURN,
+            hot_swaps_completed: 0,
+            cumulative_reload_latency_s: 0.0,
+            dry_nacelle_mass_kg: MAR312C_COMPACTED_NACELLE_MASS_KG,
+            dry_nacelle_vol_m3: MAR312C_COMPACTED_NACELLE_VOL_M3,
+        }
+    }
+
+    /// Create stationary baseline plant: Monolithic SHBT-MAR-312 core inside 4,096.99 kg nacelle.
+    pub fn new_stationary_monolithic(tier: OperatingTier) -> Self {
+        Self {
+            mode: ReactorNacelleMode::StationaryMonolithicMar312,
+            tier,
+            active_wafer_soc: 1.0,
+            active_energy_net_ej: CEU_CORE_NET_EJ,
+            magazine: None,
+            total_ceu_consumed: 0.0,
+            fsm_state: IbrFsmState::S0_NOMINAL_BURN,
+            hot_swaps_completed: 0,
+            cumulative_reload_latency_s: 0.0,
+            dry_nacelle_mass_kg: M_NACELLE_KG,
+            dry_nacelle_vol_m3: V_NACELLE_M3,
+        }
+    }
+
+    /// Stored CEU in the attached magazine.
+    pub fn magazine_remaining_ceu(&self) -> f64 {
+        self.magazine.as_ref().map_or(0.0, |m| m.total_cores_stored)
+    }
+
+    /// Total available net electrical energy across active wafer and magazine (EJ).
+    pub fn total_available_energy_net_ej(&self) -> f64 {
+        self.active_energy_net_ej + self.magazine_remaining_ceu() * CEU_CORE_NET_EJ
+    }
+
+    /// Total wet propulsion mass (dry nacelle + active fuel + stored magazine fuel).
+    pub fn total_wet_mass_kg(&self) -> f64 {
+        match self.mode {
+            ReactorNacelleMode::CompactedWaferMar312cIbr => {
+                let fuel_mass = self.magazine.as_ref().map_or(WAFER_SEED_MASS_KG, |m| {
+                    (m.total_cores_stored * CEU_CORE_EQUIVALENT_UNIT_KG) + (self.active_wafer_soc * WAFER_SEED_MASS_KG)
+                });
+                self.dry_nacelle_mass_kg + fuel_mass
+            }
+            ReactorNacelleMode::StationaryMonolithicMar312 => {
+                self.dry_nacelle_mass_kg + (self.active_wafer_soc * CEU_CORE_EQUIVALENT_UNIT_KG)
+            }
+        }
+    }
+
+    /// Advance reactor discharge by dt seconds.
+    ///
+    /// If active_wafer_soc falls below 5% (0.05) and mode is CompactedWaferMar312cIbr,
+    /// an autonomous 8-state hot-swap is triggered restoring active_wafer_soc to 1.0.
+    /// Returns `(power_delivered_w, reloaded_flag)`.
+    pub fn tick(&mut self, dt_seconds: f64) -> (f64, bool) {
+        let spec = get_tier_spec(self.tier);
+        let energy_needed_ej = (spec.p_net_w * dt_seconds) / 1.0e18;
+        let mut reloaded = false;
+
+        if self.active_energy_net_ej >= energy_needed_ej {
+            self.active_energy_net_ej -= energy_needed_ej;
+        } else {
+            self.active_energy_net_ej = 0.0;
+        }
+
+        let full_capacity_ej = match self.mode {
+            ReactorNacelleMode::CompactedWaferMar312cIbr => WAFER_SEED_NET_EJ,
+            ReactorNacelleMode::StationaryMonolithicMar312 => CEU_CORE_NET_EJ,
+        };
+        self.active_wafer_soc = (self.active_energy_net_ej / full_capacity_ej).clamp(0.0, 1.0);
+
+        // Check autonomous reload hot-swap threshold
+        if self.mode == ReactorNacelleMode::CompactedWaferMar312cIbr
+            && self.active_wafer_soc <= WAFER_AUTORELOAD_SOC_THRESHOLD
+        {
+            if let Some(ref mut mag) = self.magazine {
+                if mag.micro_refills_remaining > 0 {
+                    self.fsm_state = IbrFsmState::S1_SOC_THRESHOLD_DETECT;
+                    let telem = mag.execute_ibr_core_reload(
+                        BraidReloadMode::PreFoldedDirectUnfold,
+                        self.tier,
+                    );
+                    self.active_energy_net_ej = WAFER_SEED_NET_EJ;
+                    self.active_wafer_soc = 1.0;
+                    self.hot_swaps_completed += 1;
+                    self.total_ceu_consumed += CEU_PER_WAFER_REFILL;
+                    self.cumulative_reload_latency_s += telem.reload_latency_s;
+                    self.fsm_state = IbrFsmState::S7_HANDOFF_RESUME;
+                    reloaded = true;
+                }
+            }
+        }
+
+        (spec.p_net_w, reloaded)
+    }
+}
+
 // ---- Legacy Trade Study ----------------------------------------------------
 
 pub const TRADE_STUDY: &[(&str, &str, &str, &str)] = &[
@@ -316,5 +485,32 @@ mod tests {
     #[test]
     fn test_stored_energy_ej() {
         assert!((E_TOTAL_EJ - 33.8822).abs() < 1e-4);
+    }
+
+    #[test]
+    fn test_ceu_wafer_identity() {
+        assert!((CEU_CORE_EQUIVALENT_UNIT_KG - 10.0 * WAFER_SEED_MASS_KG).abs() < 1e-6);
+        assert!((CEU_CORE_GROSS_EJ - 10.0 * WAFER_SEED_GROSS_EJ).abs() < 1e-6);
+        assert!((CEU_CORE_NET_EJ - 10.0 * WAFER_SEED_NET_EJ).abs() < 1e-6);
+        assert_eq!(WAFER_REFILLS_PER_CEU, 10);
+    }
+
+    #[test]
+    fn test_reactor_state_hot_swap() {
+        let mut reactor = Mar312ReactorState::new_flight_compacted(OperatingTier::ImpulseEw, 1);
+        assert_eq!(reactor.mode, ReactorNacelleMode::CompactedWaferMar312cIbr);
+        assert_eq!(reactor.active_wafer_soc, 1.0);
+        assert_eq!(reactor.hot_swaps_completed, 0);
+
+        // Discharge 96% of wafer in Impulse mode
+        // WAFER_SEED_NET_EJ = 3.03310 EJ. 96% is 2.911776 EJ.
+        // P_net = 895.19e15 W = 0.89519 EJ/s.
+        // dt = 2.911776 / 0.89519 = 3.25269 s.
+        let dt = 3.26;
+        let (_, reloaded) = reactor.tick(dt);
+        assert!(reloaded);
+        assert_eq!(reactor.hot_swaps_completed, 1);
+        assert_eq!(reactor.active_wafer_soc, 1.0);
+        assert!((reactor.total_ceu_consumed - 0.1).abs() < 1e-6);
     }
 }

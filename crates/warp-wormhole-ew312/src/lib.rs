@@ -12,8 +12,8 @@ pub use constants::*;
 pub use classical_nogo::{verify_classical_bulk_nogo, verify_effective_corridor, ClassicalWormholeAudit, EffectiveCorridorAudit};
 pub use pipeline::{execute_stage4_with_synthesis, execute_wormhole_pipeline, PowerTier, WormholePipelineResult};
 pub use conops::{
-    evaluate_mode_a, get_benchmark_missions, simulate_wormhole_refuel_hop, ConOpsMode, MissionSpec,
-    StargateMetrics, WormholeRefuelProfile,
+    evaluate_mode_a, evaluate_mode_b, get_benchmark_missions, simulate_wormhole_refuel_hop, ConOpsMode,
+    JumpCruiserMetrics, MissionSpec, StargateMetrics, WormholeRefuelProfile,
 };
 pub use causal_2pn::{evaluate_2pn_metric, interval_2pn, interval_2pn_with_shift, is_causally_authorized, Metric2pn};
 pub use intergalactic::*;
@@ -58,6 +58,20 @@ mod tests {
         assert_eq!(sg.dispatches_per_core, STARGATE_DISPATCHES_PER_CORE);
         assert_eq!(sg.burst_throughput_tph, STARGATE_BURST_THROUGHPUT_TPH);
         assert_eq!(sg.cruise_throughput_tph, STARGATE_CRUISE_THROUGHPUT_TPH);
+    }
+
+    #[test]
+    fn test_mode_b_jump_cruiser_metrics() {
+        let jc = evaluate_mode_b();
+        assert_eq!(jc.dry_nacelle_mass_kg, 2257.70);
+        assert_eq!(jc.dry_nacelle_vol_m3, 0.8589);
+        assert_eq!(jc.active_seed_wafer_mass_kg, 37.699);
+        assert_eq!(jc.tier1_fuel_cores, 38);
+        assert_eq!(jc.tier1_wafer_refills, 380);
+        assert_eq!(jc.tier1_wet_mass_kg, 16583.32);
+        assert!(jc.tier1_wet_mass_kg <= jc.stinespring_limit_kg);
+        assert!((jc.payload_reserve_margin_kg - 16.68).abs() < 1e-4);
+        assert_eq!(jc.hot_swap_latency_us, 50.80);
     }
 
     #[test]

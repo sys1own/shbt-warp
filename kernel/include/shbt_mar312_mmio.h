@@ -26,6 +26,16 @@ extern "C" {
 #define SHBT_MAR312_ACTIVE_BYTES          (640UL)
 #define SHBT_MAR312_DARK_BYTES            (1472UL)
 
+/* Unified Architecture: 1.0 CEU = 10 x SHBT-MAR-312C Seed Wafer Refills */
+#define SHBT_CEU_CORE_MASS_KG             (376.99)
+#define SHBT_CEU_GROSS_ENERGY_EJ          (33.8822)
+#define SHBT_CEU_NET_ENERGY_EJ            (30.3310)
+#define SHBT_CEU_WAFER_REFILLS_RATIO      (10U)
+#define SHBT_MAR312C_SEED_WAFER_MASS_KG   (37.699)
+#define SHBT_MAR312C_SEED_WAFER_VOL_L     (3.59)
+#define SHBT_MAR312C_COMPACTED_NACELLE_KG (2257.70)
+#define SHBT_MAR312_STATIONARY_NACELLE_KG (4096.99)
+
 /* 5-Phase Dispatch State Machine Bitmasks */
 #define MAR_STATE_STANDBY_STASIS   ((uint32_t)0x01U)
 #define MAR_STATE_TRIGGER_ARMED    ((uint32_t)0x02U)

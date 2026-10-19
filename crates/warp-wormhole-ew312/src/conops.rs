@@ -46,6 +46,56 @@ pub fn evaluate_mode_a() -> StargateMetrics {
     }
 }
 
+/// Mode B Jump-Cruiser Architectural Constants (Compacted SHBT-MAR-312C + IBR-312)
+pub const MODE_B_DRY_NACELLE_MASS_KG: f64 = 2257.70;
+pub const MODE_B_DRY_NACELLE_VOL_M3: f64 = 0.8589;
+pub const MODE_B_ACTIVE_SEED_WAFER_MASS_KG: f64 = 37.699;
+pub const MODE_B_ACTIVE_SEED_WAFER_VOL_M3: f64 = 0.00359;
+pub const MODE_B_TIER1_FULL_CORES: usize = 38;
+pub const MODE_B_TIER1_WAFER_REFILLS: usize = 380;
+pub const MODE_B_TIER1_FUEL_MASS_KG: f64 = 14325.62;
+pub const MODE_B_TIER1_WET_MASS_KG: f64 = 16583.32;
+pub const MODE_B_STINESPRING_LIMIT_KG: f64 = 16600.00;
+pub const MODE_B_PAYLOAD_MARGIN_KG: f64 = 16.68;
+
+/// Mode A Stargate Nacelle Options
+pub const MODE_A_STATIONARY_NACELLE_MASS_KG: f64 = 4096.99;
+pub const MODE_A_STATIONARY_NACELLE_VOL_M3: f64 = 1.3114;
+pub const MODE_A_COMPACTED_POD_MASS_KG: f64 = 2257.70;
+pub const MODE_A_COMPACTED_POD_VOL_M3: f64 = 0.8589;
+
+/// Mode B Mobile Jump-Cruiser Performance Metrics
+#[derive(Clone, Copy, Debug, serde::Serialize)]
+pub struct JumpCruiserMetrics {
+    pub dry_nacelle_mass_kg: f64,
+    pub dry_nacelle_vol_m3: f64,
+    pub active_seed_wafer_mass_kg: f64,
+    pub tier1_fuel_cores: usize,
+    pub tier1_wafer_refills: usize,
+    pub tier1_fuel_mass_kg: f64,
+    pub tier1_wet_mass_kg: f64,
+    pub stinespring_limit_kg: f64,
+    pub payload_reserve_margin_kg: f64,
+    pub hot_swap_latency_us: f64,
+    pub unrefueled_range_cruise_ly: f64,
+}
+
+pub fn evaluate_mode_b() -> JumpCruiserMetrics {
+    JumpCruiserMetrics {
+        dry_nacelle_mass_kg: MODE_B_DRY_NACELLE_MASS_KG,
+        dry_nacelle_vol_m3: MODE_B_DRY_NACELLE_VOL_M3,
+        active_seed_wafer_mass_kg: MODE_B_ACTIVE_SEED_WAFER_MASS_KG,
+        tier1_fuel_cores: MODE_B_TIER1_FULL_CORES,
+        tier1_wafer_refills: MODE_B_TIER1_WAFER_REFILLS,
+        tier1_fuel_mass_kg: MODE_B_TIER1_FUEL_MASS_KG,
+        tier1_wet_mass_kg: MODE_B_TIER1_WET_MASS_KG,
+        stinespring_limit_kg: MODE_B_STINESPRING_LIMIT_KG,
+        payload_reserve_margin_kg: MODE_B_PAYLOAD_MARGIN_KG,
+        hot_swap_latency_us: 50.80,
+        unrefueled_range_cruise_ly: 423_839.0 * (MODE_B_TIER1_FULL_CORES as f64),
+    }
+}
+
 /// Benchmark Mission Specification
 #[derive(Clone, Debug, serde::Serialize)]
 pub struct MissionSpec {

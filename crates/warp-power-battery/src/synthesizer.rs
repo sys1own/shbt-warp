@@ -355,6 +355,37 @@ pub fn cryogenic_margin_audit() -> CryogenicCrystallizationAudit {
     }
 }
 
+// ============================================================================
+// 5. 1.0 CEU Full Core vs. 0.1 CEU Seed Wafer Synthesis Helpers
+// ============================================================================
+
+/// Target synthesis state: 1.0 CEU full core (376.99 kg).
+pub const SHBT_SYNTH_TARGET_FULL_CORE_1_0_CEU: u8 = 0x05;
+/// Target synthesis state: 0.1 CEU seed wafer micro-batch (37.699 kg).
+pub const SHBT_SYNTH_TARGET_SEED_WAFER_0_1_CEU: u8 = 0x07;
+
+/// Synthesize a 1.0 CEU (376.99 kg) monolithic core or batch via R_synth^MAR.
+pub fn synthesize_full_core_1_0_ceu(_mode: FoundrySynthesisMode) -> CosetFoldDiagnostics {
+    apply_mar312_coset_fold(MAR312_TOTAL_MASS_KG, ANTIBARYON_PARTITION_RATIO)
+}
+
+/// Synthesize a 0.1 CEU (37.699 kg) catalytic seed wafer micro-batch for SHBT-MAR-312C.
+pub fn synthesize_seed_wafer_0_1_ceu(_mode: FoundrySynthesisMode) -> CosetFoldDiagnostics {
+    apply_mar312_coset_fold(crate::compacted_nacelle::MAR312C_SEED_WAFER_MASS_KG, ANTIBARYON_PARTITION_RATIO)
+}
+
+/// Seed wafer micro-batch (0.1 CEU = 37.699 kg) synthesis input energy in Terajoules (TJ).
+/// Exactly 1/10th of the 1.0 CEU input energy.
+pub fn seed_wafer_synthesis_energy_tj(mode: FoundrySynthesisMode) -> f64 {
+    (mode.input_energy_pj() * 1000.0) / 10.0
+}
+
+/// Seed wafer micro-batch (0.1 CEU = 37.699 kg) turnaround time in seconds.
+/// Exactly 1/10th of the 1.0 CEU turnaround time.
+pub fn seed_wafer_turnaround_time_s(mode: FoundrySynthesisMode, tier: ReactorTier) -> f64 {
+    breeder_turnaround_time_s(mode, tier) / 10.0
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -402,5 +433,28 @@ mod tests {
         assert!(cryo.margin_passed);
         assert!((cryo.landauer_power_w - 665.2).abs() < 1e-9);
         assert!(cryo.t_core_peak_k < cryo.t_quench_limit_k);
+    }
+
+    #[test]
+    fn test_full_core_and_seed_wafer_synthesis() {
+        let full = synthesize_full_core_1_0_ceu(FoundrySynthesisMode::Mode1cSalvageIsomerBaryons);
+        assert_eq!(full.total_core_mass_kg, 376.99);
+        assert!((full.total_stored_energy_ej - 33.8822).abs() < 1e-4);
+
+        let wafer = synthesize_seed_wafer_0_1_ceu(FoundrySynthesisMode::Mode1cSalvageIsomerBaryons);
+        assert_eq!(wafer.total_core_mass_kg, 37.699);
+        assert!((wafer.total_stored_energy_ej - 3.38822).abs() < 1e-4);
+        assert!((wafer.net_usable_energy_ej - 3.03310).abs() < 1e-4);
+
+        // Turnarounds: Mode 1c Impulse
+        let tau_full = breeder_turnaround_time_s(FoundrySynthesisMode::Mode1cSalvageIsomerBaryons, ReactorTier::ImpulseEw);
+        let tau_wafer = seed_wafer_turnaround_time_s(FoundrySynthesisMode::Mode1cSalvageIsomerBaryons, ReactorTier::ImpulseEw);
+        assert!((tau_full - 0.0003175).abs() < 1e-7);
+        assert!((tau_wafer - 0.00003175).abs() < 1e-8); // ~31.78 us
+
+        // Energies: Mode 1c (28.45 TJ), Mode 1a (212.20 TJ), Mode 1b (2143.0 TJ)
+        assert!((seed_wafer_synthesis_energy_tj(FoundrySynthesisMode::Mode1cSalvageIsomerBaryons) - 28.45).abs() < 1e-6);
+        assert!((seed_wafer_synthesis_energy_tj(FoundrySynthesisMode::Mode1aNaturalFeedstock) - 212.20).abs() < 1e-6);
+        assert!((seed_wafer_synthesis_energy_tj(FoundrySynthesisMode::Mode1bAsteroidRegolith) - 2143.00).abs() < 1e-6);
     }
 }

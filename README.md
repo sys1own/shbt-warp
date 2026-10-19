@@ -78,13 +78,20 @@ shbt-warp/
 
 ## Hybrid power plant & energy flow topology
 
+> [!IMPORTANT]
+> **Unified Reactor & Magazine Hierarchy (`1.0 CEU = 10 × SHBT-MAR-312C Wafer Refills`)**
+> The `shbt-warp` mass-annihilation powertrain is governed by the invariant Core Equivalent Unit identity:
+> **`1.0 CEU ≡ 376.99 kg ≡ 10 × (37.699 kg SHBT-MAR-312C Annular Catalytic Seed Wafer)`**
+> - **Mode A (Fixed Stargate Hub):** Uses the stationary `SHBT-MAR-312` monolithic core (`376.99 kg`, `0.0359 m³`, `1.0 CEU`, `33.8822 EJ` gross / `30.3310 EJ` net electric) housed inside the passive-shielded `4,096.99 kg` (`1.3114 m³`) nacelle to power high-throughput planetary and orbital gateway corridors (`743,438` dispatches of `16.6 t` cargo per core).
+> - **Mode B (Mobile Jump-Cruiser & Intergalactic Flight):** Operates the compacted `SHBT-MAR-312C` propulsion nacelle (`2,257.70 kg`, `0.8589 m³`, `-44.89%` mass reduction) utilizing a `37.699 kg` (`3.59 L`, `0.1 CEU`, `3.03310 EJ` net) catalytic seed wafer and an active 8-layer Heegaard--Floer symplectic shield sleeve (`384.88 kg`, `S = 100/1089`, `0.114 mSv/yr` dose). The reaction zone is autonomously replenished by the `SHBT-IBR-312` dark-sector anyon braid reload magazine in sub-millisecond hot-swaps (`50.80 μs` micro-batch, `317.8 μs` full CEU) with zero physical steric volume (`V_braid = 0.0 m³`) and zero moving parts.
+
 Two independent power trains share the vehicle: the continuous LANR
-baseline carries bookkeeping and balance of plant, while the SHBT-MAR-312
-battery-reactor supplies the multi-petawatt burst and hyperluminal envelope.
+baseline carries bookkeeping and balance of plant, while the mass-annihilation
+powertrain supplies the multi-petawatt burst and hyperluminal envelope.
 
 ```
 ╭──────────────────────────────────────────────────────────────────────────────────────╮
-│                 SHBT-WARP DUAL-TIER ENERGY & MAR-312 TOPOLOGY MAP                    │
+│              SHBT-WARP UNIFIED ENERGY & REACTOR-MAGAZINE TOPOLOGY MAP                │
 ╰──────────────────────────────────────────────────────────────────────────────────────╯
 
  ┌── [ TIER 1: CONTINUOUS HOUSEKEEPING RAIL (400 V DC) ] ─────────────────────────────┐
@@ -107,18 +114,27 @@ battery-reactor supplies the multi-petawatt burst and hyperluminal envelope.
  └───────────────────────────────────────────────────┬────────────────────────────────┘
                                                      │ 42.150 kW Cryo Feed (21.13 K)
                                                      ▼
- ┌── [ TIER 2: 4th-GEN SO(10)₃₁₂ MASS-ANNIHILATION REACTOR (0.015–2.700 MV DC) ] ─────┐
+ ┌── [ TIER 2: SO(10)₃₁₂ MASS-ANNIHILATION SYSTEM (0.015–2.700 MV DC) ] ──────────────┐
+ │  UNIFIED CEU IDENTITY: 1.0 CEU ≡ 376.99 kg ≡ 10 × (37.699 kg Seed Wafer)           │
  │                                                                                    │
- │  ╭───────────────────────────────────────╮   40.0 keV Seed    ╭─────────────────╮  │
- │  │ SHBT-MAR-312 Fuel Core                │── Laser Trigger ──►│ Borrmann Cavity │  │
- │  │ • 376.99 kg | 33.8822 EJ (c^2)        │   (Gain G=61.15)   │ • ε_B = 0.9852  │  │
- │  │ • 188.495 kg B_vis + 188.495 kg B_dark│                    │ • f_M = 0.782   │  │
- │  │ • Zero Standby Annihilation (0 s^-1)  │                    ╰────────┬────────╯  │
- │  │ • P_quiescent = 354.27 kW (48 kW TEG) │                             │           │
- │  ╰──────────────────┬────────────────────╯                             │ Transmuted│
- │                     │                                                  │ γ / plasma│
- │                     └─► 48.0 kW Standby TEG Recovery ──► [To Tier 1]   ▼           │
- │                                                                                    │
+ │  ╭──────────────────────────╮ Autonomous Hot-Swap ╭─────────────────────────────╮  │
+ │  │ SHBT-IBR-312 Magazine    │── < 50.80 μs ──────►│ SHBT-MAR-312C Seed Wafer    │  │
+ │  │ • Multi-Ton Dark Braids  │   (SoC ≤ 5% IRQ)    │ • 37.699 kg (0.1 CEU, 3.59L)│  │
+ │  │ • Tier 1: 38 CEU (380 ref│                     │ • 18.85 kg vis + 18.85 kg 16̄│  │
+ │  │ • V_braid = 0.0000 m³    │                     │ • 3.03310 EJ net electrical │  │
+ │  ╰──────────────────────────╯                     ╰──────────────┬──────────────╯  │
+ │            │                                                     │                 │
+ │  [MODE B: MOBILE FLIGHT NACELLE]                                 ▼                 │
+ │  • 2,257.70 kg (0.8589 m³, -44.89%)              40.0 keV Seed  ╭────────────────╮ │
+ │  • Active Symplectic Shield (384.88 kg) ───────► Laser Trigger ─►│Borrmann Cavity │ │
+ │  • S = 100/1089, Dose: 0.114 mSv/yr              (Gain G=61.15) │• ε_B = 0.9852  │ │
+ │  • Wet Mass: 16,583.32 kg ≤ 16,600 kg                           │• f_M = 0.7820  │ │
+ │                                                                 ╰───────┬────────╯ │
+ │  [MODE A: STATIONARY STARGATE HUB]                                      │          │
+ │  • Monolithic 1.0 CEU Core (376.99 kg, 33.88 EJ)                        │Transmuted│
+ │  • Passive Shield Nacelle (4,096.99 kg, 1.3114 m³)                      │γ / plasma│
+ │  • 743,438 Dispatches @ 16.6 t / core ──────────────────────────────────┤          │
+ │                                                                         ▼          │
  │  ╭──────────────────────────────────────────────────────────────────────────────╮  │
  │  │ 5-Stage Hybrid Relativistic DEC Stack — η_conv = 89.519%                     │  │
  │  │ ├─ Stage 1: Forward-Compton W/Ta Foils (cone < 18°) ────────► η₁ = 26.400%   │  │
@@ -283,27 +299,14 @@ Rather than creating `188.495 kg` of anti-baryons via endothermic vacuum pair pr
 
 #### `shbt-recon` Foundry Energy Ledger & Closed-Loop `SHBT-MAR-312` Breeder Turnaround
 
-| Foundry Mode | Feedstock Composition | Net Synthesis Input `ΔE_synth` | Energy Reduction & Foundry Gain `Q_foundry` vs. Mode 2 | `shbt-recon` Graser (`49.9449 TW`) | `SHBT-MAR-312` Cruise Breeder (`895.19 TW`) | `SHBT-MAR-312` Burst Breeder (`6.805 PW`) | `SHBT-MAR-312` Impulse Breeder (`895.19 PW`) |
+| Foundry Mode | Feedstock Composition | Net Synthesis Input `ΔE_synth` | Energy Reduction & Foundry Gain `Q_foundry` vs. Mode 2 | Seed Wafer (0.1 CEU) Micro-Batch Synthesis & Turnaround | `SHBT-MAR-312` Cruise Breeder (`895.19 TW`) | `SHBT-MAR-312` Burst Breeder (`6.805 PW`) | `SHBT-MAR-312` Impulse Breeder (`895.19 PW`) |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Mode 1c** | Isobaric Pre-Refined `HfB₂–¹²C` | **`0.2845 PJ`** | **`119,094×` reduction** (`Q_foundry = 119,094`) | `5.696 s` | `317.8 ms` | `41.81 ms` | `317.8 μs` |
-| **Mode 1a** | Matched `SiC / HfO₂ / B₄C` Foundry Feedstock | **`2.1220 PJ`** | **`15,967×` reduction** (`Q_foundry = 15,967`) | `42.487 s` | **`2.370 s`** (`36,448/day`) | **`311.8 ms`** (`277,078/day`) | **`2.370 ms`** (`3.64 × 10⁷/day`) |
-| **Mode 1b** | Raw Unsorted `Fe / Si / C` Planetary Slag | **`21.4300 PJ`** | **`1,581×` reduction** (`Q_foundry = 1,581`) | `429.07 s` | `23.94 s` | `3.149 s` | `23.94 ms` |
-| **Mode 2** | Vacuum Pair-Creation Baseline (`M_core c²`) | **`33,882.17 PJ` (`33.8822 EJ`)** | **`1.0×` baseline** (`Q_foundry = 1.0`) | `7.85 days` | `10.51 hr` | `1.38 hr` | `37.849 s` |
+| **Mode 1c** | Isobaric Pre-Refined `HfB₂–¹²C` | **`0.2845 PJ`** | **`119,094×` reduction** (`Q_foundry = 119,094`) | **`28.45 TJ / 31.78 μs`** | `317.8 ms` | `41.81 ms` | `317.8 μs` |
+| **Mode 1a** | Matched `SiC / HfO₂ / B₄C` Foundry Feedstock | **`2.1220 PJ`** | **`15,967×` reduction** (`Q_foundry = 15,967`) | **`212.20 TJ / 237.0 μs`** | **`2.370 s`** (`36,448/day`) | **`311.8 ms`** (`277,078/day`) | **`2.370 ms`** (`3.64 × 10⁷/day`) |
+| **Mode 1b** | Raw Unsorted `Fe / Si / C` Planetary Slag | **`21.4300 PJ`** | **`1,581×` reduction** (`Q_foundry = 1,581`) | **`2.1430 PJ / 2.394 ms`** | `23.94 s` | `3.149 s` | `23.94 ms` |
+| **Mode 2** | Vacuum Pair-Creation Baseline (`M_core c²`) | **`33,882.17 PJ` (`33.8822 EJ`)** | **`1.0×` baseline** (`Q_foundry = 1.0`) | **`3,388.22 PJ / 3.785 s`** | `10.51 hr` | `1.38 hr` | `37.849 s` |
 
 Because `Q_foundry = E_stored / ΔE_synth` reaches **`15,967` in Mode 1a** and **`119,094` in Mode 1c**, a single active `SHBT-MAR-312` core (`33.8822 EJ` stored / `30.3310 EJ` net electrical at `η_conv = 89.519%`) can breed nearly **`15,967` replacement cores** (`14,293` net electrical) from standard `SiC/HfO₂/B₄C` foundry feedstock or **`119,094` cores** (`106,611` net electrical) from pre-refined `HfB₂–¹²C` feedstock.
-
-### Standardized propulsion nacelle mass & volume budget
-
-| Subsystem | Mass (kg) | Volume (m³) |
-|-----------|-----------|-------------|
-| Active Fuel Core (`SHBT-MAR-312`) | 376.99 | 0.0359 |
-| CVD Diamond Borrmann Cavity Matrix | 65.12 | 0.0185 |
-| 5-Stage Relativistic DEC Duct | 840.00 | 0.4200 |
-| Ti-6Al-4V Cryostat & Cold Plate | 520.00 | 0.2850 |
-| Graded W-Cu / Pb / Borated-PE Shield | 1884.88 | 0.3450 |
-| SI-SiC/GaN PCSS Crowbars & Busbars | 230.00 | 0.1120 |
-| TMSV Metrology & C11 Avionics Bay | 180.00 | 0.0950 |
-| **Total Propulsion Nacelle** | **4096.99** | **1.3114** |
 
 ### Generational comparison: Baseline graser vs. `SHBT-MAR-312`
 
@@ -332,19 +335,19 @@ Although the topological dark ledger (`η_D = 23/33`) stores multi-ton folded fu
 3. **Mössbauer Coherent Phonon Dissipation:** Recoilless fraction `f_M = 0.7820` clamps core burst temperature to `T_core = 21.33 K`, providing `11.79 K` headroom below the `32.92 K` quench limit, with diamond stress `σ_max = 124.60 MPa << 350.00 MPa` (`THM-IBR-01`).
 4. **8-Layer Active Heegaard--Floer Symplectic Shield Sleeve:** Replacing the heavy `1,884.88 kg` passive shadow shield with an active 8-layer `384.88 kg` (`0.085 m³`) symplectic sleeve (`S = (10/33)² = 100/1089 ≈ 0.0918`) wrapped in an `18.5 T` REBCO sheath shunts `90.8173%` of stray scatter into the dark ledger, clamping crew dose to `0.114 mSv/yr < 0.120 mSv/yr` at `895.19 PW` (`GATE-IBR-06`).
 
-### 2. Itemized 8-Subsystem Comparison: Standard vs. Compacted Nacelle
+### 2. Authoritative 8-Subsystem Comparison: Compacted Flight Nacelle vs. Stationary Baseline
 
-| Subsystem ID | Description | Standard (`SHBT-MAR-312`) | Compacted (`SHBT-MAR-312C`) | Delta Mass | Standard Vol | Compacted Vol | Delta Vol |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **`NAC-01`** | Active Core / Seed Wafer | `376.99 kg` | `37.70 kg` | `-90.00%` | `0.0359 m³` | `0.00359 m³` | `-90.00%` |
-| **`NAC-02`** | Dark-Braid Transducer Ring | `0.00 kg` | `145.20 kg` | `+145.20 kg` | `0.0000 m³` | `0.04250 m³` | `+0.0425 m³` |
-| **`NAC-03`** | CVD Diamond Borrmann Cavity | `65.12 kg` | `245.50 kg` | `+180.38 kg` | `0.0185 m³` | `0.05200 m³` | `+0.0335 m³` |
-| **`NAC-04`** | 5-Stage Relativistic DEC Duct | `840.00 kg` | `720.40 kg` | `-14.24%` | `0.4200 m³` | `0.41200 m³` | `-1.90%` |
-| **`NAC-05`** | Ti-6Al-4V Cryostat & Cold Plate | `520.00 kg` | `524.02 kg` | `+0.77%` | `0.2850 m³` | `0.15500 m³` | `-45.61%` |
-| **`NAC-06`** | Shielding (Passive vs Active Symplectic) | `1884.88 kg` | `384.88 kg` | `-79.58%` | `0.3450 m³` | `0.08500 m³` | `-75.36%` |
-| **`NAC-07`** | PCSS Crowbars & SMES Busbars | `230.00 kg` | `125.00 kg` | `-45.65%` | `0.1120 m³` | `0.06400 m³` | `-42.86%` |
-| **`NAC-08`** | TMSV Metrology & C11 Avionics | `180.00 kg` | `75.00 kg` | `-58.33%` | `0.0950 m³` | `0.04481 m³` | `-52.83%` |
-| **Total** | **Propulsion Nacelle Envelope** | **`4,096.99 kg`** | **`2,257.70 kg`** | **`-44.89%`** | **`1.3114 m³`** | **`0.85890 m³`** | **`-34.51%`** |
+| Subsystem ID | Subsystem Description | Compacted `SHBT-MAR-312C` (Flight / Mode B) Mass & Volume | Stationary `SHBT-MAR-312` (Fixed Hub / Mode A) Mass & Volume | Delta Mass (%) | Technical Distinction & Physical Implementation |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **`NAC-01`** | Active Catalytic Core / Seed Wafer | `37.70 kg` (`0.00359 m³`, `3.59 L`) | `376.99 kg` (`0.03590 m³`) | `-90.00%` | Annular micro-wafer (`0.1 CEU`, `1/10th` scale) vs. monolithic `1.0 CEU` stationary core |
+| **`NAC-02`** | Dark-Braid Transducer Ring / Injector | `145.20 kg` (`0.04250 m³`) | `0.00 kg` (`0.00000 m³`) | `+145.20 kg` | Sub-millisecond FSM dark-braid quantum dilation unfolding ring (`V_braid = 0.0 m³`) |
+| **`NAC-03`** | CVD Diamond Borrmann Cavity Matrix | `245.50 kg` (`0.05200 m³`) | `65.12 kg` (`0.01850 m³`) | `+277.00%` | Reinforced anomalous transmission duct (`τ_B = 1,453.4`, `ε_B = 0.9852`, `f_M = 0.7820`) |
+| **`NAC-04`** | 5-Stage Relativistic DEC Duct | `720.40 kg` (`0.41200 m³`) | `840.00 kg` (`0.42000 m³`) | `-14.24%` | Compacted forward-Compton / Bethe-Heitler / MHD / Venetian blind collector (`η_conv = 89.519%`) |
+| **`NAC-05`** | Ti-6Al-4V Cryostat & LHe Cold Plate | `524.02 kg` (`0.15500 m³`) | `520.00 kg` (`0.28500 m³`) | `+0.77%` | Superconducting REBCO magnet cryostat with Kapitza-regulated two-phase helium (`21.13 K`) |
+| **`NAC-06`** | Shielding (Active Symplectic vs. Passive) | `384.88 kg` (`0.08500 m³`) | `1,884.88 kg` (`0.34500 m³`) | `-79.58%` | 8-layer active Heegaard--Floer symplectic sleeve (`S = 100/1089`, `0.114 mSv/yr`) vs. heavy W-Cu/Pb |
+| **`NAC-07`** | SI-SiC/GaN PCSS Crowbars & SMES Bus | `125.00 kg` (`0.06400 m³`) | `230.00 kg` (`0.11200 m³`) | `-45.65%` | Sub-`2.10 ns` fast-quench crowbar switches with `94.20%` inductive recovery clamp |
+| **`NAC-08`** | TMSV Metrology & C11 Avionics Bay | `75.00 kg` (`0.04481 m³`) | `180.00 kg` (`0.09500 m³`) | `-58.33%` | Squeezed-vacuum heterodyne ranging (`r = 2.50`, `21.715 dB`) and redundant microkernel MMIO |
+| **Total** | **Propulsion Nacelle Flight Envelope** | **`2,257.70 kg` (`0.85890 m³`)** | **`4,096.99 kg` (`1.31140 m³`)** | **`-44.89%`** | **Mass: `-44.89%` (`-1,839.29 kg`) \| Volume: `-34.50%` (`-0.4525 m³`)** |
 
 Reserve margin below `4,200.00 kg` flight ceiling: Standard `103.01 kg` (`2.45%`) vs Compacted `1,942.30 kg` (`46.25%`).
 
@@ -419,7 +422,7 @@ Classical 3+1D bulk Einstein–Rosen / Morris–Thorne bridges (`Σ₃ ≅ T³ #
 ### 3. Dual Operational ConOps Modes (`GATE-EW-20..22`)
 
 1. **Mode A — Fixed Dual-Terminal Stargate Network:** Stationary paired `shbt-recon` + `shbt-warp` gateway apertures anchored at planetary or orbital nodes (e.g., Earth–Mars or Sol–Alpha Centauri). A single `376.99 kg` `SHBT-MAR-312` core (`33.8822 EJ` stored / `45.575 TJ` net loss per `16.6 t` cycle) powers **`743,438` full `16.6 t` payload dispatches** (`1.234 × 10⁷ metric tons` cumulative mass throughput per core), sustaining **`878,824 metric tons/hr` (`244.12 t/s`)** in Sustained Burst (`68.00 ms` total cycle = `66.98 ms` fold + `1.02 ms` handshake) and **`117,383 metric tons/hr` (`32.61 t/s`)** in Continuous Cruise.
-2. **Mode B — Self-Contained Mobile Wormhole "Jump-Cruiser":** Standalone `shbt-warp` starship (`4,096.99 kg` propulsion nacelle inside a `≤ 16.6 t` / `N_local ≤ 10²⁸`-nucleon vessel) that folds its own hull and crew into the 124-braid dark ledger while riding its self-generated shift-sheared ADM lightcone corridor at **`89.6c` (Continuous Cruise)**, **`681.2c` (Sustained Burst)**, or **`89,618c` (Exawatt Impulse)** with zero inertial G-loads (`a_i ≡ 0`) and zero interstellar dust/radiation erosion (`σ_collision ≡ 0`).
+2. **Mode B — Self-Contained Mobile Wormhole "Jump-Cruiser":** Standalone `shbt-warp` starship (`2,257.70 kg` / `0.8589 m³` compacted `SHBT-MAR-312C` propulsion nacelle with `SHBT-IBR-312` Tier 1 magazine of `380` micro-wafer refills / `38 CEU` = `14,325.62 kg` fuel, total wet mass `16,583.32 kg ≤ 16,600.00 kg` with `16.68 kg` payload margin inside an `N_local ≤ 10²⁸`-nucleon vessel) that folds its own hull and crew into the 124-braid dark ledger while riding its self-generated shift-sheared ADM lightcone corridor at **`89.6c` (Continuous Cruise)**, **`681.2c` (Sustained Burst)**, or **`89,618c` (Exawatt Impulse)** with zero inertial G-loads (`a_i ≡ 0`), zero interstellar dust/radiation erosion (`σ_collision ≡ 0`), and sub-millisecond hot-swap refueling (`50.80 μs` micro-batch, `317.8 μs` full CEU) ensuring `99.999999967%` propulsion duty cycle.
 
 ### 4. Benchmark Galactic & Intergalactic Mission Profiles (`GATE-EW-23..24`, `GATE-IBR-07..08`)
 
@@ -537,10 +540,10 @@ metrology and flight kinematics only):
 | [`shbt-cf`](https://github.com/sys1own/shbt-cf) | LANR Cold Fusion Reactor Workbench & Thermal-Hydraulics | 1,800-module LANR starter grid (999.054 kW net DC), dual-stage CoSb<sub>3</sub>/ZrNiSn TEG, Kapitza resistance ΔT<sub>K</sub> = 3.546 K. |
 | [`shbt-qc`](https://github.com/sys1own/shbt-qc) | Photonic Quantum Computer Twin & C11 Microkernel | Bare-metal C11 shbt-os microkernel, base 56-byte SHBT-MMIO-1 at 0x70000000, SECDED Hamming(72,64) ECC, AVX-512 interlocks. |
 | [`shbt-ghost`](https://github.com/sys1own/shbt-ghost) | Ghost Seed Reactionless Propulsion & Metric Stabilization | Sub-2.5 ns PCSS crowbars, 94.20% SiC inductive recovery, 3+1 CCZ4/ADM stabilization (β<sup>i</sup> → 0, \|det(g)+1\| ≤ 10<sup>-12</sup>). |
-| [`shbt-recon`](https://github.com/sys1own/shbt-recon) | Macroscopic State Translocation & Bipartite Fuel Foundry Twin | Macroscopic Stinespring dilation (`V_unified^macro`), dark ledger `η_D = 23/33`, `R_synth^MAR` `so(10)₃₁₂` coset fuel synthesis (`2.1220 PJ` Mode 1a / `0.2845 PJ` Mode 1c), 94-gate audit, 10 Z3 proofs. |
+| [`shbt-recon`](https://github.com/sys1own/shbt-recon) | Macroscopic State Translocation & Bipartite Fuel Foundry Twin | Macroscopic Stinespring dilation (`V_unified^macro`), dark ledger `η_D = 23/33`, compacted `SHBT-MAR-312C` nacelle (`2,257.70 kg`), `SHBT-IBR-312` dark-braid magazine, `R_synth^MAR` `so(10)₃₁₂` coset fuel synthesis (`2.1220 PJ` Mode 1a / `0.2845 PJ` Mode 1c), 102/102 gates, 12/12 Z3 proofs. |
 | [`shbt-sglt`](https://github.com/sys1own/shbt-sglt) | Synthetic Gravitational Lensing Telescope (SE-L2) Stack | 2PN relativistic beam optics, TMSV heterodyne metrology (r = 2.50, 21.715 dB), 5th-order minimum-jerk flight profiles. |
 | [`shbt-exotic`](https://github.com/sys1own/shbt-exotic) | Multi-Protocol Spacetime Engineering Co-Simulation | Cross-protocol metric coupling (all 6 phenomena), Ford-Roman QI dark-ledger auditing, Heegaard-Floer boundary relabeling. |
-| [`shbt-warp`](https://github.com/sys1own/shbt-warp) | Holographic Warp Drive, `SHBT-MAR-312` & `SHBT-EW-312` Engine | Alcubierre metric foliation (`α = 1.0`, `γ_ij = δ_ij`), `33.8822 EJ` `SHBT-MAR-312` reactor (`7.60 PW` burst), `SHBT-EW-312` wormhole corridor (`89.6c → 681.2c / 89,618c`), 173-gate audit, 16 Z3 proofs. |
+| [`shbt-warp`](https://github.com/sys1own/shbt-warp) | Holographic Warp Drive, `SHBT-MAR-312` & `SHBT-EW-312` Engine | Alcubierre metric foliation (`α = 1.0`, `γ_ij = δ_ij`), compacted `SHBT-MAR-312C` nacelle (`2,257.70 kg`, `-44.89%`), `SHBT-IBR-312` dark-braid magazine, `33.8822 EJ` `SHBT-MAR-312` reactor (`7.60 PW` burst), `SHBT-EW-312` wormhole corridor (`89.6c → 681.2c / 89,618c`), unrefueled intergalactic transit (`2.537 Mly` Andromeda to `45.18 Gly` cosmological horizon), 189/189 gates, 20/20 Z3 proofs. |
 
 ### Canonical logic transfer matrix
 
@@ -551,10 +554,10 @@ metrology and flight kinematics only):
 | [shbt-cf](https://github.com/sys1own/shbt-cf) | 1,800-module LANR starter (555.03 W net/cell, 999.054 kW @ 400 V), dual-stage TEG, 3D helium thermal-hydraulics |
 | [shbt-power](https://github.com/sys1own/shbt-power) | verification_matrix.json harness, closed-loop energy accounting, 906.000 kW Landauer schedules |
 | [shbt-ghost](https://github.com/sys1own/shbt-ghost) | 3+1 CCZ4 + Gundlach damping (κ₁ = 0.15, κ₂ = 0.0), sub-2.5 ns PCSS GaN/4H-SiC crowbars, 94.20% SiC recovery |
-| [shbt-recon](https://github.com/sys1own/shbt-recon) | `V_unified^macro` Stinespring dilation, 124 Fibonacci braids (`η_D = 23/33`), `Sp(2g, Z)` relabeling, 2PN causal gate (`Δs²_2PN ≤ 0`), and upstream `R_synth^MAR` bipartite `so(10)₃₁₂` coset fuel synthesis foundry (`2.1220 PJ` Mode 1a / `0.2845 PJ` Mode 1c) for the `376.99 kg` `SHBT-MAR-312` fuel core |
+| [shbt-recon](https://github.com/sys1own/shbt-recon) | `V_unified^macro` Stinespring dilation, 124 Fibonacci braids (`η_D = 23/33`), `Sp(2g, Z)` relabeling, 2PN causal gate (`Δs²_2PN ≤ 0`), compacted `SHBT-MAR-312C` nacelle (`2,257.70 kg`), `SHBT-IBR-312` magazine, 102/102 gates, 12/12 Z3 proofs, and upstream `R_synth^MAR` bipartite `so(10)₃₁₂` coset fuel synthesis foundry (`2.1220 PJ` Mode 1a / `0.2845 PJ` Mode 1c) for the `376.99 kg` `SHBT-MAR-312` fuel core |
 | [shbt-sglt](https://github.com/sys1own/shbt-sglt) | TMSV ranging (r = 2.50, 21.715 dB, σ_r ≤ 0.144 pm/√Hz), min-jerk s(τ) (‖s″‖ ≤ 5.7735), hyper-dual UQ |
 | [shbt-exotic](https://github.com/sys1own/shbt-exotic) | multi-protocol field-coupling benchmark suite |
-| [shbt-warp](https://github.com/sys1own/shbt-warp) (this repo) | exports the 4th-Gen `SHBT-MAR-312` mass-annihilation battery-reactor (`33.8822 EJ`, `ρ_E = c²`, 5-stage DEC `η_conv = 89.519%`, `4,096.99 kg` drop-in nacelle) and the `SHBT-EW-312` Effective Traversable Wormhole System (`89.6c → 681.2c`, impulse `89,618c`) |
+| [shbt-warp](https://github.com/sys1own/shbt-warp) (this repo) | exports the integrated 3+1D Fefferman--Graham warp digital twin, the compacted `SHBT-MAR-312C` nacelle (`2,257.70 kg`, `0.8589 m³`, `-44.89%`), the `SHBT-IBR-312` dark-braid reload magazine, unrefueled intergalactic transit (`2.537 Mly` Andromeda to `45.18 Gly` cosmological horizon), the 4th-Gen `SHBT-MAR-312` mass-annihilation battery-reactor (`33.8822 EJ`, `ρ_E = c²`, 5-stage DEC `η_conv = 89.519%`), and the `SHBT-EW-312` Effective Traversable Wormhole System (`89.6c → 681.2c`, impulse `89,618c`, 189/189 gates, 20/20 Z3 proofs) |
 
 ## Core closures
 
