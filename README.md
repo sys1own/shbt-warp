@@ -126,7 +126,7 @@ powertrain supplies the multi-petawatt burst and hyperluminal envelope.
  │            │                                                     │                 │
  │  [MODE B: MOBILE FLIGHT NACELLE]                                 ▼                 │
  │  • 2,257.70 kg (0.8589 m³, -44.89%)              40.0 keV Seed  ╭────────────────╮ │
- │  • Active Symplectic Shield (384.88 kg) ───────► Laser Trigger ─►│Borrmann Cavity │ │
+ │  • Active Symplectic Shield (384.88 kg) ──────► Laser Trigger ─►│Borrmann Cavity │ │
  │  • S = 100/1089, Dose: 0.114 mSv/yr              (Gain G=61.15) │• ε_B = 0.9852  │ │
  │  • Wet Mass: 16,583.32 kg ≤ 16,600 kg                           │• f_M = 0.7820  │ │
  │                                                                 ╰───────┬────────╯ │
