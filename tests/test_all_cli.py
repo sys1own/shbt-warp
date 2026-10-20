@@ -32,12 +32,12 @@ def test_build_kernel_and_reference_c():
     assert "all checks passed" in proc.stdout
 
 
-def test_verify_189_gates():
+def test_verify_197_gates():
     proc = cli("verify", timeout=900)
     assert proc.returncode == 0, proc.stdout + proc.stderr
     matrix = json.loads((REPO / "verification_matrix.json").read_text())
-    assert matrix["total"] == 189
-    assert matrix["passed"] == 189
+    assert matrix["total"] == 197
+    assert matrix["passed"] == 197
     assert all(g["passed"] for g in matrix["gates"])
     assert (REPO / "warp_results.tex").stat().st_size > 0
 

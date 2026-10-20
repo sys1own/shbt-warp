@@ -3,8 +3,8 @@
 
 Exercises every CLI subcommand end to end and asserts that each expected
 artifact exists with non-zero size, that the verification matrix reports
-128/128 PASS (70 gates + 50 EXT + 8 BAT), and that the Z3 formal suite discharges
-all five theorems. Exits 0 when everything passes.
+197/197 PASS (70 gates + 50 EXT + 8 BAT + 20 MAR + 25 EW + 8 SYNTH + 8 IBR + 8 SCALE), and that the Z3 formal suite discharges
+all 22 theorems. Exits 0 when everything passes.
 
 Usage:  python3 tests/test_all_features.py
 """
@@ -65,6 +65,8 @@ def main():
     check("Z3 EW-312 GATES PROVED", p.returncode == 0 and "ALL 8 EW-312 FORMAL GATES DISCHARGED" in p.stdout)
     p = run([sys.executable, "formal/verify_ibr312.py"], timeout=300)
     check("Z3 IBR-312 THEOREMS PROVED", p.returncode == 0 and "2/2 SHBT-MAR-312-IBR THEOREMS PROVED" in p.stdout)
+    p = run([sys.executable, "formal/verify_warp_scaling.py"], timeout=300)
+    check("Z3 SCALING THEOREMS PROVED", p.returncode == 0 and "2/2 SHBT-WARP SCALING THEOREMS PROVED" in p.stdout)
 
     # 3. CLI subcommands.
     p = run([sys.executable, "-m", "shbt_warp.cli", "build-kernel"], timeout=300)
@@ -74,8 +76,8 @@ def main():
     mpath = REPO / "verification_matrix.json"
     if mpath.exists():
         m = json.loads(mpath.read_text())
-        matrix_ok = m["passed"] == 189 == m["total"]
-    check("cli verify 189/189", p.returncode == 0 and matrix_ok)
+        matrix_ok = m["passed"] == 197 == m["total"]
+    check("cli verify 197/197", p.returncode == 0 and matrix_ok)
     check("warp_results.tex", (REPO / "warp_results.tex").stat().st_size > 0)
 
     p = run([sys.executable, "-m", "shbt_warp.cli", "wormhole", "--mode", "mode-a"], timeout=300)

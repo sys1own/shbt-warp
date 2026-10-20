@@ -7,16 +7,24 @@ pub mod pipeline;
 pub mod conops;
 pub mod causal_2pn;
 pub mod intergalactic;
+pub mod gst_metamaterial;
+pub mod corridor;
+pub mod hyperframe;
 
 pub use constants::*;
 pub use classical_nogo::{verify_classical_bulk_nogo, verify_effective_corridor, ClassicalWormholeAudit, EffectiveCorridorAudit};
 pub use pipeline::{execute_stage4_with_synthesis, execute_wormhole_pipeline, PowerTier, WormholePipelineResult};
 pub use conops::{
-    evaluate_mode_a, evaluate_mode_b, get_benchmark_missions, simulate_wormhole_refuel_hop, ConOpsMode,
-    JumpCruiserMetrics, MissionSpec, StargateMetrics, WormholeRefuelProfile,
+    evaluate_mode_a, evaluate_mode_b, evaluate_scaled_mode_a, evaluate_scaled_mode_b,
+    get_benchmark_missions, simulate_wormhole_refuel_hop, ConOpsMode, JumpCruiserMetrics,
+    MissionSpec, ScaledJumpCruiserMetrics, ScaledStargateMetrics, StargateMetrics,
+    WormholeRefuelProfile,
 };
 pub use causal_2pn::{evaluate_2pn_metric, interval_2pn, interval_2pn_with_shift, is_causally_authorized, Metric2pn};
 pub use intergalactic::*;
+pub use gst_metamaterial::*;
+pub use corridor::*;
+pub use hyperframe::*;
 
 #[cfg(test)]
 mod tests {

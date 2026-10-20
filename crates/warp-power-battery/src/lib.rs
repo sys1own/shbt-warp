@@ -17,6 +17,12 @@ pub use synthesizer::*;
 pub mod compacted_nacelle;
 pub use compacted_nacelle::*;
 
+pub mod shunt;
+pub use shunt::*;
+
+pub mod braid;
+pub use braid::*;
+
 // ---- Algebraic & Stinespring Closure Invariants ----------------------------
 
 pub const WZW_K_LEPTON: u32 = 26;

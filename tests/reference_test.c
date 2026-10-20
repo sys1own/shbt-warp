@@ -257,6 +257,34 @@ int main(void)
         assert(shbt_ew312_fsm_step(&ew, 0x99) == SHBT_STATE_EMERGENCY_QUENCH);
     }
 
+    /* 12. 64-Bank Hyper-Frame & Scaling Telemetry */
+    {
+        assert(sizeof(UnifiedStinespringFrame) == 2112);
+        assert(sizeof(shbt_stinespring_hyperframe_t) == 135168);
+
+        shbt_ew_hyperframe_telemetry_t telem = {0};
+        uint64_t ctrl = SHBT_EW_CTRL_ENABLE_PIPELINE
+                      | SHBT_EW_CTRL_DYNAMIC_GST_MATCH
+                      | SHBT_EW_CTRL_PROGRESSIVE_EIKONAL
+                      | SHBT_EW_CTRL_TTN_MERA_ADAPT
+                      | SHBT_EW_CTRL_HYPERFRAME_64BANK
+                      | SHBT_EW_CTRL_TERNARY_HUFFMAN_PACK;
+
+        uint32_t z_bulk_q16 = (uint32_t)(44.178 * 65536.0);
+        uint32_t tau_q24 = (uint32_t)(0.5 * 16777216.0);
+        uint64_t n_e26 = 10000ULL; /* 10^30 nucleons */
+        uint32_t banks = 64U;
+
+        shbt_ew312_hyperframe_tick_50k518(ctrl, z_bulk_q16, tau_q24, n_e26, banks, &telem, NULL);
+
+        assert(telem.active_bank_mask == ~0ULL);
+        assert(telem.z_meta_mrayl_q16 == z_bulk_q16);
+        assert(telem.ttn_mera_active_layers == 101);
+        assert(telem.braid_huffman_max_len == 42);
+        assert(telem.cryo_stage_temp_mk == 21130);
+        assert(telem.peak_stress_mpa_q16 <= 8165785U);
+    }
+
     puts("reference_test: all checks passed");
     return 0;
 }

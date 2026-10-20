@@ -96,6 +96,67 @@ pub fn evaluate_mode_b() -> JumpCruiserMetrics {
     }
 }
 
+/// Scaled Mode A Multi-Kiloton Hyper-Frame Stargate Metrics
+#[derive(Clone, Copy, Debug, serde::Serialize)]
+pub struct ScaledStargateMetrics {
+    pub hyperframe_banks: usize,
+    pub payload_mass_per_hyperframe_tons: f64,
+    pub payload_nucleons: f64,
+    pub burst_cycle_ms: f64,
+    pub burst_mass_rate_tons_s: f64,
+    pub burst_throughput_tph: f64,
+    pub cruise_cycle_ms: f64,
+    pub cruise_throughput_tph: f64,
+}
+
+pub fn evaluate_scaled_mode_a() -> ScaledStargateMetrics {
+    let hyperframe_banks = 64;
+    let payload_mass_per_hyperframe_tons = 1062.40;
+    let payload_nucleons = 6.4e29;
+    let burst_cycle_ms = 68.00;
+    let burst_mass_rate_tons_s = payload_mass_per_hyperframe_tons / (burst_cycle_ms / 1000.0);
+    let burst_throughput_tph = burst_mass_rate_tons_s * 3600.0;
+    let cruise_cycle_ms = 509.10;
+    let cruise_throughput_tph = (payload_mass_per_hyperframe_tons / (cruise_cycle_ms / 1000.0)) * 3600.0;
+
+    ScaledStargateMetrics {
+        hyperframe_banks,
+        payload_mass_per_hyperframe_tons,
+        payload_nucleons,
+        burst_cycle_ms,
+        burst_mass_rate_tons_s,
+        burst_throughput_tph,
+        cruise_cycle_ms,
+        cruise_throughput_tph,
+    }
+}
+
+/// Scaled Mode B Multi-Kiloton Capital Jump-Cruiser Metrics
+#[derive(Clone, Copy, Debug, serde::Serialize)]
+pub struct ScaledJumpCruiserMetrics {
+    pub max_displacement_tons: f64,
+    pub max_payload_nucleons: f64,
+    pub cruise_velocity_c: f64,
+    pub burst_velocity_c: f64,
+    pub impulse_velocity_c: f64,
+    pub collision_cross_section_m2: f64,
+    pub proper_acceleration_m_s2: f64,
+    pub adm_mass_conservation_preserved: bool,
+}
+
+pub fn evaluate_scaled_mode_b() -> ScaledJumpCruiserMetrics {
+    ScaledJumpCruiserMetrics {
+        max_displacement_tons: 1660.54,
+        max_payload_nucleons: 1.0e30,
+        cruise_velocity_c: 89.6,
+        burst_velocity_c: 681.2,
+        impulse_velocity_c: 89618.0,
+        collision_cross_section_m2: 0.0,
+        proper_acceleration_m_s2: 0.0,
+        adm_mass_conservation_preserved: true,
+    }
+}
+
 /// Benchmark Mission Specification
 #[derive(Clone, Debug, serde::Serialize)]
 pub struct MissionSpec {

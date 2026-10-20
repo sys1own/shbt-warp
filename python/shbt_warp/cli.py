@@ -477,7 +477,7 @@ def _subcommand_main(argv) -> int:
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("build-kernel", help="compile the C11 microkernel")
     sub.add_parser("sim", help="run the canonical warp simulation")
-    sub.add_parser("verify", help="run the 189-gate verification suite")
+    sub.add_parser("verify", help="run the 197-gate verification suite")
     p_eda = sub.add_parser("export-eda", help="emit GDSII/STEP/S2P artifacts")
     p_eda.add_argument("--out-dir", default="eda_outputs")
     p_fits = sub.add_parser("export-fits", help="FITS v4.0 + WCS science cube")

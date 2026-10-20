@@ -15,6 +15,7 @@ pub mod bat;
 pub mod ext;
 pub mod ew;
 pub mod ibr;
+pub mod scale;
 
 use warp_boundary_cft as cft;
 use warp_boundary_cft::rug;
@@ -636,5 +637,6 @@ pub fn run_all() -> Vec<GateResult> {
     v.extend(ew::run_all_ew());
     v.extend(bat::run_all_synth());
     v.extend(ibr::run_all_ibr());
+    v.extend(scale::run_all_scale());
     v
 }
