@@ -14,6 +14,9 @@
 pub mod synthesizer;
 pub use synthesizer::*;
 
+pub mod synthesis;
+pub use synthesis::*;
+
 pub mod compacted_nacelle;
 pub use compacted_nacelle::*;
 

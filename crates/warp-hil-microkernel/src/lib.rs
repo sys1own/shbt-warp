@@ -262,10 +262,21 @@ pub mod mar312 {
 
     pub const SHBT_SYNTH_STATE_COSET_ANTIBARYON_FOLD: u8 = 0x06;
     pub const SHBT_SYNTH_STATE_SYMPLECTIC_CRYSTALLIZATION: u8 = 0x08;
+    pub const COSET_ANTIBARYON_FOLD: u8 = 0x06;
+    pub const SYMPLECTIC_CRYSTALLIZATION: u8 = 0x08;
+
     pub const SHBT_SYNTH_ANTIBARYON_RATIO_50_50_Q16: u16 = 0x8000;
     pub const SHBT_SYNTH_COSET_WEIGHT_45_64_Q16: u16 = 0xB400;
+    pub const SYNTH_ANTIBARYON_RATIO_Q16: u16 = 0x8000;
+    pub const SYNTH_COSET_WEIGHT_Q16: u16 = 0xB400;
+
     pub const SHBT_SYNTH_RG_LOCK_312: u32 = 1 << 16;
     pub const SHBT_SYNTH_CBARB_ZERO_VERIFIED: u32 = 1 << 17;
+
+    pub const SHBT_CTRL_DYNAMIC_GST_MATCH: u64 = 1 << 16;
+    pub const SHBT_CTRL_PROGRESSIVE_EIKONAL: u64 = 1 << 17;
+    pub const SHBT_CTRL_TTN_MERA_ADAPT: u64 = 1 << 18;
+    pub const SHBT_CTRL_HYPERFRAME_64BANK: u64 = 1 << 19;
 
     pub fn synth_fold_ok(
         antibaryon_ratio_q16: u16,
@@ -280,9 +291,12 @@ pub mod mar312 {
 }
 
 pub use mar312::{
+    COSET_ANTIBARYON_FOLD, SHBT_CTRL_DYNAMIC_GST_MATCH, SHBT_CTRL_HYPERFRAME_64BANK,
+    SHBT_CTRL_PROGRESSIVE_EIKONAL, SHBT_CTRL_TTN_MERA_ADAPT,
     SHBT_SYNTH_ANTIBARYON_RATIO_50_50_Q16, SHBT_SYNTH_CBARB_ZERO_VERIFIED,
     SHBT_SYNTH_COSET_WEIGHT_45_64_Q16, SHBT_SYNTH_RG_LOCK_312,
     SHBT_SYNTH_STATE_COSET_ANTIBARYON_FOLD, SHBT_SYNTH_STATE_SYMPLECTIC_CRYSTALLIZATION,
+    SYMPLECTIC_CRYSTALLIZATION, SYNTH_ANTIBARYON_RATIO_Q16, SYNTH_COSET_WEIGHT_Q16,
 };
 
 #[derive(Clone, Copy, Debug)]
@@ -307,6 +321,26 @@ pub struct ShbtMar312Mmio {
 impl ShbtMar312Mmio {
     pub fn zeroed() -> Self {
         Self { regs: [0; 16] }
+    }
+
+    /// Read Register 0x3C: Bipartite Anti-Baryon Ratio in Q0.16 (default 0x8000 = 0.500)
+    pub fn synth_antibaryon_ratio_q16(&self) -> u16 {
+        ((self.regs[7] >> 32) & 0xFFFF) as u16
+    }
+
+    /// Write Register 0x3C: Bipartite Anti-Baryon Ratio in Q0.16
+    pub fn set_synth_antibaryon_ratio_q16(&mut self, ratio: u16) {
+        self.regs[7] = (self.regs[7] & !(0xFFFFu64 << 32)) | ((ratio as u64) << 32);
+    }
+
+    /// Read Register 0x3E: Coset Conformal Weight Shift in Q0.16 (default 0xB400 = 45/64)
+    pub fn synth_coset_weight_q16(&self) -> u16 {
+        ((self.regs[7] >> 48) & 0xFFFF) as u16
+    }
+
+    /// Write Register 0x3E: Coset Conformal Weight Shift in Q0.16
+    pub fn set_synth_coset_weight_q16(&mut self, weight: u16) {
+        self.regs[7] = (self.regs[7] & !(0xFFFFu64 << 48)) | ((weight as u64) << 48);
     }
 }
 
@@ -525,6 +559,36 @@ pub mod ibr312 {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_mar312_synthesis_registers() {
+        let mut mmio = ShbtMar312Mmio::zeroed();
+        mmio.set_synth_antibaryon_ratio_q16(SYNTH_ANTIBARYON_RATIO_Q16);
+        mmio.set_synth_coset_weight_q16(SYNTH_COSET_WEIGHT_Q16);
+
+        assert_eq!(mmio.synth_antibaryon_ratio_q16(), 0x8000);
+        assert_eq!(mmio.synth_coset_weight_q16(), 0xB400);
+
+        let ok = mar312::synth_fold_ok(
+            mmio.synth_antibaryon_ratio_q16(),
+            mmio.synth_coset_weight_q16(),
+            mar312::SHBT_SYNTH_RG_LOCK_312 | mar312::SHBT_SYNTH_CBARB_ZERO_VERIFIED,
+        );
+        assert!(ok);
+
+        assert_eq!(COSET_ANTIBARYON_FOLD, 0x06);
+        assert_eq!(SYMPLECTIC_CRYSTALLIZATION, 0x08);
+        assert_eq!(SHBT_CTRL_DYNAMIC_GST_MATCH, 1 << 16);
+        assert_eq!(SHBT_CTRL_PROGRESSIVE_EIKONAL, 1 << 17);
+        assert_eq!(SHBT_CTRL_TTN_MERA_ADAPT, 1 << 18);
+        assert_eq!(SHBT_CTRL_HYPERFRAME_64BANK, 1 << 19);
+    }
+}
+
 
 
 

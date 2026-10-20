@@ -10,6 +10,8 @@ pub mod intergalactic;
 pub mod gst_metamaterial;
 pub mod corridor;
 pub mod hyperframe;
+pub mod derender;
+pub mod eikonal;
 
 pub use constants::*;
 pub use classical_nogo::{verify_classical_bulk_nogo, verify_effective_corridor, ClassicalWormholeAudit, EffectiveCorridorAudit};
@@ -24,6 +26,14 @@ pub use causal_2pn::{evaluate_2pn_metric, interval_2pn, interval_2pn_with_shift,
 pub use intergalactic::*;
 pub use gst_metamaterial::*;
 pub use corridor::*;
+pub use derender::{
+    evaluate_microscopic_derender, AdaptiveTtnMeraEngine, MicroscopicDeRenderReport,
+    BENCHMARK_SCREENED_PAIR_EV, BREMSSTRAHLUNG_POWER_W, CRYO_QUENCH_LIMIT_K,
+    CRYOGENIC_OP_TEMP_K, DCE_PUMP_FREQ_GHZ, EFFECTIVE_SCREENED_PAIR_EV,
+    ISOMETRY_MAX_RESIDUAL, MOSSBAUER_MIN_FRACTION, MOSSBAUER_RECOILLESS_FRACTION_FM,
+    SCREENING_DISTANCE_ANGSTROM, SCREENING_SCALE_FACTOR, TMSV_CARRIER_FREQ_GHZ,
+    TMSV_POSITION_SQUEEZING_NM,
+};
 pub use hyperframe::*;
 
 #[cfg(test)]

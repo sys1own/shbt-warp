@@ -66,7 +66,11 @@ def main():
     p = run([sys.executable, "formal/verify_ibr312.py"], timeout=300)
     check("Z3 IBR-312 THEOREMS PROVED", p.returncode == 0 and "2/2 SHBT-MAR-312-IBR THEOREMS PROVED" in p.stdout)
     p = run([sys.executable, "formal/verify_warp_scaling.py"], timeout=300)
-    check("Z3 SCALING THEOREMS PROVED", p.returncode == 0 and "2/2 SHBT-WARP SCALING THEOREMS PROVED" in p.stdout)
+    check("Z3 SCALING THEOREMS PROVED", p.returncode == 0 and "4/4 SHBT-WARP SCALING THEOREMS PROVED" in p.stdout)
+    p = run([sys.executable, "formal/verify_warp_synthesis.py"], timeout=300)
+    check("Z3 SYNTH THEOREMS PROVED", p.returncode == 0 and "ALL 2 SHBT-WARP COSET SYNTHESIS THEOREMS PROVED" in p.stdout)
+    p = run([sys.executable, "formal/verify_warp_battery.py"], timeout=300)
+    check("Z3 BATTERY SUITE PROVED", p.returncode == 0 and "ALL SHBT-WARP BATTERY FORMAL THEOREMS PROVED" in p.stdout)
 
     # 3. CLI subcommands.
     p = run([sys.executable, "-m", "shbt_warp.cli", "build-kernel"], timeout=300)

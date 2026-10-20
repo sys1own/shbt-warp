@@ -43,6 +43,17 @@ extern "C" {
 #define MAR_STATE_DEC_COOLDOWN     ((uint32_t)0x08U)
 #define MAR_STATE_EMERGENCY_QUENCH ((uint32_t)0x10U)
 
+/* Bipartite Synthesis FSM State Enums & Control Flags */
+#define COSET_ANTIBARYON_FOLD         ((uint8_t)0x06U)
+#define SYMPLECTIC_CRYSTALLIZATION    ((uint8_t)0x08U)
+
+#ifndef SHBT_CTRL_DYNAMIC_GST_MATCH
+#define SHBT_CTRL_DYNAMIC_GST_MATCH     (1ULL << 16)
+#define SHBT_CTRL_PROGRESSIVE_EIKONAL   (1ULL << 17)
+#define SHBT_CTRL_TTN_MERA_ADAPT        (1ULL << 18)
+#define SHBT_CTRL_HYPERFRAME_64BANK     (1ULL << 19)
+#endif
+
 /* Hardware Fault & Interlock Bitmasks */
 #define MAR_FAULT_NONE             ((uint32_t)0x00000000U)
 #define MAR_FAULT_ANOMALY_CLOSURE  ((uint32_t)0x00000001U) /* R_entropy < 0          */
@@ -97,8 +108,17 @@ typedef struct {
     volatile uint32_t trigger_delay_ps;
     /* 0x34 - 0x37: Optical Gateway Trigger Pulse Width (Picoseconds) */
     volatile uint32_t trigger_pulse_width_ps;
-    /* 0x38 - 0x3F: Gateway Coherent Radiant Flux Monitor (Watts / m^2) */
-    volatile uint64_t graser_coherent_flux_w_m2;
+    /* 0x38 - 0x3F: Gateway Coherent Radiant Flux Monitor & Coset Synthesis Registers */
+    union {
+        volatile uint64_t graser_coherent_flux_w_m2;
+        struct {
+            volatile uint32_t graser_flux_lo;
+            /* 0x3C - 0x3D: Bipartite Anti-Baryon Ratio in Q0.16 (default 0x8000 = 0.500) */
+            volatile uint16_t synth_antibaryon_ratio_q16;
+            /* 0x3E - 0x3F: Coset Conformal Weight Shift in Q0.16 (default 0xB400 = 45/64) */
+            volatile uint16_t synth_coset_weight_q16;
+        };
+    };
     /* 0x40 - 0x43: Peak Transient Vessel Stress (Kilopascals) */
     volatile uint32_t transient_shear_stress_kpa;
     /* 0x44 - 0x47: Borrmann Anomalous Transmission Suppression (Q16.16) */
@@ -165,6 +185,10 @@ _Static_assert(_Alignof(shbt_mar312_mmio_t) >= 64,
                "shbt_mar312_mmio_t must be dual-cacheline (64 B) aligned");
 _Static_assert(offsetof(shbt_mar312_mmio_t, cryo_headroom_uk) == 0x28,
                "cryo_headroom_uk offset must be 0x28");
+_Static_assert(offsetof(shbt_mar312_mmio_t, synth_antibaryon_ratio_q16) == 0x3C,
+               "synth_antibaryon_ratio_q16 offset must be 0x3C");
+_Static_assert(offsetof(shbt_mar312_mmio_t, synth_coset_weight_q16) == 0x3E,
+               "synth_coset_weight_q16 offset must be 0x3E");
 _Static_assert(offsetof(shbt_mar312_mmio_t, pcss_crowbar_cmd) == 0x68,
                "pcss_crowbar_cmd offset must be 0x68");
 _Static_assert(offsetof(shbt_mar312_mmio_t, mar_state) == 0x6C,

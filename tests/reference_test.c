@@ -224,6 +224,16 @@ int main(void)
         assert(f_trip & MAR_FAULT_CRYO_QUENCH_WARN);
         assert(mar.pcss_crowbar_cmd == 0xFFFFFFFFU);
         assert(mar.mar_state == MAR_STATE_EMERGENCY_QUENCH);
+
+        /* Test Register 0x3C and 0x3E coset synthesis registers & FSM states */
+        mar.synth_antibaryon_ratio_q16 = SHBT_SYNTH_ANTIBARYON_RATIO_50_50_Q16;
+        mar.synth_coset_weight_q16 = SHBT_SYNTH_COSET_WEIGHT_45_64_Q16;
+        assert(mar.synth_antibaryon_ratio_q16 == 0x8000);
+        assert(mar.synth_coset_weight_q16 == 0xB400);
+        assert(shbt_mar312_synth_fold_ok(mar.synth_antibaryon_ratio_q16, mar.synth_coset_weight_q16,
+                                         SHBT_SYNTH_RG_LOCK_312 | SHBT_SYNTH_CBARB_ZERO_VERIFIED) == true);
+        assert(COSET_ANTIBARYON_FOLD == 0x06);
+        assert(SYMPLECTIC_CRYSTALLIZATION == 0x08);
     }
 
     /* 11. EW-312 MMIO, 2PN Causal Lightcone & 6-State FSM */
