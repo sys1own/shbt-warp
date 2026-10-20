@@ -323,24 +323,74 @@ impl ShbtMar312Mmio {
         Self { regs: [0; 16] }
     }
 
-    /// Read Register 0x3C: Bipartite Anti-Baryon Ratio in Q0.16 (default 0x8000 = 0.500)
+    /// Read Register 0x30: Bipartite Anti-Baryon Ratio in Q0.16 (default 0x8000 = 0.500)
     pub fn synth_antibaryon_ratio_q16(&self) -> u16 {
-        ((self.regs[7] >> 32) & 0xFFFF) as u16
+        (self.regs[6] & 0xFFFF) as u16
     }
 
-    /// Write Register 0x3C: Bipartite Anti-Baryon Ratio in Q0.16
+    /// Write Register 0x30: Bipartite Anti-Baryon Ratio in Q0.16
     pub fn set_synth_antibaryon_ratio_q16(&mut self, ratio: u16) {
-        self.regs[7] = (self.regs[7] & !(0xFFFFu64 << 32)) | ((ratio as u64) << 32);
+        self.regs[6] = (self.regs[6] & !0xFFFF) | (ratio as u64);
     }
 
-    /// Read Register 0x3E: Coset Conformal Weight Shift in Q0.16 (default 0xB400 = 45/64)
+    /// Read Register 0x32: Coset Conformal Weight Shift in Q0.16 (default 0xB400 = 45/64)
     pub fn synth_coset_weight_q16(&self) -> u16 {
-        ((self.regs[7] >> 48) & 0xFFFF) as u16
+        ((self.regs[6] >> 16) & 0xFFFF) as u16
     }
 
-    /// Write Register 0x3E: Coset Conformal Weight Shift in Q0.16
+    /// Write Register 0x32: Coset Conformal Weight Shift in Q0.16
     pub fn set_synth_coset_weight_q16(&mut self, weight: u16) {
-        self.regs[7] = (self.regs[7] & !(0xFFFFu64 << 48)) | ((weight as u64) << 48);
+        self.regs[6] = (self.regs[6] & !(0xFFFF << 16)) | ((weight as u64) << 16);
+    }
+
+    /// Read Register 0x34: Max allowable timing jitter in attoseconds (default 4 as)
+    pub fn synth_jitter_bound_q16(&self) -> u16 {
+        ((self.regs[6] >> 32) & 0xFFFF) as u16
+    }
+
+    /// Write Register 0x34: Max allowable timing jitter in attoseconds
+    pub fn set_synth_jitter_bound_q16(&mut self, jitter_as: u16) {
+        self.regs[6] = (self.regs[6] & !(0xFFFF << 32)) | ((jitter_as as u64) << 32);
+    }
+
+    /// Read Register 0x36: CS tether displacement in 10^-5 Angstroms
+    pub fn synth_tether_displacement_q16(&self) -> u16 {
+        ((self.regs[6] >> 48) & 0xFFFF) as u16
+    }
+
+    /// Write Register 0x36: CS tether displacement in 10^-5 Angstroms
+    pub fn set_synth_tether_displacement_q16(&mut self, disp: u16) {
+        self.regs[6] = (self.regs[6] & !(0xFFFF << 48)) | ((disp as u64) << 48);
+    }
+
+    /// Read Register 0x48: DEC Space Charge Headroom Q16
+    pub fn dec_space_charge_margin_q16(&self) -> u16 {
+        (self.regs[9] & 0xFFFF) as u16
+    }
+
+    /// Write Register 0x48: DEC Space Charge Headroom Q16
+    pub fn set_dec_space_charge_margin_q16(&mut self, margin: u16) {
+        self.regs[9] = (self.regs[9] & !0xFFFF) | (margin as u64);
+    }
+
+    /// Read Register 0x4A: TQEC Syndrome Error Rate Q16
+    pub fn tqec_syndrome_err_rate_q16(&self) -> u16 {
+        ((self.regs[9] >> 16) & 0xFFFF) as u16
+    }
+
+    /// Write Register 0x4A: TQEC Syndrome Error Rate Q16
+    pub fn set_tqec_syndrome_err_rate_q16(&mut self, rate: u16) {
+        self.regs[9] = (self.regs[9] & !(0xFFFF << 16)) | ((rate as u64) << 16);
+    }
+
+    /// Read Register 0x4C: REBCO Quench Headroom Q16
+    pub fn rebco_quench_headroom_q16(&self) -> u32 {
+        (self.regs[9] >> 32) as u32
+    }
+
+    /// Write Register 0x4C: REBCO Quench Headroom Q16
+    pub fn set_rebco_quench_headroom_q16(&mut self, headroom: u32) {
+        self.regs[9] = (self.regs[9] & 0xFFFF_FFFF) | ((headroom as u64) << 32);
     }
 }
 
@@ -579,6 +629,18 @@ mod tests {
             mar312::SHBT_SYNTH_RG_LOCK_312 | mar312::SHBT_SYNTH_CBARB_ZERO_VERIFIED,
         );
         assert!(ok);
+
+        mmio.set_synth_jitter_bound_q16(4);
+        mmio.set_synth_tether_displacement_q16(36);
+        mmio.set_dec_space_charge_margin_q16(11718);
+        mmio.set_tqec_syndrome_err_rate_q16(55);
+        mmio.set_rebco_quench_headroom_q16(10892);
+
+        assert_eq!(mmio.synth_jitter_bound_q16(), 4);
+        assert_eq!(mmio.synth_tether_displacement_q16(), 36);
+        assert_eq!(mmio.dec_space_charge_margin_q16(), 11718);
+        assert_eq!(mmio.tqec_syndrome_err_rate_q16(), 55);
+        assert_eq!(mmio.rebco_quench_headroom_q16(), 10892);
 
         assert_eq!(COSET_ANTIBARYON_FOLD, 0x06);
         assert_eq!(SYMPLECTIC_CRYSTALLIZATION, 0x08);

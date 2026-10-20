@@ -10,6 +10,9 @@
 use std::fs::File;
 use std::io::{self, Write};
 
+pub mod tqec_syndrome;
+pub use tqec_syndrome::*;
+
 /// Sapphire substrate acoustic impedance (MRayl).
 pub const Z_SAPPHIRE_MRAYL: f64 = 44.178;
 /// Bare aerogel buffer-layer acoustic impedance (MRayl).

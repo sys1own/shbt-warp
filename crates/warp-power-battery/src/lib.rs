@@ -26,6 +26,9 @@ pub use shunt::*;
 pub mod braid;
 pub use braid::*;
 
+pub mod dec_transient;
+pub use dec_transient::*;
+
 // ---- Algebraic & Stinespring Closure Invariants ----------------------------
 
 pub const WZW_K_LEPTON: u32 = 26;

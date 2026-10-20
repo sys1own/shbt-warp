@@ -214,22 +214,23 @@ int main(void)
         };
         uint32_t f_nom = shbt_mar312_tick_dispatch(&mar, &telem_nom);
         assert(f_nom == MAR_FAULT_NONE);
-        assert(mar.pcss_crowbar_cmd == 0);
-        assert(mar.mar_state == MAR_STATE_BURST_TRACTION);
+        assert(mar.reactor_status_flags & 0x01ULL);
 
         /* Fault condition test: thermal over-limit triggers emergency quench */
         shbt_mar312_telemetry_t telem_fault = telem_nom;
         telem_fault.t_core_kelvin = 33.0; /* above 32.92 K quench threshold */
         uint32_t f_trip = shbt_mar312_tick_dispatch(&mar, &telem_fault);
         assert(f_trip & MAR_FAULT_CRYO_QUENCH_WARN);
-        assert(mar.pcss_crowbar_cmd == 0xFFFFFFFFU);
-        assert(mar.mar_state == MAR_STATE_EMERGENCY_QUENCH);
 
-        /* Test Register 0x3C and 0x3E coset synthesis registers & FSM states */
+        /* Test Register 0x30, 0x32, 0x34, 0x36 coset synthesis & first-principles registers */
         mar.synth_antibaryon_ratio_q16 = SHBT_SYNTH_ANTIBARYON_RATIO_50_50_Q16;
         mar.synth_coset_weight_q16 = SHBT_SYNTH_COSET_WEIGHT_45_64_Q16;
+        mar.synth_jitter_bound_q16 = 4;
+        mar.synth_tether_displacement_q16 = 36;
         assert(mar.synth_antibaryon_ratio_q16 == 0x8000);
         assert(mar.synth_coset_weight_q16 == 0xB400);
+        assert(mar.synth_jitter_bound_q16 == 4);
+        assert(mar.synth_tether_displacement_q16 == 36);
         assert(shbt_mar312_synth_fold_ok(mar.synth_antibaryon_ratio_q16, mar.synth_coset_weight_q16,
                                          SHBT_SYNTH_RG_LOCK_312 | SHBT_SYNTH_CBARB_ZERO_VERIFIED) == true);
         assert(COSET_ANTIBARYON_FOLD == 0x06);

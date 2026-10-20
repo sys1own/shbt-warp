@@ -12,8 +12,10 @@ pub mod corridor;
 pub mod hyperframe;
 pub mod derender;
 pub mod eikonal;
+pub mod wavefront;
 
 pub use constants::*;
+pub use wavefront::*;
 pub use classical_nogo::{verify_classical_bulk_nogo, verify_effective_corridor, ClassicalWormholeAudit, EffectiveCorridorAudit};
 pub use pipeline::{execute_stage4_with_synthesis, execute_wormhole_pipeline, PowerTier, WormholePipelineResult};
 pub use conops::{

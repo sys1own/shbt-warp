@@ -1,9 +1,7 @@
-/*
+/**
  * @file shbt_mar312_mmio.h
- * @brief C11 Hardware Register Architecture for 4th-Gen Stinespring-SO(10)
- *        Mass-Annihilation Battery-Reactor (SHBT-MAR-312).
- * @details Physical base address: 0x70000000 (128 bytes, 64-byte dual cacheline aligned)
- *          UnifiedStinespringFrame arena base: 0x70001000 (2,112 bytes SRAM arena)
+ * @brief Memory-Mapped I/O Register Interface for SHBT-MAR-312 Mass-Annihilation Reactor.
+ * Contract: Exactly 128 bytes total size, aligned to 64-byte cacheline boundary.
  */
 
 #ifndef SHBT_MAR312_MMIO_H
@@ -91,118 +89,60 @@ typedef struct {
 /**
  * @brief Memory-Mapped Register Layout for SHBT-MAR-312 at 0x70000000 (Exact 128 Bytes)
  */
-typedef struct {
-    /* 0x00 - 0x07: State-of-Charge & Primary Energy Storage (Joules) */
-    _Alignas(64) volatile uint64_t energy_remaining_joules;
-    /* 0x08 - 0x0F: Absolute State-of-Charge (Fixed-Point 32.32) */
-    volatile uint64_t state_of_charge_q32;
-    /* 0x10 - 0x17: Regulated Bus Voltage (Microvolts) */
-    volatile uint64_t bus_voltage_uv;
-    /* 0x18 - 0x1F: Regulated Bus Current (Microamperes) */
-    volatile uint64_t bus_current_ua;
-    /* 0x20 - 0x27: Real-Time Core Thermal Sensor (Microkelvin) */
-    volatile uint64_t core_temperature_uk;
-    /* 0x28 - 0x2F: Cryogenic Temperature Headroom (Microkelvin) */
-    volatile uint64_t cryo_headroom_uk;
-    /* 0x30 - 0x33: Optical Gateway Trigger Delay (Picoseconds) */
-    volatile uint32_t trigger_delay_ps;
-    /* 0x34 - 0x37: Optical Gateway Trigger Pulse Width (Picoseconds) */
-    volatile uint32_t trigger_pulse_width_ps;
-    /* 0x38 - 0x3F: Gateway Coherent Radiant Flux Monitor & Coset Synthesis Registers */
-    union {
-        volatile uint64_t graser_coherent_flux_w_m2;
-        struct {
-            volatile uint32_t graser_flux_lo;
-            /* 0x3C - 0x3D: Bipartite Anti-Baryon Ratio in Q0.16 (default 0x8000 = 0.500) */
-            volatile uint16_t synth_antibaryon_ratio_q16;
-            /* 0x3E - 0x3F: Coset Conformal Weight Shift in Q0.16 (default 0xB400 = 45/64) */
-            volatile uint16_t synth_coset_weight_q16;
-        };
-    };
-    /* 0x40 - 0x43: Peak Transient Vessel Stress (Kilopascals) */
-    volatile uint32_t transient_shear_stress_kpa;
-    /* 0x44 - 0x47: Borrmann Anomalous Transmission Suppression (Q16.16) */
-    volatile uint32_t borrmann_epsilon_q16;
-    /* 0x48 - 0x4B: System Status Flags */
-    volatile uint32_t system_status_flags;
-    /* 0x4C - 0x4F: PCSS Crowbar Trip Counter */
-    volatile uint32_t crowbar_trip_count;
-    /* 0x50 - 0x53: SMES Inductive Energy Recovery Ratio (Q0.32) */
-    volatile uint32_t inductive_recovery_eff_q32;
-    /* 0x54 - 0x57: 5-Stage DEC Net Conversion Efficiency (Q0.32) */
-    volatile uint32_t net_conversion_eff_q32;
-    /* 0x58 - 0x7F: Dual-View Register Extension (MAR-312 Base & MAR-312-IBR) */
-    union {
-        struct {
-            /* 0x58 - 0x5B: Dark Ledger Coupling Ratio (eta_D = 23/33 in Q0.32) */
-            volatile uint32_t dark_ledger_sink_q32;
-            /* 0x5C - 0x5F: Active Drive Ratio (eta_A = 10/33 in Q0.32) */
-            volatile uint32_t active_drive_ratio_q32;
-            /* 0x60 - 0x63: TMSV Squeezing Parameter (r = 2.50 in Q16.16) */
-            volatile uint32_t tmsv_squeezing_r_q16;
-            /* 0x64 - 0x67: Hardware Interlock Control Command Register */
-            volatile uint32_t interlock_cmd_reg;
+typedef struct __attribute__((aligned(64))) {
+    /* Cacheline 0 (0x00 - 0x3F): Dispatch, Thermal & Wavefront Telemetry */
+    volatile uint64_t reactor_status_flags;          /* 0x00 */
+    volatile uint64_t de_rendering_tau_q32;          /* 0x08 */
+    volatile uint64_t active_bus_power_w;            /* 0x10 */
+    volatile uint32_t cryo_temp_millikelvin;         /* 0x18 */
+    volatile uint32_t phononic_damping_coeff;        /* 0x1C */
+    volatile uint32_t rebco_coil_current_amperes;    /* 0x20 */
+    volatile uint32_t magnetic_nozzle_field_mt;      /* 0x24 */
+    volatile uint32_t eikonal_velocity_kms;          /* 0x28 */
+    volatile uint32_t kohn_sham_shift_ev_q16;        /* 0x2C */
+    volatile uint16_t synth_antibaryon_ratio_q16;    /* 0x30: 0x8000 = 0.500 */
+    volatile uint16_t synth_coset_weight_q16;        /* 0x32: 0xB400 = 45/64 */
+    volatile uint16_t synth_jitter_bound_q16;        /* 0x34: Max allowable jitter (attoseconds) */
+    volatile uint16_t synth_tether_displacement_q16; /* 0x36: CS tether displacement (10^-5 A) */
+    volatile uint32_t reserved_c0_align;             /* 0x38 */
+    volatile uint32_t reserved_c0_pad;               /* 0x3C */
 
-            /* 0x68 - 0x6B: Sub-2.10 ns PCSS Crowbar Command Register (0xFFFFFFFF = TRIP) */
-            volatile uint32_t pcss_crowbar_cmd;
-            /* 0x6C - 0x6F: 5-Phase Dispatch State Machine Word */
-            volatile uint32_t mar_state;
-            /* 0x70 - 0x73: MAR-312 Hardware Fault Word */
-            volatile uint32_t mar_fault_word;
-            /* 0x74 - 0x77: Blossom-V TQEC Decoding Latency in picoseconds (<= 45,000 ps) */
-            volatile uint32_t tqec_latency_ps;
-            /* 0x78 - 0x7F: Hardware Alignment Padding */
-            volatile uint8_t  padding[8];
-        };
-        struct {
-            /* 0x58 - 0x5B: Symplectic S Factor (0x17829CBC) */
-            volatile uint32_t symplectic_s_factor_q32;
-            /* 0x5C - 0x5F: Symplectic Shield Mass in grams (384,880 g) */
-            volatile uint32_t symplectic_shield_mass_g;
-            /* 0x60 - 0x63: Compacted Nacelle Mass in grams (2,257,700 g) */
-            volatile uint32_t compacted_nacelle_mass_g;
-            /* 0x64 - 0x65: Active Bank Selector (0..15) */
-            volatile uint16_t ibr_frame_bank_select;
-            /* 0x66 - 0x67: Reload Mode (0..3) */
-            volatile uint16_t ibr_reload_mode;
-            /* 0x68 - 0x6B: Stored Micro-Batches Remaining */
-            volatile uint32_t ibr_stored_micro_batches;
-            /* 0x6C - 0x6F: Total Hot-Swap Reload Count */
-            volatile uint32_t ibr_reload_count;
-            /* 0x70 - 0x73: Last Reload Execution Latency in nanoseconds */
-            volatile uint32_t ibr_last_latency_ns;
-            /* 0x74 - 0x77: Crew Cabin Dose Rate in nSv/yr (114,000 nSv/yr) */
-            volatile uint32_t ibr_crew_dose_nsv_yr;
-            /* 0x78 - 0x7F: Frame Decoupling Angle (cos^2 theta in Q0.64) */
-            volatile uint64_t ibr_frame_angle_q64;
-        };
-    };
+    /* Cacheline 1 (0x40 - 0x7F): DEC Cascade, Space-Charge & TQEC Telemetry */
+    volatile uint64_t dec_discharge_energy_uj;       /* 0x40 */
+    volatile uint16_t dec_space_charge_margin_q16;   /* 0x48: Child-Langmuir headroom (Q16) */
+    volatile uint16_t tqec_syndrome_err_rate_q16;    /* 0x4A: Physical error rate (Q16) */
+    volatile uint32_t rebco_quench_headroom_q16;     /* 0x4C: Critical current margin (Q16) */
+    volatile uint64_t poynting_recovery_flux_w;      /* 0x50 */
+    volatile uint32_t mhd_diamagnetic_beta_q16;      /* 0x58 */
+    volatile uint32_t anyon_braid_cycle_count;       /* 0x5C */
+    volatile uint64_t dark_ledger_wzw_checksum;      /* 0x60 */
+    volatile uint8_t  hardware_pad[24];              /* 0x68 - 0x7F: Zero-fill to 128 bytes */
 } shbt_mar312_mmio_t;
 
-_Static_assert(sizeof(shbt_mar312_mmio_t) == SHBT_MAR312_MMIO_TOTAL_SIZE,
-               "shbt_mar312_mmio_t must be exactly 128 bytes in size");
-_Static_assert(_Alignof(shbt_mar312_mmio_t) >= 64,
-               "shbt_mar312_mmio_t must be dual-cacheline (64 B) aligned");
-_Static_assert(offsetof(shbt_mar312_mmio_t, cryo_headroom_uk) == 0x28,
-               "cryo_headroom_uk offset must be 0x28");
-_Static_assert(offsetof(shbt_mar312_mmio_t, synth_antibaryon_ratio_q16) == 0x3C,
-               "synth_antibaryon_ratio_q16 offset must be 0x3C");
-_Static_assert(offsetof(shbt_mar312_mmio_t, synth_coset_weight_q16) == 0x3E,
-               "synth_coset_weight_q16 offset must be 0x3E");
-_Static_assert(offsetof(shbt_mar312_mmio_t, pcss_crowbar_cmd) == 0x68,
-               "pcss_crowbar_cmd offset must be 0x68");
-_Static_assert(offsetof(shbt_mar312_mmio_t, mar_state) == 0x6C,
-               "mar_state offset must be 0x6C");
-_Static_assert(offsetof(shbt_mar312_mmio_t, mar_fault_word) == 0x70,
-               "mar_fault_word offset must be 0x70");
-_Static_assert(offsetof(shbt_mar312_mmio_t, tqec_latency_ps) == 0x74,
-               "tqec_latency_ps offset must be 0x74");
-_Static_assert(offsetof(shbt_mar312_mmio_t, symplectic_s_factor_q32) == 0x58,
-               "symplectic_s_factor_q32 offset must be 0x58");
-_Static_assert(offsetof(shbt_mar312_mmio_t, compacted_nacelle_mass_g) == 0x60,
-               "compacted_nacelle_mass_g offset must be 0x60");
-_Static_assert(offsetof(shbt_mar312_mmio_t, ibr_frame_angle_q64) == 0x78,
-               "ibr_frame_angle_q64 offset must be 0x78");
+_Static_assert(sizeof(shbt_mar312_mmio_t) == 128, "shbt_mar312_mmio_t must be exactly 128 bytes");
+_Static_assert(__alignof__(shbt_mar312_mmio_t) == 64, "shbt_mar312_mmio_t must be 64-byte aligned");
+
+_Static_assert(offsetof(shbt_mar312_mmio_t, reactor_status_flags) == 0x00, "reactor_status_flags offset must be 0x00");
+_Static_assert(offsetof(shbt_mar312_mmio_t, de_rendering_tau_q32) == 0x08, "de_rendering_tau_q32 offset must be 0x08");
+_Static_assert(offsetof(shbt_mar312_mmio_t, active_bus_power_w) == 0x10, "active_bus_power_w offset must be 0x10");
+_Static_assert(offsetof(shbt_mar312_mmio_t, cryo_temp_millikelvin) == 0x18, "cryo_temp_millikelvin offset must be 0x18");
+_Static_assert(offsetof(shbt_mar312_mmio_t, phononic_damping_coeff) == 0x1C, "phononic_damping_coeff offset must be 0x1C");
+_Static_assert(offsetof(shbt_mar312_mmio_t, rebco_coil_current_amperes) == 0x20, "rebco_coil_current_amperes offset must be 0x20");
+_Static_assert(offsetof(shbt_mar312_mmio_t, magnetic_nozzle_field_mt) == 0x24, "magnetic_nozzle_field_mt offset must be 0x24");
+_Static_assert(offsetof(shbt_mar312_mmio_t, eikonal_velocity_kms) == 0x28, "eikonal_velocity_kms offset must be 0x28");
+_Static_assert(offsetof(shbt_mar312_mmio_t, kohn_sham_shift_ev_q16) == 0x2C, "kohn_sham_shift_ev_q16 offset must be 0x2C");
+_Static_assert(offsetof(shbt_mar312_mmio_t, synth_antibaryon_ratio_q16) == 0x30, "synth_antibaryon_ratio_q16 offset must be 0x30");
+_Static_assert(offsetof(shbt_mar312_mmio_t, synth_coset_weight_q16) == 0x32, "synth_coset_weight_q16 offset must be 0x32");
+_Static_assert(offsetof(shbt_mar312_mmio_t, synth_jitter_bound_q16) == 0x34, "synth_jitter_bound_q16 offset must be 0x34");
+_Static_assert(offsetof(shbt_mar312_mmio_t, synth_tether_displacement_q16) == 0x36, "synth_tether_displacement_q16 offset must be 0x36");
+_Static_assert(offsetof(shbt_mar312_mmio_t, dec_discharge_energy_uj) == 0x40, "dec_discharge_energy_uj offset must be 0x40");
+_Static_assert(offsetof(shbt_mar312_mmio_t, dec_space_charge_margin_q16) == 0x48, "dec_space_charge_margin_q16 offset must be 0x48");
+_Static_assert(offsetof(shbt_mar312_mmio_t, tqec_syndrome_err_rate_q16) == 0x4A, "tqec_syndrome_err_rate_q16 offset must be 0x4A");
+_Static_assert(offsetof(shbt_mar312_mmio_t, rebco_quench_headroom_q16) == 0x4C, "rebco_quench_headroom_q16 offset must be 0x4C");
+_Static_assert(offsetof(shbt_mar312_mmio_t, poynting_recovery_flux_w) == 0x50, "poynting_recovery_flux_w offset must be 0x50");
+_Static_assert(offsetof(shbt_mar312_mmio_t, mhd_diamagnetic_beta_q16) == 0x58, "mhd_diamagnetic_beta_q16 offset must be 0x58");
+_Static_assert(offsetof(shbt_mar312_mmio_t, anyon_braid_cycle_count) == 0x5C, "anyon_braid_cycle_count offset must be 0x5C");
+_Static_assert(offsetof(shbt_mar312_mmio_t, dark_ledger_wzw_checksum) == 0x60, "dark_ledger_wzw_checksum offset must be 0x60");
 
 /**
  * @brief 2,112-Byte SRAM Unified Stinespring Arena at 0x70001000

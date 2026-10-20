@@ -340,31 +340,19 @@ uint32_t shbt_mar312_tick_dispatch(volatile shbt_mar312_mmio_t *mar,
         fault |= MAR_FAULT_TQEC_DEADLINE;
     }
 
-    mar->tqec_latency_ps = telem->tqec_latency_ps;
-    mar->core_temperature_uk = (uint64_t)(telem->t_core_kelvin * 1000000.0);
-    mar->transient_shear_stress_kpa = (uint32_t)(telem->sigma_vessel_mpa * 1000.0);
+    mar->cryo_temp_millikelvin = (uint32_t)(telem->t_core_kelvin * 1000.0);
+    mar->phononic_damping_coeff = (uint32_t)(telem->sigma_vessel_mpa * 1000.0);
+    mar->tqec_syndrome_err_rate_q16 = (uint16_t)((telem->tqec_latency_ps > 0) ? (telem->tqec_latency_ps & 0xFFFFU) : 0U);
 
     if (fault != MAR_FAULT_NONE) {
-        mar->mar_fault_word |= fault;
-        mar->mar_state = MAR_STATE_EMERGENCY_QUENCH;
-        mar->pcss_crowbar_cmd = 0xFFFFFFFFU;
-        mar->system_status_flags |= (1U << 3) | (1U << 5);
-        mar->inductive_recovery_eff_q32 = (uint32_t)(0.9420 * 4294967296.0);
-        mar->crowbar_trip_count++;
+        mar->reactor_status_flags = (uint64_t)fault | ((uint64_t)MAR_STATE_EMERGENCY_QUENCH << 32);
         return fault;
     }
 
-    mar->mar_fault_word = MAR_FAULT_NONE;
-    mar->pcss_crowbar_cmd = 0U;
-    if (mar->mar_state == MAR_STATE_STANDBY_STASIS || mar->mar_state == 0) {
-        mar->mar_state = MAR_STATE_BURST_TRACTION;
-    }
-    mar->system_status_flags |= (1U << 0) | (1U << 1) | (1U << 2);
-    mar->system_status_flags &= ~((1U << 3) | (1U << 5));
-    mar->inductive_recovery_eff_q32 = (uint32_t)(0.9420 * 4294967296.0);
-    mar->net_conversion_eff_q32 = (uint32_t)(0.89519 * 4294967296.0);
-    mar->dark_ledger_sink_q32 = (uint32_t)((23.0 / 33.0) * 4294967296.0);
-    mar->active_drive_ratio_q32 = (uint32_t)((10.0 / 33.0) * 4294967296.0);
+    mar->reactor_status_flags = ((uint64_t)MAR_STATE_BURST_TRACTION << 32) | 0x01ULL;
+    mar->kohn_sham_shift_ev_q16 = (uint32_t)(352.48 * 65536.0);
+    mar->dec_space_charge_margin_q16 = (uint16_t)(0.1788 * 65536.0);
+    mar->rebco_quench_headroom_q16 = (uint32_t)(0.1662 * 65536.0);
     return 0;
 }
 
