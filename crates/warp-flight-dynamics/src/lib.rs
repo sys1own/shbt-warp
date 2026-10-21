@@ -16,6 +16,12 @@ use warp_hil_microkernel as hil;
 pub mod crystallization_kinetics;
 pub use crystallization_kinetics::*;
 
+pub mod ghost_hover;
+pub use ghost_hover::*;
+
+pub mod habitat_gravity;
+pub use habitat_gravity::*;
+
 /// Minimum-jerk acceleration ceiling |s''| <= 5.7735.
 pub const MIN_JERK_ACC_MAX: f64 = 5.773502691896257;
 /// Subluminal inception terminal velocity (v_s / c).

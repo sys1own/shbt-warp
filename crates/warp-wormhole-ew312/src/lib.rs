@@ -13,6 +13,15 @@ pub mod hyperframe;
 pub mod derender;
 pub mod eikonal;
 pub mod wavefront;
+pub mod ghost_optics;
+pub mod jump_cruiser;
+
+pub use ghost_optics::{
+    GhostGravitationalOptics, FeedstockScanReport, F0_M, F_MAX_M, R0_M,
+    CONTRAST_BOUND, GST_ANNEAL_MJ_CM2, POINTING_JITTER_NRAD,
+    TMSV_DISPLACEMENT_NOISE_PM_SQRT_HZ,
+};
+pub use jump_cruiser::*;
 
 pub use constants::*;
 pub use wavefront::*;

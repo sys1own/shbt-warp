@@ -21,6 +21,7 @@ nalgebra = { version = "0.33", features = ["rand"] }
 num-complex = "0.4"
 rand = "0.8"
 rand_distr = "0.4"
+warp-flight-dynamics = { path = "crates/warp-flight-dynamics" }
 warp-power-battery = { path = "crates/warp-power-battery" }
 warp-wormhole-ew312 = { path = "crates/warp-wormhole-ew312" }
 

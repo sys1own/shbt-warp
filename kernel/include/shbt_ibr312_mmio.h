@@ -32,6 +32,12 @@ extern "C" {
 #define SHBT_IBR_ZERO_VOLUME_LOCK         ((uint32_t)(1U << 12))
 #define SHBT_IBR_ADM_FRAME_COMPLIANT      ((uint32_t)(1U << 13))
 
+/* Ghost-Seed Control Bitflags */
+#define SHBT_EW_CTRL_GHOST_HOVER_LOCK     (1ULL << 21)
+#define SHBT_EW_CTRL_GHOST_HARVEST_FUNNEL (1ULL << 22)
+#define SHBT_EW_CTRL_HABITAT_1G_FLOOR     (1ULL << 23)
+#define SHBT_EW_CTRL_WAKE_COMP_3RD_ORDER  (1ULL << 24)
+
 /* Default Normative Constant Values */
 #define SHBT_IBR_SYMPLECTIC_S_Q32         ((uint32_t)0x17829CBCU) /* (10/33)^2 in Q0.32 */
 #define SHBT_IBR_SHIELD_MASS_G            ((uint32_t)384880U)     /* 384.88 kg in grams */

@@ -277,6 +277,33 @@ pub mod mar312 {
     pub const SHBT_CTRL_PROGRESSIVE_EIKONAL: u64 = 1 << 17;
     pub const SHBT_CTRL_TTN_MERA_ADAPT: u64 = 1 << 18;
     pub const SHBT_CTRL_HYPERFRAME_64BANK: u64 = 1 << 19;
+    pub const SHBT_EW_CTRL_GHOST_HOVER_LOCK: u64 = 1 << 21;
+    pub const SHBT_EW_CTRL_GHOST_HARVEST_FUNNEL: u64 = 1 << 22;
+    pub const SHBT_EW_CTRL_HABITAT_1G_FLOOR: u64 = 1 << 23;
+    pub const SHBT_EW_CTRL_WAKE_COMP_3RD_ORDER: u64 = 1 << 24;
+
+    pub fn ghost_hover_step_50k518(delta_p_net_w: f64, p_bit_w: f64) -> u64 {
+        if delta_p_net_w <= 0.0 || p_bit_w <= 0.0 {
+            0
+        } else {
+            (delta_p_net_w / p_bit_w).floor() as u64
+        }
+    }
+
+    pub fn ghost_antiphase_clamp(g_det: f64) -> f64 {
+        let diff = g_det + 1.0;
+        if diff > 1.0e-12 {
+            -1.0 + 1.0e-12
+        } else if diff < -1.0e-12 {
+            -1.0 - 1.0e-12
+        } else {
+            g_det
+        }
+    }
+
+    pub fn ghost_harvest_trigger_stage1(accumulated_mass_kg: f64, threshold_kg: f64) -> bool {
+        accumulated_mass_kg >= threshold_kg && threshold_kg > 0.0
+    }
 
     pub fn synth_fold_ok(
         antibaryon_ratio_q16: u16,
@@ -291,8 +318,11 @@ pub mod mar312 {
 }
 
 pub use mar312::{
+    ghost_antiphase_clamp, ghost_harvest_trigger_stage1, ghost_hover_step_50k518,
     COSET_ANTIBARYON_FOLD, SHBT_CTRL_DYNAMIC_GST_MATCH, SHBT_CTRL_HYPERFRAME_64BANK,
     SHBT_CTRL_PROGRESSIVE_EIKONAL, SHBT_CTRL_TTN_MERA_ADAPT,
+    SHBT_EW_CTRL_GHOST_HARVEST_FUNNEL, SHBT_EW_CTRL_GHOST_HOVER_LOCK,
+    SHBT_EW_CTRL_HABITAT_1G_FLOOR, SHBT_EW_CTRL_WAKE_COMP_3RD_ORDER,
     SHBT_SYNTH_ANTIBARYON_RATIO_50_50_Q16, SHBT_SYNTH_CBARB_ZERO_VERIFIED,
     SHBT_SYNTH_COSET_WEIGHT_45_64_Q16, SHBT_SYNTH_RG_LOCK_312,
     SHBT_SYNTH_STATE_COSET_ANTIBARYON_FOLD, SHBT_SYNTH_STATE_SYMPLECTIC_CRYSTALLIZATION,
@@ -648,6 +678,15 @@ mod tests {
         assert_eq!(SHBT_CTRL_PROGRESSIVE_EIKONAL, 1 << 17);
         assert_eq!(SHBT_CTRL_TTN_MERA_ADAPT, 1 << 18);
         assert_eq!(SHBT_CTRL_HYPERFRAME_64BANK, 1 << 19);
+        assert_eq!(SHBT_EW_CTRL_GHOST_HOVER_LOCK, 1 << 21);
+        assert_eq!(SHBT_EW_CTRL_GHOST_HARVEST_FUNNEL, 1 << 22);
+        assert_eq!(SHBT_EW_CTRL_HABITAT_1G_FLOOR, 1 << 23);
+        assert_eq!(SHBT_EW_CTRL_WAKE_COMP_3RD_ORDER, 1 << 24);
+
+        assert_eq!(ghost_hover_step_50k518(93054.0, 1.842), 50517);
+        assert!((ghost_antiphase_clamp(-1.0000000000005) - (-1.0)).abs() <= 1.0e-12);
+        assert!(ghost_harvest_trigger_stage1(376.99, 376.99));
+        assert!(!ghost_harvest_trigger_stage1(300.0, 376.99));
     }
 }
 

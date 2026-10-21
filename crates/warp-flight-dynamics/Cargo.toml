@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 warp-core-adm = { path = "../warp-core-adm" }
 warp-hil-microkernel = { path = "../warp-hil-microkernel" }
+serde = { version = "1.0", features = ["derive"] }

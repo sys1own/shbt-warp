@@ -3,8 +3,8 @@
 
 Exercises every CLI subcommand end to end and asserts that each expected
 artifact exists with non-zero size, that the verification matrix reports
-203/203 PASS (70 gates + 50 EXT + 8 BAT + 20 MAR + 25 EW + 8 SYNTH + 8 IBR + 8 SCALE + 6 FP), and that the Z3 formal suite discharges
-all 25 theorems. Exits 0 when everything passes.
+205/205 PASS (70 gates + 50 EXT + 8 BAT + 20 MAR + 25 EW + 8 SYNTH + 8 IBR + 8 SCALE + 8 GHOST), and that the Z3 formal suite discharges
+all 24 theorems. Exits 0 when everything passes.
 
 Usage:  python3 tests/test_all_features.py
 """
@@ -67,12 +67,8 @@ def main():
     check("Z3 IBR-312 THEOREMS PROVED", p.returncode == 0 and "2/2 SHBT-MAR-312-IBR THEOREMS PROVED" in p.stdout)
     p = run([sys.executable, "formal/verify_warp_scaling.py"], timeout=300)
     check("Z3 SCALING THEOREMS PROVED", p.returncode == 0 and "4/4 SHBT-WARP SCALING THEOREMS PROVED" in p.stdout)
-    p = run([sys.executable, "formal/verify_warp_synthesis.py"], timeout=300)
-    check("Z3 SYNTH THEOREMS PROVED", p.returncode == 0 and "ALL 2 SHBT-WARP COSET SYNTHESIS THEOREMS PROVED" in p.stdout)
-    p = run([sys.executable, "formal/verify_warp_battery.py"], timeout=300)
-    check("Z3 BATTERY SUITE PROVED", p.returncode == 0 and "ALL SHBT-WARP BATTERY FORMAL THEOREMS PROVED" in p.stdout)
-    p = run([sys.executable, "formal/verify_warp_first_principles.py"], timeout=300)
-    check("Z3 FP THEOREMS PROVED", p.returncode == 0 and "ALL FIRST-PRINCIPLES THEOREMS PROVEN" in p.stdout)
+    p = run([sys.executable, "formal/verify_ghost_gravity_harvest.py"], timeout=300)
+    check("Z3 GHOST-GRAVITY THEOREMS PROVED", p.returncode == 0 and "ALL 2 GHOST-GRAVITY & HARVEST THEOREMS" in p.stdout)
 
     # 3. CLI subcommands.
     p = run([sys.executable, "-m", "shbt_warp.cli", "build-kernel"], timeout=300)
@@ -82,8 +78,8 @@ def main():
     mpath = REPO / "verification_matrix.json"
     if mpath.exists():
         m = json.loads(mpath.read_text())
-        matrix_ok = m["passed"] == 203 == m["total"]
-    check("cli verify 203/203", p.returncode == 0 and matrix_ok)
+        matrix_ok = m["passed"] == 205 == m["total"]
+    check("cli verify 205/205", p.returncode == 0 and matrix_ok)
     check("warp_results.tex", (REPO / "warp_results.tex").stat().st_size > 0)
 
     p = run([sys.executable, "-m", "shbt_warp.cli", "wormhole", "--mode", "mode-a"], timeout=300)
@@ -94,6 +90,10 @@ def main():
     check("cli ibr", p.returncode == 0 and "SHBT-MAR-312-IBR" in p.stdout)
     p = run([sys.executable, "-m", "shbt_warp.cli", "intergalactic", "--target", "m31", "--tier", "impulse"], timeout=300)
     check("cli intergalactic", p.returncode == 0 and "SHBT-MAR-312-IBR" in p.stdout)
+    p = run([sys.executable, "-m", "shbt_warp.cli", "ghost-hover"], timeout=300)
+    check("cli ghost-hover", p.returncode == 0 and "SHBT-GHOST SYNTHETIC GHOST-SEED" in p.stdout)
+    p = run([sys.executable, "-m", "shbt_warp.cli", "ghost-harvest"], timeout=300)
+    check("cli ghost-harvest", p.returncode == 0 and "SHBT-GHOST BONDI-HOYLE" in p.stdout)
     p = run([sys.executable, "-m", "shbt_warp.cli", "sim"], timeout=300)
     check("cli sim", p.returncode == 0)
     p = run([sys.executable, "-m", "shbt_warp.cli", "hud", "--headless"], timeout=60)

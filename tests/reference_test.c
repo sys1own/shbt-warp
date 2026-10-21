@@ -296,6 +296,17 @@ int main(void)
         assert(telem.peak_stress_mpa_q16 <= 8165785U);
     }
 
+    /* 6. Ghost-Seed Reactionless Hover, 1g Habitat & Mass Harvester Controls */
+    assert(SHBT_EW_CTRL_GHOST_HOVER_LOCK == (1ULL << 21));
+    assert(SHBT_EW_CTRL_GHOST_HARVEST_FUNNEL == (1ULL << 22));
+    assert(SHBT_EW_CTRL_HABITAT_1G_FLOOR == (1ULL << 23));
+    assert(SHBT_EW_CTRL_WAKE_COMP_3RD_ORDER == (1ULL << 24));
+
+    assert(shbt_ghost_hover_step_50k518(93054.0, 1.842) == 50517ULL);
+    assert(fabs(shbt_ghost_antiphase_clamp(-1.0000000000005) - (-1.0)) <= 1.0e-12);
+    assert(shbt_ghost_harvest_trigger_stage1(376.99, 376.99) == true);
+    assert(shbt_ghost_harvest_trigger_stage1(100.0, 376.99) == false);
+
     puts("reference_test: all checks passed");
     return 0;
 }

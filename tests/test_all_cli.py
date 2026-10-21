@@ -32,14 +32,28 @@ def test_build_kernel_and_reference_c():
     assert "all checks passed" in proc.stdout
 
 
-def test_verify_203_gates():
+def test_verify_205_gates():
     proc = cli("verify", timeout=900)
     assert proc.returncode == 0, proc.stdout + proc.stderr
     matrix = json.loads((REPO / "verification_matrix.json").read_text())
-    assert matrix["total"] == 203
-    assert matrix["passed"] == 203
+    assert matrix["total"] == 205
+    assert matrix["passed"] == 205
     assert all(g["passed"] for g in matrix["gates"])
     assert (REPO / "warp_results.tex").stat().st_size > 0
+
+
+def test_ghost_hover_cli():
+    proc = cli("ghost-hover", "--target-g", "9.80665", "--duration-s", "10.0")
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert "SHBT-GHOST SYNTHETIC GHOST-SEED" in proc.stdout
+    assert "Geodesic Hover Lock       : LOCKED (PASS)" in proc.stdout
+
+
+def test_ghost_harvest_cli():
+    proc = cli("ghost-harvest", "--regime", "B", "--duration-s", "10.0")
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert "SHBT-GHOST BONDI-HOYLE" in proc.stdout
+    assert "Intergalactic Fuel Closure: PASS" in proc.stdout
 
 
 def test_wormhole_cli():

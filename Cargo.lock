@@ -424,6 +424,7 @@ dependencies = [
  "pyo3",
  "rand",
  "rand_distr",
+ "warp-flight-dynamics",
  "warp-power-battery",
  "warp-wormhole-ew312",
 ]
@@ -537,6 +538,7 @@ version = "0.1.0"
 name = "warp-flight-dynamics"
 version = "0.1.0"
 dependencies = [
+ "serde",
  "warp-core-adm",
  "warp-hil-microkernel",
 ]

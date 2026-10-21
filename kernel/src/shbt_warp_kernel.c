@@ -541,4 +541,27 @@ void shbt_ew312_hyperframe_tick_50k518(uint64_t ctrl_flags,
     telem->adm_conserved_mass_ug = (uint64_t)(mass_kg * 1.0e9);
 }
 
+uint64_t shbt_ghost_hover_step_50k518(double delta_p_net_w, double p_bit_w) {
+    if (delta_p_net_w <= 0.0 || p_bit_w <= 0.0) {
+        return 0ULL;
+    }
+    return (uint64_t)(delta_p_net_w / p_bit_w);
+}
+
+double shbt_ghost_antiphase_clamp(double g_det) {
+    /* Clamps metric determinant error |det(g) + 1| <= 1e-12 */
+    double diff = g_det + 1.0;
+    if (diff > 1.0e-12) {
+        return -1.0 + 1.0e-12;
+    } else if (diff < -1.0e-12) {
+        return -1.0 - 1.0e-12;
+    }
+    return g_det;
+}
+
+bool shbt_ghost_harvest_trigger_stage1(double accumulated_mass_kg, double threshold_kg) {
+    return accumulated_mass_kg >= threshold_kg && threshold_kg > 0.0;
+}
+
+
 

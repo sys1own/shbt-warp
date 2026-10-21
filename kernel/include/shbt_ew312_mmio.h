@@ -36,6 +36,10 @@ extern "C" {
 #define SHBT_EW_CTRL_TTN_MERA_ADAPT        (1ULL << 18)
 #define SHBT_EW_CTRL_HYPERFRAME_64BANK     (1ULL << 19)
 #define SHBT_EW_CTRL_TERNARY_HUFFMAN_PACK  (1ULL << 20)
+#define SHBT_EW_CTRL_GHOST_HOVER_LOCK      (1ULL << 21)
+#define SHBT_EW_CTRL_GHOST_HARVEST_FUNNEL  (1ULL << 22)
+#define SHBT_EW_CTRL_HABITAT_1G_FLOOR      (1ULL << 23)
+#define SHBT_EW_CTRL_WAKE_COMP_3RD_ORDER   (1ULL << 24)
 
 #define SHBT_CTRL_DYNAMIC_GST_MATCH        SHBT_EW_CTRL_DYNAMIC_GST_MATCH
 #define SHBT_CTRL_PROGRESSIVE_EIKONAL      SHBT_EW_CTRL_PROGRESSIVE_EIKONAL
@@ -119,6 +123,10 @@ void shbt_ew312_hyperframe_tick_50k518(uint64_t ctrl_flags,
                                        uint32_t active_bank_count,
                                        shbt_ew_hyperframe_telemetry_t *telem,
                                        shbt_stinespring_hyperframe_t *hyperframe);
+
+uint64_t shbt_ghost_hover_step_50k518(double delta_p_net_w, double p_bit_w);
+double   shbt_ghost_antiphase_clamp(double g_det);
+bool     shbt_ghost_harvest_trigger_stage1(double accumulated_mass_kg, double threshold_kg);
 
 #ifdef __cplusplus
 }

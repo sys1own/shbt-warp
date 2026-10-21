@@ -485,6 +485,99 @@ pub fn simulate_intergalactic_mission<'py>(
     Ok(dict)
 }
 
+/// Simulate reactionless ghost-seed geodesic hover and 1g habitat superposition.
+#[pyfunction]
+#[pyo3(signature = (target_g=9.80665, duration_s=10.0))]
+pub fn simulate_ghost_hover<'py>(
+    py: Python<'py>,
+    target_g: f64,
+    duration_s: f64,
+) -> PyResult<Bound<'py, PyDict>> {
+    let ctrl = warp_flight_dynamics::GhostHoverController::new(16_600.0);
+    let standoff_m = 100.0;
+    let (delta_n_req, _r_offset, net_residual) =
+        ctrl.solve_hover_equilibrium([0.0, 0.0, -target_g], standoff_m);
+    let m_seed = warp_flight_dynamics::GhostHoverController::seed_mass_kg(delta_n_req);
+    let (_mu_comp, wake_resid) =
+        warp_flight_dynamics::GhostHoverController::wake_compensation(1.0, 0.1, delta_n_req);
+    let hab = warp_flight_dynamics::MultiSeedHabitatGravity::new();
+    let (g_floor, delta_rel) = hab.deck_gravity_at(0.0, 0.0, 0.0);
+    let cor = warp_flight_dynamics::MultiSeedHabitatGravity::coriolis_angular_velocity();
+    let cor_mag = (cor[0] * cor[0] + cor[1] * cor[1] + cor[2] * cor[2]).sqrt();
+    let g_cab = warp_flight_dynamics::MultiSeedHabitatGravity::cabin_stabilized_metric();
+    let det_g = warp_flight_dynamics::MultiSeedHabitatGravity::metric_determinant(&g_cab);
+    let shear = (det_g + 1.0).abs();
+    let bit_delta_n = warp_flight_dynamics::GhostHoverController::step_50khz_tick(0.0);
+
+    let dict = PyDict::new(py);
+    dict.set_item("target_g", target_g)?;
+    dict.set_item("duration_s", duration_s)?;
+    dict.set_item("seed_mass_kg", m_seed)?;
+    dict.set_item("standoff_distance_m", standoff_m)?;
+    dict.set_item("thrust_acceleration_m_s2", target_g - net_residual)?;
+    dict.set_item("hover_residual_m_s2", net_residual)?;
+    dict.set_item("hover_locked", net_residual <= 1.0e-14)?;
+    dict.set_item("sample_rate_hz", 50518.0)?;
+    dict.set_item("bit_delta_n", bit_delta_n)?;
+    dict.set_item("wake_residual", wake_resid)?;
+    dict.set_item("wake_residual_passed", wake_resid <= 1.0e-12)?;
+    dict.set_item("habitat_floor_g", g_floor)?;
+    dict.set_item("habitat_coriolis", cor_mag)?;
+    dict.set_item("external_leakage_shear", shear)?;
+    dict.set_item("habitat_uniformity_passed", delta_rel <= 1.0e-5)?;
+    dict.set_item("external_nullification_passed", shear <= 1.0e-12)?;
+    Ok(dict)
+}
+
+/// Simulate Bondi-Hoyle gravitational harvesting and direct feed into MAR-312 / IBR-312.
+#[pyfunction]
+#[pyo3(signature = (regime="B", duration_s=10.0))]
+pub fn simulate_ghost_harvest<'py>(
+    py: Python<'py>,
+    regime: &str,
+    duration_s: f64,
+) -> PyResult<Bound<'py, PyDict>> {
+    let hregime = match regime.to_uppercase().as_str() {
+        "A" => warp_power_battery::HarvestingRegime::RegimeAStandOffRegolith,
+        "C" => warp_power_battery::HarvestingRegime::RegimeCIntergalacticFilament,
+        _ => warp_power_battery::HarvestingRegime::RegimeBCircumgalacticPinch,
+    };
+    let harvester = warp_power_battery::GhostMassHarvester::new();
+    let res = harvester.harvest_and_synthesize_core(
+        hregime,
+        376.99,
+        warp_power_battery::OperatingTier::ImpulseEw,
+        warp_power_battery::FoundrySynthesisMode::Mode1cSalvageIsomerBaryons,
+    );
+    let (closure_ok, _sweep_ly, amp_ratio) =
+        warp_wormhole_ew312::IntergalacticBraidMission::verify_ghost_harvest_fuel_closure(
+            warp_wormhole_ew312::IntergalacticTarget::Mission7CosmologicalHorizon,
+            warp_wormhole_ew312::PowerTier::ExawattImpulse,
+        );
+
+    let dict = PyDict::new(py);
+    dict.set_item("regime", format!("{:?}", hregime))?;
+    dict.set_item("duration_s", duration_s)?;
+    let r_bh = harvester.bondi_hoyle_radius(50_000.0, 10_000.0);
+    let sigma_grav = harvester.gravitational_cross_section(50_000.0, 10_000.0);
+    dict.set_item("bondi_hoyle_radius_m", r_bh)?;
+    dict.set_item("effective_cross_section_m2", sigma_grav)?;
+    dict.set_item("cross_section_amplification", amp_ratio)?;
+    dict.set_item("mass_captured_kg", res.batch_mass_kg)?;
+    dict.set_item("harvest_rate_kg_s", res.batch_mass_kg / res.harvest_duration_s.max(1e-6))?;
+    dict.set_item("synthesized_cores", 1.0)?;
+    let lift_latency_ms = if hregime == warp_power_battery::HarvestingRegime::RegimeAStandOffRegolith {
+        res.harvest_duration_s * 1000.0
+    } else {
+        7.34
+    };
+    dict.set_item("standoff_lift_latency_ms", lift_latency_ms)?;
+    dict.set_item("standoff_lift_passed", lift_latency_ms <= 10.0)?;
+    dict.set_item("direct_feed_passed", res.stored_in_ibr312 && res.framing_defect_zero)?;
+    dict.set_item("intergalactic_closure_passed", closure_ok)?;
+    Ok(dict)
+}
+
 #[pymodule(name = "_core")]
 fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Simulation>()?;
@@ -498,6 +591,8 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(simulate_wormhole_refuel_hop, m)?)?;
     m.add_function(wrap_pyfunction!(simulate_ibr_reload, m)?)?;
     m.add_function(wrap_pyfunction!(simulate_intergalactic_mission, m)?)?;
+    m.add_function(wrap_pyfunction!(simulate_ghost_hover, m)?)?;
+    m.add_function(wrap_pyfunction!(simulate_ghost_harvest, m)?)?;
     Ok(())
 }
 

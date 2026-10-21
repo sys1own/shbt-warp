@@ -29,6 +29,9 @@ pub use braid::*;
 pub mod dec_transient;
 pub use dec_transient::*;
 
+pub mod ghost_harvester;
+pub use ghost_harvester::*;
+
 // ---- Algebraic & Stinespring Closure Invariants ----------------------------
 
 pub const WZW_K_LEPTON: u32 = 26;
