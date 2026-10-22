@@ -987,56 +987,60 @@ propagated through the control loop via exact 4-component hyper-dual numbers $x 
 
 % ===========================================================================
 \FloatBarrier
-\section{Synthetic Ghost-Seed Gravity, Reactionless Geodesic Hovering, \texorpdfstring{$1g$}{1g} Habitat Metric Superposition \& PINN Gravitational Optics}
+\section{Synthetic Ghost-Seed Gravity, Reactionless Geodesic Hovering, \texorpdfstring{$1g$}{1g} Habitat Metric Superposition \& In-Situ Mass Harvesting}
 \label{sec:ghost_gravity}
 
-Extracted from the \texttt{sys1own/shbt-ghost} digital twin and coupled directly into the \texttt{shbt-warp} flight architecture (\texttt{crates/warp-flight-dynamics} and \texttt{crates/warp-wormhole-ew312}), the synthetic ghost-seed gravity system provides reactionless surface hovering, precision translation, and a uniform internal $1g$ habitat floor field without requiring physical propellant mass loss or rotating centrifuge carousels.
+Extracted from the \texttt{sys1own/shbt-ghost} digital twin and coupled directly into the \texttt{shbt-warp} flight architecture (\texttt{crates/warp-flight-dynamics}, \texttt{crates/warp-power-battery}, and \texttt{crates/warp-wormhole-ew312}), the synthetic ghost-seed gravity system provides reactionless surface hovering, precision translation, a uniform internal $1g$ habitat floor field, and in-situ matter harvesting without requiring physical propellant mass loss, mechanical drills, or rotating centrifuge carousels.
 
-\subsection{Synthetic Ghost-Seed Mechanics \& Reactionless Geodesic Hovering}
+\FloatBarrier
+\subsection{Reactionless Geodesic Hovering \& \texorpdfstring{$50.518~\mathrm{kHz}$}{50.518 kHz} Bit-Stepping Dynamics}
 \label{sec:ghost_seed_hover}
 
 In Static Holographic Boundary Theory, macroscopic gravitational fields can be generated non-thermally by driving active bit-overflow states across the boundary register. Modulating the boundary register with overflow count $\Delta N$ synthesizes a localized Schwarzschild-like effective curvature center termed a \emph{synthetic ghost seed}:
 \begin{equation}
-  M_{\mathrm{seed}} = \Delta N \cdot \alpha_{\mathrm{seed}}, \qquad \alpha_{\mathrm{seed}} = 2.092497\times 10^{-12}~M_\odot/\mathrm{bit} = 4.1614\times 10^{18}~\mathrm{kg/bit},
+  M_{\mathrm{seed}} = \alpha_{\mathrm{seed}}\,\Delta N, \qquad \alpha_{\mathrm{seed}} = 1.3258\times 10^{-51}~M_\odot/\mathrm{bit} \approx 2.63635\times 10^{-21}~\mathrm{kg/bit},
   \label{eq:ghost_seed_mass}
 \end{equation}
-verified by GATE-GHOST-01 (\csname WarpGATEGHOST01\endcsname). At a spatial standoff offset $\mathbf{r}_{\mathrm{offset}}$ from the vessel center of mass, the synthetic ghost seed exerts a conservative geodesic traction acceleration on the hull:
+verified by GATE-GHOST-01 (\csname WarpGATEGHOST01\endcsname). At an asymmetric spatial standoff offset $\mathbf{r}_{\mathrm{offset}}$ from the vessel center of mass, the synthetic ghost seed exerts a conservative geodesic traction acceleration on the hull:
 \begin{equation}
-  \mathbf{a}_{\mathrm{thrust}} = \frac{G M_{\mathrm{seed}}}{\lVert\mathbf{r}_{\mathrm{offset}}\rVert^2}\,\hat{\mathbf{r}}_{\mathrm{offset}}.
+  \mathbf{a}_{\mathrm{thrust}} = -\nabla\Phi_{\mathrm{seed}}(\mathbf{r}_{\mathrm{offset}}) = \frac{G M_{\mathrm{seed}}}{\lVert\mathbf{r}_{\mathrm{offset}}\rVert^2}\,\hat{\mathbf{r}}_{\mathrm{offset}}.
   \label{eq:ghost_traction}
 \end{equation}
-To achieve exact reactionless hover equilibrium against an external gravitational field $\mathbf{g}_{\mathrm{ext}}$ (e.g., Earth's surface gravity $g_{\oplus} = 9.80665~\mathrm{m/s^2}$), the flight dynamics controller (\texttt{GhostHoverController}) dynamically orients $\hat{\mathbf{r}}_{\mathrm{offset}} = -\hat{\mathbf{g}}_{\mathrm{ext}}$ and locks $\Delta N$ such that
+To achieve exact reactionless hover equilibrium against an external gravitational field $\mathbf{g}_{\mathrm{ext}}$ across arbitrary planetary gravity wells ($g_{\mathrm{ext}} \in [0, 100g_{\oplus}]$, including Earth's surface gravity $g_{\oplus} = 9.80665~\mathrm{m/s^2}$ and Jovian gravity $2.53g_{\oplus}$), the flight dynamics controller (\texttt{GhostHoverController}) dynamically orients $\hat{\mathbf{r}}_{\mathrm{offset}} = -\hat{\mathbf{g}}_{\mathrm{ext}}$ and locks $\Delta N$ such that
 \begin{equation}
-  \mathbf{a}_{\mathrm{thrust}} + \mathbf{g}_{\mathrm{ext}} = \mathbf{0} \implies \lvert \mathbf{a}_{\mathrm{thrust}} + \mathbf{g}_{\mathrm{ext}} \rvert \le 1.0\times 10^{-14}~\mathrm{m/s^2}, \qquad \dot{m}_{\mathrm{prop}} \equiv 0,
+  \mathbf{a}_{\mathrm{thrust}} + \mathbf{g}_{\mathrm{ext}} \equiv \mathbf{0} \implies \lvert \mathbf{a}_{\mathrm{thrust}} + \mathbf{g}_{\mathrm{ext}} \rvert \le 1.0\times 10^{-14}~\mathrm{m/s^2}, \qquad \dot{m}_{\mathrm{prop}} \equiv 0~\mathrm{kg/s},
   \label{eq:ghost_hover_equilibrium}
 \end{equation}
-enforcing zero propellant mass loss and zero hover velocity drift ($\lvert\Delta v_{\mathrm{hover}}\rvert \le 10^{-15}~\mathrm{m/s}$; GATE-GHOST-02: \csname WarpGATEGHOST02\endcsname, \texttt{THM-GHOST-01}).
+enforcing zero propellant mass consumption and zero hover velocity drift ($\lvert\Delta v_{\mathrm{hover}}\rvert \le 10^{-15}~\mathrm{m/s}$; GATE-GHOST-02: \csname WarpGATEGHOST02\endcsname, \texttt{THM-GHOST-01}).
 
-Discrete bit-stepping updates occur synchronously at master tick frequency $f_{\mathrm{tick}} = 50.518~\mathrm{kHz}$ (\texttt{shbt\_ghost\_hover\_step\_50k518}), quantizing power-margin allocations via
+Discrete bit-stepping updates occur synchronously at master tick frequency $f_{\mathrm{tick}} = 50.518~\mathrm{kHz}$ ($\tau_0 = 19.7949~\mu\mathrm{s}$; \texttt{shbt\_ghost\_hover\_step\_50k518}), quantizing power-margin allocations via
 \begin{equation}
-  \Delta N(k) = \left\lfloor \frac{\Delta P_{\mathrm{net}}(k)}{P_{\mathrm{bit}}} \right\rfloor, \qquad P_{\mathrm{bit}} = 2.45305\times 10^{-6}~\mathrm{W/bit}.
+  \Delta N(k) = \left\lfloor \frac{\Delta P_{\mathrm{net}}(k)}{P_{\mathrm{bit}}} \right\rfloor, \qquad P_{\mathrm{bit}} = 1.842~\mathrm{W/bit}.
   \label{eq:bit_stepping_quantization}
 \end{equation}
-During subluminal translational maneuvers ($v_{\mathrm{eff}} \le 0.1c$), third-order ADM momentum wake compensation stabilizes the boundary chemical potential:
+In baseline hover, the $906.00~\mathrm{kW}$ Landauer entropy debt supports a quiescent baseline seed $M_{\mathrm{seed},0} = 10^{-6}~M_\odot$ ($1.98847\times 10^{24}~\mathrm{kg}$) at $\Delta N_0 = 7.5426\times 10^{44}~\mathrm{bits}$ with $+93.054~\mathrm{kW}$ operating margin from the 1,800-module LANR array, boosted dynamically up to $M_{\mathrm{seed}} \sim 10^2~M_\odot$ via the \texttt{SHBT-MAR-312C} DEC bus during high-rate accretion maneuvers.
+
+During subluminal translational maneuvers ($v_{\mathrm{eff}} \le 0.1c$), third-order ADM momentum wake compensation stabilizes the boundary chemical potential within congestion radius $R_{\mathrm{congestion}} = 2.954\times 10^{15}~\mathrm{m}$:
 \begin{equation}
   \mu_{\mathrm{comp}} = \mu_0 + \kappa_1 \left(\frac{v_{\mathrm{eff}}}{c}\right) + \kappa_2 \left(\frac{v_{\mathrm{eff}}}{c}\right)^2 + \kappa_3 \left(\frac{v_{\mathrm{eff}}}{c}\right)^3, \qquad \lvert\mu_{\mathrm{comp}} - \mu_0\rvert \le 3.21\times 10^{-13} \le 1.0\times 10^{-12},
   \label{eq:wake_compensation}
 \end{equation}
 holding chemical-potential rigidity across all operational velocity transitions (GATE-GHOST-03: \csname WarpGATEGHOST03\endcsname, \texttt{THM-GHOST-01}).
 
-\subsection{Multi-Seed \texorpdfstring{$1g$}{1g} Habitat Metric Superposition \& Exterior Hull Nullification}
+\FloatBarrier
+\subsection{Multi-Seed \texorpdfstring{$1g$}{1g} Habitat Metric Superposition \& Anti-Phase Hull Nullification}
 \label{sec:habitat_gravity}
 
 Long-duration spaceflight requires artificial gravity to prevent microgravity physiological deconditioning. Rather than rotating the habitat hull---which induces disorienting Coriolis accelerations and mechanical bearing wear---\texttt{shbt-warp} implements static multi-seed metric superposition (\texttt{MultiSeedHabitatGravity} in \texttt{crates/warp-flight-dynamics/src/habitat\_gravity.rs}).
 
-A 312-channel hexamer seed array positioned below the crew deck synthesizes a superposed metric perturbation:
+A 312-channel (52-hexamer) micro-seed array positioned below the crew deck synthesizes a superposed metric perturbation:
 \begin{equation}
-  g_{\mu\nu} = \eta_{\mu\nu} + \sum_{i=1}^{312} h_{\mu\nu}^{(i)} + I_{\mu\nu},
+  g_{\mu\nu}(x) = \eta_{\mu\nu} + \sum_{i=1}^{K=312} h_{\mu\nu}^{(i)}(x) + I_{\mu\nu}(x),
   \label{eq:superposed_metric}
 \end{equation}
 where $h_{\mu\nu}^{(i)}$ represents the linearized field of micro-seed $i$ and $I_{\mu\nu}$ is the 512-bit interference tensor:
 \begin{equation}
-  I_{\mu\nu} = \mathrm{diag}\!\left(I_{00},\; -\frac{1}{3}I_{00},\; -\frac{1}{3}I_{00},\; -\frac{1}{3}I_{00}\right), \qquad I_{00} = +2.418930510842\times 10^{-32}.
+  I_{\mu\nu} = \mathrm{diag}\!\left(I_{00},\; -\frac{1}{3}I_{00},\; -\frac{1}{3}I_{00},\; -\frac{1}{3}I_{00}\right), \qquad I_{00} = +2.418930510842\times 10^{-32}, \quad I_{kk} \approx -8.0630\times 10^{-33}.
   \label{eq:interference_tensor}
 \end{equation}
 Throughout the $25.0~\mathrm{m}$ diameter passenger cabin, this superposition synthesizes an exact, uniform downwards floor gravity:
@@ -1051,18 +1055,56 @@ Because the metric perturbation is purely stationary and non-rotational ($\nabla
 \end{equation}
 completely eliminating vestibular nausea (GATE-GHOST-04: \csname WarpGATEGHOST04\endcsname).
 
-To prevent this internal field from generating external gravitational signatures or parasitic attraction on nearby space structures, an anti-phase inner hexamer potential is clamped to the outer hull (\texttt{shbt\_ghost\_antiphase\_clamp}):
+To prevent this internal field or external harvesting wells $h_{\mu\nu}^{\mathrm{ext}}$ from generating parasitic external gravitational signatures or destructive tidal stress on nearby space structures, an anti-phase inner hexamer potential is clamped to the outer hull (\texttt{shbt\_ghost\_antiphase\_clamp}):
 \begin{equation}
-  g_{\mathrm{cabin}} = \eta_{\mu\nu} + I_{\mu\nu} \implies \lvert\det(g_{\mathrm{cabin}}) + 1\rvert = I_{00}^2 \approx 5.85\times 10^{-64} \le 1.0\times 10^{-12},
+  \sum_{i \in \mathrm{inner}} h_{\mu\nu}^{(i)} = -h_{\mu\nu}^{\mathrm{ext}} \implies \alpha = 1.0, \quad \beta^i = 0, \quad \lvert\det(g_{\mu\nu}) + 1\rvert \le 1.0\times 10^{-12},
   \label{eq:antiphase_nullification}
 \end{equation}
 strictly bounding external hull leakage shear to $< 10^{-12}~\mathrm{s}^{-2}$ (GATE-GHOST-05: \csname WarpGATEGHOST05\endcsname, \texttt{THM-GHOST-01}).
 
-\subsection{Bessel \texorpdfstring{$J_0^2$}{J0\string^2} Gravitational Lensing Caustics \& PINN Phase-Recovery Optics}
+\FloatBarrier
+\subsection{Bondi--Hoyle Gravitational Accretion Funnel, Stand-Off Regolith Harvesting \& Synthesizer Closure}
+\label{sec:ghost_harvesting_physics}
+
+During superluminal corridor transit ($\eta_D = 23/33$), non-thermal gauge decoupling guarantees $\sigma_{\mathrm{collision}} \equiv 0$, precluding classical ramscoop operation. Moreover, in the deep Intergalactic Medium (IGM, $n_b \sim 10^{-6}~\mathrm{cm^{-3}}$, $\rho_{\mathrm{IGM}} \sim 10^{-26}~\mathrm{kg/m^3}$), a passive $1.00~\mathrm{m^2}$ intake aperture requires an impossible sweep path $L_{\mathrm{sweep}} \approx 3.98\times 10^{12}~\mathrm{ly}$ to accumulate a single $376.99~\mathrm{kg}$ core.
+
+To achieve complete fuel self-sufficiency without fixed tanker supply lines, \texttt{shbt-warp} incorporates the in-situ Bondi--Hoyle gravitational mass harvester (\texttt{GhostMassHarvester} in \texttt{crates/warp-power-battery/src/ghost\_harvester.rs}, ported from \texttt{sys1own/shbt-ghost}). Projecting a synthetic ghost seed of mass $M_{\mathrm{seed}}$ ahead of the vessel establishes a gravitational capture funnel governed by the Bondi--Hoyle--Lyttleton relation:
+\begin{equation}
+  R_{\mathrm{BH}} = \frac{2 G M_{\mathrm{seed}}}{v_{\mathrm{rel}}^2 + c_s^2}, \qquad \sigma_{\mathrm{grav}} = \pi R_{\mathrm{BH}}^2, \qquad \dot{M}_{\mathrm{BH}} = \pi R_{\mathrm{BH}}^2\,\rho_{\mathrm{amb}}\,\sqrt{v_{\mathrm{rel}}^2 + c_s^2},
+  \label{eq:bondi_hoyle_radius}
+\end{equation}
+which expands the effective gravitational capture cross-section by ten orders of magnitude over the physical vehicle footprint:
+\begin{equation}
+  \frac{\sigma_{\mathrm{grav}}}{A_{\mathrm{geom}}} \ge 1.00\times 10^{10},
+  \label{eq:gravitational_amplification}
+\end{equation}
+verified by GATE-GHOST-06 (\csname WarpGATEGHOST06\endcsname).
+
+The shaped multi-seed potential gradient $\nabla\Phi_{\mathrm{funnel}}$ compresses ambient ionized gas or cosmic dust from focal standoff $f_0 = 169.30~\mathrm{m}$ directly into the Stage-1 $V_{\mathrm{unified}}^{\mathrm{macro}}$ focal pocket:
+\begin{equation}
+  \dot{M}_{\mathrm{intake}} = \dot{M}_{\mathrm{BH}}\,\eta_{\mathrm{funnel}}, \qquad \eta_{\mathrm{funnel}} = 1 - \exp\!\left(-\frac{R_{\mathrm{BH}}}{d_{\mathrm{focal}}}\right) \ge 0.9998.
+  \label{eq:bondi_hoyle_rate}
+\end{equation}
+In addition to diffuse medium accretion, the harvester executes non-contact stand-off regolith extraction (Mode~1b feedstock): hovering at stand-off distance $d \in [100~\mathrm{m}, 10~\mathrm{km}]$ above asteroids or airless planetary bodies, the focused tidal gradient lifts unrefined surface regolith or cryo-ice directly into the intake:
+\begin{equation}
+  \tau_{\mathrm{lift}} = \sqrt{\frac{2d}{g_{\mathrm{tidal}} - g_{\mathrm{body}}}} = 7.34~\mathrm{ms} < 10.0~\mathrm{ms},
+  \label{eq:regolith_extraction}
+\end{equation}
+accumulating a complete $16{,}605~\mathrm{kg}$ Stinespring frame in $< 0.45~\mathrm{s}$ without requiring mechanical drills or physical touchdown (GATE-GHOST-06).
+
+Once the focal pocket accumulates the target batch mass ($37.699~\mathrm{kg}$ for a $0.1~\mathrm{CEU}$ seed wafer, $376.99~\mathrm{kg}$ for a $1.0~\mathrm{CEU}$ core, or $16{,}605~\mathrm{kg}$ for a hyper-frame), Stage~1 Stinespring de-rendering folds the matter in $0.508~\mathrm{ms}$ (Impulse) or $66.98~\mathrm{ms}$ (Burst). The $\mathcal{R}_{\mathrm{synth}}^{\mathrm{MAR}}$ coset synthesizer partitions the mass $50/50$ into visible isomer baryons and dark-ledger $\overline{\mathbf{16}}$ anti-baryons ($\Delta_{\mathrm{fr}} \equiv 0$). The newly minted core is loaded directly into the \texttt{SHBT-IBR-312} magazine via \texttt{apply\_mar312\_coset\_fold()}, closing the intergalactic fuel ledger for Mission~7A (Laniakea Core, $500.0~\mathrm{Mly}$, $180{,}440~\mathrm{cores}$) and Mission~7C (Cosmological Horizon, $45.18~\mathrm{Gly}$) without pre-staged tankers (GATE-GHOST-07: \csname WarpGATEGHOST07\endcsname, \texttt{THM-GHOST-02}).
+
+\FloatBarrier
+\subsection{Gravitational Lensing \& PINN Caustic Feedstock Tomography}
 \label{sec:ghost_optics}
 
 The synthetic ghost seed also operates as a coherent gravitational lens for long-range navigation, exoplanet imaging, and forward wormhole corridor metrology (\texttt{GhostGravitationalOptics} in \texttt{crates/warp-wormhole-ew312/src/ghost\_optics.rs}).
 
+Near the curvature center, the effective refractive index follows the weak-field potential:
+\begin{equation}
+  n_{\mathrm{eff}}(\mathbf{r}) = 1 + \frac{2\lvert\Phi_{\mathrm{seed}}(\mathbf{r})\rvert}{c^2} = 1 + \frac{2 G M_{\mathrm{seed}}}{c^2 r}.
+  \label{eq:effective_refractive_index}
+\end{equation}
 Projecting a ghost seed at focal distance $f_0 = 169.30~\mathrm{m}$ creates an on-axis Bessel caustic with intensity profile
 \begin{equation}
   I(r_\perp) = I_0\,J_0^2\!\left(\frac{k r_\perp}{f_0}\right),
@@ -1078,7 +1120,7 @@ Phase distortion induced by optical metamaterial non-uniformities is recovered i
   \mathcal{L}_{\mathrm{PINN}} = \mathcal{L}_{\mathrm{data}} + \lambda_{\mathrm{phys}}\,\bigl\lVert \nabla^2 E + k^2 n_{\mathrm{eff}}^2 E \bigr\rVert^2 + \lambda_{\mathrm{reg}}\,\mathcal{R}(f_\theta),
   \label{eq:pinn_loss}
 \end{equation}
-which converges to $\mathcal{L} < 10^{-5}$ within $1.20~\mathrm{ms}$ with periodic GST-225 self-healing annealing at $\ge 27.9~\mathrm{mJ/cm^2}$ (GATE-GHOST-08: \csname WarpGATEGHOST08\endcsname).
+which converges to $\mathcal{L} < 10^{-5}$ within $1.20~\mathrm{ms}$ with periodic GST-225 self-healing annealing at $\ge 27.9~\mathrm{mJ/cm^2}$ (GATE-GHOST-08: \csname WarpGATEGHOST08\endcsname), enabling remote elemental $(Z, A)$ tomography of prospective accretion feedstock prior to focal ingestion.
 
 % ===========================================================================
 \FloatBarrier
@@ -1578,7 +1620,8 @@ Mission Target \& ID & Distance & Velocity Reg. & Coord Time & Crew Time & Cores
 \end{table*}
 \FloatBarrier
 
-\subsubsection{In-Situ Bondi--Hoyle Gravitational Mass Harvesting \& Direct Breeder Coupling}
+\FloatBarrier
+\subsubsection{Intergalactic Deployment of the Bondi--Hoyle Gravitational Harvester \& Mission Closure}
 \label{sec:ghost_harvesting}
 
 A fundamental vulnerability of deep intergalactic and cosmological voyages (Missions~6, 7A, 7B, 7C) is the physical impossibility of continuous pre-staged fuel tanker resupply across millions or billions of light years. In the low-density Intergalactic Medium (IGM, $\rho_{\mathrm{IGM}} \sim 1.0\times 10^{-26}~\mathrm{kg/m^3}$), passive geometric scoop sweeping with a physical transducer aperture ($A_{\mathrm{geom}} = 1.00~\mathrm{m^2}$) requires an absurd path length of
@@ -1588,21 +1631,11 @@ A fundamental vulnerability of deep intergalactic and cosmological voyages (Miss
 \end{equation}
 which exceeds the diameter of the observable universe by more than 40 times, proving that passive ramscoops face catastrophic matter starvation.
 
-To overcome this constraint, \texttt{shbt-warp} incorporates the in-situ Bondi--Hoyle gravitational mass harvester (\texttt{GhostMassHarvester} in \texttt{crates/warp-power-battery/src/ghost\_harvester.rs}, ported from \texttt{sys1own/shbt-ghost}). Projecting a synthetic ghost seed of mass $M_{\mathrm{seed}}$ ahead of the vessel establishes a gravitational capture sphere governed by the Bondi--Hoyle--Lyttleton formula:
-\begin{equation}
-  R_{\mathrm{BH}} = \frac{2 G M_{\mathrm{seed}}}{v_{\mathrm{rel}}^2 + c_s^2}, \qquad \sigma_{\mathrm{grav}} = \pi R_{\mathrm{BH}}^2,
-  \label{eq:bondi_hoyle_radius}
-\end{equation}
-which expands the effective gravitational capture cross-section by ten orders of magnitude over the physical vehicle footprint:
-\begin{equation}
-  \frac{\sigma_{\mathrm{grav}}}{A_{\mathrm{geom}}} \ge 1.00\times 10^{10},
-  \label{eq:gravitational_amplification}
-\end{equation}
-verified by GATE-GHOST-06 (\csname WarpGATEGHOST06\endcsname).
+To overcome this constraint, \texttt{shbt-warp} incorporates the in-situ Bondi--Hoyle gravitational mass harvester (\texttt{GhostMassHarvester} in \texttt{crates/warp-power-battery/src/ghost\_harvester.rs}, formulated in Section~\ref{sec:ghost_harvesting_physics}). Projecting a synthetic ghost seed ahead of the vessel establishes the gravitational capture sphere defined by Eq.~\eqref{eq:bondi_hoyle_radius}, expanding the effective capture cross-section by ten orders of magnitude ($\sigma_{\mathrm{grav}}/A_{\mathrm{geom}} \ge 1.00\times 10^{10}$, Eq.~\eqref{eq:gravitational_amplification}; GATE-GHOST-06: \csname WarpGATEGHOST06\endcsname).
 
 The harvester operates across three distinct environmental regimes:
 \begin{enumerate}
-  \item \textbf{Regime A --- Stand-Off Asteroid / Planetary Regolith \& Cryo-Ice Lift:} At a hover standoff distance $d = 100~\mathrm{m}$, the focused gravitational tidal gradient extracts loose regolith or cryo-ice directly off planetary/asteroid surfaces into the Stage-1 focal intake in $\tau_{\mathrm{lift}} = 7.34~\mathrm{ms} < 10.0~\mathrm{ms}$ (GATE-GHOST-06: \csname WarpGATEGHOST06\endcsname).
+  \item \textbf{Regime A --- Stand-Off Asteroid / Planetary Regolith \& Cryo-Ice Lift:} At a hover standoff distance $d = 100~\mathrm{m}$, the focused gravitational tidal gradient extracts loose regolith or cryo-ice directly off planetary/asteroid surfaces into the Stage-1 focal intake in $\tau_{\mathrm{lift}} = 7.34~\mathrm{ms} < 10.0~\mathrm{ms}$ (Eq.~\eqref{eq:regolith_extraction}; GATE-GHOST-06: \csname WarpGATEGHOST06\endcsname).
   \item \textbf{Regime B --- Circumgalactic Halo / Molecular Cloud Pinch:} Operates at intermediate relative velocity $v_{\mathrm{rel}} \sim 50~\mathrm{km/s}$ in circumgalactic media ($\rho \sim 10^{-23}~\mathrm{kg/m^3}$), accreting matter at tens of kilograms per second.
   \item \textbf{Regime C --- Deep Intergalactic Filament \& Void Waypoint Accretion:} Operates at hyperluminal corridor waypoints in the diffuse IGM ($\rho \sim 10^{-26}~\mathrm{kg/m^3}$), accumulating $376.99~\mathrm{kg}$ baryon batches during scheduled micro-second corridor deceleration pulses.
 \end{enumerate}
