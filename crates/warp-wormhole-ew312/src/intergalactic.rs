@@ -130,4 +130,101 @@ impl IntergalacticBraidMission {
         let closure_ok = profile.profile_passed && passive_sweep_path_ly > 1.0e11;
         (closure_ok, passive_sweep_path_ly, amplification_ratio)
     }
+
+    /// Compute upgraded `SHBT-MAR-312X` intergalactic mission profile (including Tier 4 Hyper-Impulse
+    /// at `2,482,950c`, completing the `2.537 Mly` Andromeda M31 crossing in `8.957 hours` / `537.4 min`
+    /// under `alpha = 10^-3`, with sub-millisecond Direct Boundary Bus refueling).
+    pub fn compute_mar312x_profile(
+        target: IntergalacticTarget,
+        mar312x_tier: warp_power_battery::Mar312xPowerTier,
+        synthesis_mode: warp_power_battery::FoundrySynthesisMode,
+    ) -> IntergalacticMar312xMissionProfile {
+        let (name, dist_mly) = match target {
+            IntergalacticTarget::Mission5AndromedaM31 => ("Andromeda (M31)", 2.537),
+            IntergalacticTarget::Mission6VirgoClusterM87 => ("Virgo Cluster / M87", 53.49),
+            IntergalacticTarget::Mission7LaniakeaCore => ("Laniakea Core", 500.0),
+            IntergalacticTarget::Mission7ImpulseHorizon => ("Impulse Horizon", 295.42),
+            IntergalacticTarget::Mission7CosmologicalHorizon => ("Cosmological Horizon", 45180.0),
+        };
+
+        let dist_ly = dist_mly * 1.0e6;
+        let v_c = match mar312x_tier {
+            warp_power_battery::Mar312xPowerTier::Tier0QuiescentStandby => 5.52,
+            warp_power_battery::Mar312xPowerTier::Tier1ContinuousCruise => 99.3,
+            warp_power_battery::Mar312xPowerTier::Tier2SustainedBurst => 993.2,
+            warp_power_battery::Mar312xPowerTier::Tier3ExawattImpulse => 99_318.0,
+            warp_power_battery::Mar312xPowerTier::Tier4PlanetaryForge => 2_482_950.0,
+        };
+
+        let coord_time_yr = dist_ly / v_c;
+        let alpha_cabin = 1.0e-3;
+        let crew_time_yr = coord_time_yr * alpha_cabin;
+        let crew_time_hours = crew_time_yr * 365.25 * 24.0;
+        let crew_time_minutes = crew_time_hours * 60.0;
+
+        // With 99.200% SHBT-DEC-X (vs 89.519% DEC), range per core increases by 99.200 / 89.519 = 1.108145x
+        let range_per_core_ly = match mar312x_tier {
+            warp_power_battery::Mar312xPowerTier::Tier1ContinuousCruise => 423_839.0 * (0.99200 / 0.89519),
+            warp_power_battery::Mar312xPowerTier::Tier2SustainedBurst => 36_312.4 * (0.99200 / 0.89519),
+            warp_power_battery::Mar312xPowerTier::Tier3ExawattImpulse
+            | warp_power_battery::Mar312xPowerTier::Tier4PlanetaryForge => 2_771.0 * (0.99200 / 0.89519),
+            warp_power_battery::Mar312xPowerTier::Tier0QuiescentStandby => 3.55,
+        };
+
+        let required_cores: f64 = dist_ly / range_per_core_ly;
+        let micro_refills = (required_cores * 10.0).ceil() as u64;
+
+        // Direct Boundary Bus (24.9625 EW) sub-millisecond core breeding time in microseconds
+        let single_core_breed_us =
+            warp_power_battery::breeder_turnaround_mar312x_direct_bus_us(synthesis_mode);
+        let cumulative_reload_s = required_cores.ceil() * (single_core_breed_us * 1.0e-6);
+        let total_active_burn_s = coord_time_yr * 365.25 * 86400.0;
+        let duty_cycle = 1.0 - (cumulative_reload_s / total_active_burn_s);
+
+        // Compare against MAR-312C Impulse velocity (89,618c)
+        let mar312c_hours = (dist_ly / 89_618.0) * alpha_cabin * 365.25 * 24.0;
+        let speedup_vs_312c = mar312c_hours / crew_time_hours;
+
+        IntergalacticMar312xMissionProfile {
+            target,
+            target_name: name.to_string(),
+            distance_mly: dist_mly,
+            distance_ly: dist_ly,
+            mar312x_tier,
+            effective_velocity_c: v_c,
+            required_full_cores: required_cores,
+            micro_wafer_refills: micro_refills,
+            coordinate_time_years: coord_time_yr,
+            crew_proper_time_years: crew_time_yr,
+            crew_proper_time_hours: crew_time_hours,
+            crew_proper_time_minutes: crew_time_minutes,
+            single_core_direct_bus_breed_us: single_core_breed_us,
+            cumulative_reload_time_s: cumulative_reload_s,
+            propulsion_duty_cycle: duty_cycle,
+            speedup_vs_mar312c_impulse: speedup_vs_312c,
+            profile_passed: duty_cycle >= 0.999999 && crew_time_hours > 0.0,
+        }
+    }
+}
+
+/// Upgraded `SHBT-MAR-312X` Intergalactic Mission Profile.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct IntergalacticMar312xMissionProfile {
+    pub target: IntergalacticTarget,
+    pub target_name: String,
+    pub distance_mly: f64,
+    pub distance_ly: f64,
+    pub mar312x_tier: warp_power_battery::Mar312xPowerTier,
+    pub effective_velocity_c: f64,
+    pub required_full_cores: f64,
+    pub micro_wafer_refills: u64,
+    pub coordinate_time_years: f64,
+    pub crew_proper_time_years: f64,
+    pub crew_proper_time_hours: f64,
+    pub crew_proper_time_minutes: f64,
+    pub single_core_direct_bus_breed_us: f64,
+    pub cumulative_reload_time_s: f64,
+    pub propulsion_duty_cycle: f64,
+    pub speedup_vs_mar312c_impulse: f64,
+    pub profile_passed: bool,
 }

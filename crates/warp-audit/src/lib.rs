@@ -18,6 +18,7 @@ pub mod ibr;
 pub mod scale;
 pub mod fp;
 pub mod ghost;
+pub mod marx;
 
 use warp_boundary_cft as cft;
 use warp_boundary_cft::rug;
@@ -641,5 +642,6 @@ pub fn run_all() -> Vec<GateResult> {
     v.extend(ibr::run_all_ibr());
     v.extend(scale::run_all_scale());
     v.extend(ghost::run_all_ghost());
+    v.extend(marx::run_all_marx_and_swarm());
     v
 }

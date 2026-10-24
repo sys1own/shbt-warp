@@ -22,6 +22,12 @@ pub use ghost_hover::*;
 pub mod habitat_gravity;
 pub use habitat_gravity::*;
 
+pub mod sten_mpc;
+pub use sten_mpc::*;
+
+pub mod cbf_shield;
+pub use cbf_shield::*;
+
 /// Minimum-jerk acceleration ceiling |s''| <= 5.7735.
 pub const MIN_JERK_ACC_MAX: f64 = 5.773502691896257;
 /// Subluminal inception terminal velocity (v_s / c).

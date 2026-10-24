@@ -563,5 +563,111 @@ bool shbt_ghost_harvest_trigger_stage1(double accumulated_mass_kg, double thresh
     return accumulated_mass_kg >= threshold_kg && threshold_kg > 0.0;
 }
 
+uint32_t shbt_mar312x_dispatch_tier4(volatile shbt_mar312_mmio_t *mar,
+                                     double t_op_kelvin,
+                                     double b_field_tesla,
+                                     double tether_disp_angstrom,
+                                     double sigma_shear_mpa,
+                                     int32_t decx_chern_c2,
+                                     double purcell_dos)
+{
+    if (!mar) return SHBT_SWARM_FAULT_ADM_IMBALANCE;
+
+    uint32_t fault = SHBT_SWARM_FAULT_NONE;
+
+    if (purcell_dos != 0.0) {
+        fault |= SHBT_SWARM_FAULT_PURCELL_BANDGAP_DRIFT;
+    }
+    if (decx_chern_c2 == 0) {
+        fault |= SHBT_SWARM_FAULT_DECX_CHERN_BACKSCATTER;
+    }
+    if (b_field_tesla < 48.0 || tether_disp_angstrom > 1.0e-4 || tether_disp_angstrom < -1.0e-4) {
+        fault |= SHBT_SWARM_FAULT_SUPERHYDRIDE_TETHER_LOSS;
+    }
+    if (t_op_kelvin > 192.50 || t_op_kelvin < 0.0) {
+        fault |= SHBT_SWARM_FAULT_THERMAL_CLAMP;
+    }
+    if (sigma_shear_mpa > SHBT_MAR312X_FRENKEL_SHEAR_MPA || sigma_shear_mpa < 0.0) {
+        fault |= SHBT_SWARM_FAULT_FORGE_SHEAR_EXCEEDED;
+    }
+
+    mar->cryo_temp_millikelvin = (uint32_t)(t_op_kelvin * 1000.0);
+    mar->magnetic_nozzle_field_mt = (uint32_t)(b_field_tesla * 1000.0);
+    mar->phononic_damping_coeff = (uint32_t)(sigma_shear_mpa * 1000.0);
+
+    if (fault != SHBT_SWARM_FAULT_NONE) {
+        mar->reactor_status_flags = (uint64_t)fault | ((uint64_t)SHBT_SWARM_CMD_WEYL_EXCITON_CROWBAR << 32);
+        return fault;
+    }
+
+    mar->reactor_status_flags = ((uint64_t)SHBT_SWARM_CMD_MAR312X_FORGE_TIER4 << 32) | 0x01ULL;
+    mar->active_bus_power_w = 18446744073709551615ULL; /* Saturated u64 bus word for 24.80 EW */
+    return SHBT_SWARM_FAULT_NONE;
+}
+
+uint32_t shbt_mar312x_autopoietic_scrub_50k518(volatile shbt_mar312_mmio_t *mar,
+                                               uint64_t rom_cayley_sig,
+                                               uint64_t live_cayley_sig)
+{
+    if (!mar) return SHBT_SWARM_FAULT_CAYLEY_HASH;
+    mar->anyon_braid_cycle_count += 1U;
+    if (rom_cayley_sig != live_cayley_sig) {
+        mar->dark_ledger_wzw_checksum = rom_cayley_sig;
+        mar->reactor_status_flags |= ((uint64_t)SHBT_SWARM_CMD_AUTOPOIETIC_SELF_HEAL << 32);
+    } else {
+        mar->dark_ledger_wzw_checksum = live_cayley_sig;
+    }
+    return SHBT_SWARM_FAULT_NONE;
+}
+
+uint32_t shbt_mar312x_weyl_crowbar_trip_fs(volatile shbt_mar312_mmio_t *mar)
+{
+    if (mar) {
+        mar->reactor_status_flags = ((uint64_t)SHBT_SWARM_CMD_WEYL_EXCITON_CROWBAR << 32)
+                                  | (uint64_t)MAR_STATE_EMERGENCY_QUENCH;
+    }
+    return SHBT_MAR312X_CROWBAR_TRIP_FS;
+}
+
+uint32_t shbt_swarm_verify_secded_cayley(const UnifiedStinespringFrame *frame,
+                                         const uint64_t expected_cayley[4])
+{
+    if (!frame || !expected_cayley) return SHBT_SWARM_FAULT_CAYLEY_HASH;
+
+    uint64_t acc[4] = {
+        0x243F6A8885A308D3ULL,
+        0x13198A2E03707344ULL,
+        0xA4093822299F31D0ULL,
+        0x082EFA98EC4E6C89ULL
+    };
+    for (uint32_t i = 0; i < SHBT_BRAID_DESCRIPTORS; ++i) {
+        uint64_t w = frame->braid_descriptors[i];
+        acc[i & 3U] ^= (w * 0x9E3779B97F4A7C15ULL) + ((uint64_t)i << 16);
+    }
+    for (uint32_t k = 0; k < 4U; ++k) {
+        if (acc[k] != expected_cayley[k]) {
+            return SHBT_SWARM_FAULT_CAYLEY_HASH;
+        }
+    }
+    return SHBT_SWARM_FAULT_NONE;
+}
+
+uint32_t shbt_swarm_cbf_xeno_gate(double min_cbf_barrier,
+                                  uint8_t xeno_class_code)
+{
+    uint32_t fault = SHBT_SWARM_FAULT_NONE;
+    if (min_cbf_barrier < 0.0) {
+        fault |= SHBT_SWARM_FAULT_CBF_PHYS_VIOL;
+    }
+    if (xeno_class_code == 1U) {
+        fault |= SHBT_SWARM_FAULT_X0_PROTECT_LCK;
+    } else if (xeno_class_code == 2U) {
+        fault |= SHBT_SWARM_FAULT_X1_SAPIENT_LCK;
+    }
+    return fault;
+}
+static inline void shbt_swarm_unused_anchor(void) { (void)0;
+}
+
 
 

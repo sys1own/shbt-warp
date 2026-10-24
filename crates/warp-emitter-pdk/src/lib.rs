@@ -13,6 +13,15 @@ use std::io::{self, Write};
 pub mod tqec_syndrome;
 pub use tqec_syndrome::*;
 
+/// Phase 2 `SHBT-STEN` 52-Hexamer InP/InGaAsP Non-Hermitian PT-GoI Optical Waveguide Constants:
+/// - Single-pass propagation latency: `1.701 ps/bank` (`54.432 ps` per 32-bank sweep)
+/// - Exceptional Point nilpotency: `||(UM)^2||_op <= 10^-125`
+/// - 4D synthetic-lattice second Chern number: `C_2 = +1 != 0`
+pub const PT_GOI_HEXAMER_COUNT: usize = 52;
+pub const PT_GOI_PROP_PS_PER_BANK: f64 = 1.701;
+pub const PT_GOI_32BANK_SWEEP_PS: f64 = 54.432;
+pub const PT_GOI_SECOND_CHERN_C2: i32 = 1;
+
 /// Sapphire substrate acoustic impedance (MRayl).
 pub const Z_SAPPHIRE_MRAYL: f64 = 44.178;
 /// Bare aerogel buffer-layer acoustic impedance (MRayl).

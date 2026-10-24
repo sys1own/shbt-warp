@@ -15,6 +15,14 @@ pub mod eikonal;
 pub mod wavefront;
 pub mod ghost_optics;
 pub mod jump_cruiser;
+pub mod secded_cayley;
+pub mod ship_cloner;
+pub mod sp2g_network;
+
+pub use secded_cayley::*;
+pub use ship_cloner::*;
+pub use sp2g_network::*;
+pub use conops::evaluate_mode_b_mar312x;
 
 pub use ghost_optics::{
     GhostGravitationalOptics, FeedstockScanReport, F0_M, F_MAX_M, R0_M,

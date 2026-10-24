@@ -36,8 +36,8 @@ def test_verify_205_gates():
     proc = cli("verify", timeout=900)
     assert proc.returncode == 0, proc.stdout + proc.stderr
     matrix = json.loads((REPO / "verification_matrix.json").read_text())
-    assert matrix["total"] == 205
-    assert matrix["passed"] == 205
+    assert matrix["total"] == 221
+    assert matrix["passed"] == 221
     assert all(g["passed"] for g in matrix["gates"])
     assert (REPO / "warp_results.tex").stat().st_size > 0
 

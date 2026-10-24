@@ -10,7 +10,7 @@ fn main() {
 
     // verification_matrix.json
     let json = serde_json::json!({
-        "suite": "shbt-warp 205-check verification (70 gates + 50 EXT + 8 BAT + 20 MAR + 25 EW + 8 SYNTH + 8 IBR + 8 SCALE + 8 GHOST)",
+        "suite": "shbt-warp 221-check verification (70 gates + 50 EXT + 8 BAT + 20 MAR + 25 EW + 8 SYNTH + 8 IBR + 8 SCALE + 8 GHOST + 8 MARX + 8 SWARM-UPG)",
         "gates": results,
         "passed": passed,
         "total": total,

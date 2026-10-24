@@ -307,6 +307,51 @@ int main(void)
     assert(shbt_ghost_harvest_trigger_stage1(376.99, 376.99) == true);
     assert(shbt_ghost_harvest_trigger_stage1(100.0, 376.99) == false);
 
+    /* 13. SHBT-MAR-312X & Phase 1-4 Swarm MMIO Contract */
+    {
+        assert(sizeof(UnifiedStinespringHyperFrame) == 135168);
+        assert(SHBT_MAR312X_NACELLE_MASS_KG == 950U);
+        assert(SHBT_MAR312X_NACELLE_VOLUME_ML == 350000U);
+        assert(SHBT_MAR312X_SINGLE_FRAME_CORES == 41U);
+        assert(SHBT_MAR312X_SUPERHYDRIDE_FIELD_MT == 48000U);
+        assert(SHBT_MAR312X_SUPERHYDRIDE_TCRIT_MK == 192500U);
+        assert(SHBT_MAR312X_DECX_EFF_PPM == 992000U);
+        assert(SHBT_MAR312X_DIRECT_BUS_EFF_PPM == 998500U);
+        assert(SHBT_MAR312X_CROWBAR_TRIP_FS == 1701U);
+
+        assert(SHBT_SWARM_CMD_TOMITA_QUINE_CPY == 0x00000001U);
+        assert(SHBT_SWARM_CMD_MAR312X_FORGE_TIER4 == 0x00010000U);
+        assert(SHBT_SWARM_CMD_DIRECT_BOUNDARY_SYNTH == 0x00020000U);
+        assert(SHBT_SWARM_CMD_AUTOPOIETIC_SELF_HEAL == 0x00040000U);
+        assert(SHBT_SWARM_CMD_WEYL_EXCITON_CROWBAR == 0x80000000U);
+
+        assert(SHBT_SWARM_FAULT_ADM_IMBALANCE == 0x00000001U);
+        assert(SHBT_SWARM_FAULT_X0_PROTECT_LCK == 0x00000800U);
+        assert(SHBT_SWARM_FAULT_X1_SAPIENT_LCK == 0x00001000U);
+        assert(SHBT_SWARM_FAULT_SUPERHYDRIDE_TETHER_LOSS == 0x00020000U);
+        assert(SHBT_SWARM_FAULT_PURCELL_BANDGAP_DRIFT == 0x00040000U);
+        assert(SHBT_SWARM_FAULT_DECX_CHERN_BACKSCATTER == 0x00080000U);
+        assert(SHBT_SWARM_FAULT_FORGE_SHEAR_EXCEEDED == 0x00100000U);
+
+        volatile shbt_mar312_mmio_t marx = {0};
+        uint32_t f_t4 = shbt_mar312x_dispatch_tier4(&marx, 24.850, 48.0, 0.36e-4, 785.00, 1, 0.0);
+        assert(f_t4 == SHBT_SWARM_FAULT_NONE);
+        assert(marx.cryo_temp_millikelvin == 24850U);
+        assert(marx.magnetic_nozzle_field_mt == 48000U);
+
+        uint32_t f_scrub = shbt_mar312x_autopoietic_scrub_50k518(&marx, 0xCAFEBABE12345678ULL, 0x0ULL);
+        assert(f_scrub == SHBT_SWARM_FAULT_NONE);
+        assert(marx.dark_ledger_wzw_checksum == 0xCAFEBABE12345678ULL);
+
+        uint32_t fs_trip = shbt_mar312x_weyl_crowbar_trip_fs(&marx);
+        assert(fs_trip == 1701U);
+
+        assert(shbt_swarm_cbf_xeno_gate(10.0, 0U) == SHBT_SWARM_FAULT_NONE);
+        assert(shbt_swarm_cbf_xeno_gate(10.0, 1U) == SHBT_SWARM_FAULT_X0_PROTECT_LCK);
+        assert(shbt_swarm_cbf_xeno_gate(10.0, 2U) == SHBT_SWARM_FAULT_X1_SAPIENT_LCK);
+        assert(shbt_swarm_cbf_xeno_gate(-0.1, 0U) == SHBT_SWARM_FAULT_CBF_PHYS_VIOL);
+    }
+
     puts("reference_test: all checks passed");
     return 0;
 }

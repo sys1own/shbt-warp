@@ -32,6 +32,15 @@ pub use dec_transient::*;
 pub mod ghost_harvester;
 pub use ghost_harvester::*;
 
+pub mod mar312x;
+pub use mar312x::*;
+
+pub mod universal_foundry;
+pub use universal_foundry::*;
+
+pub mod ibr312_magazine;
+pub use ibr312_magazine::*;
+
 // ---- Algebraic & Stinespring Closure Invariants ----------------------------
 
 pub const WZW_K_LEPTON: u32 = 26;

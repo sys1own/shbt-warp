@@ -14,6 +14,16 @@ pub const SYSTEM_TICK_SEC: f64 = 1.0 / SYSTEM_TICK_HZ;
 pub const DMA_RING_BPS: f64 = 504.0e9;
 pub const DMA_RING_Z0_OHMS: f64 = 50.12;
 
+/// `SHBT-MAR-312C` vs `SHBT-MAR-312X` Superluminal Corridor Velocity Tiers (in units of `c`).
+pub const MAR312C_VELOCITY_CRUISE_C: f64  = 89.6;
+pub const MAR312C_VELOCITY_BURST_C: f64   = 681.2;
+pub const MAR312C_VELOCITY_IMPULSE_C: f64 = 89_618.0;
+
+pub const MAR312X_VELOCITY_CRUISE_C: f64        = 99.3;
+pub const MAR312X_VELOCITY_BURST_C: f64         = 993.2;
+pub const MAR312X_VELOCITY_STD_IMPULSE_C: f64   = 99_318.0;
+pub const MAR312X_VELOCITY_HYPER_IMPULSE_C: f64 = 2_482_950.0; // Tier 4 (25.00 EW gross / 24.80 EW net)
+
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct EikonalKinematicState {
     pub tau: f64,

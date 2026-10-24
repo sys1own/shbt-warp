@@ -76,6 +76,9 @@ typedef struct __attribute__((aligned(64))) {
 
 _Static_assert(sizeof(shbt_stinespring_hyperframe_t) == 135168U,
                "C-ABI Invariant Violation: sizeof(shbt_stinespring_hyperframe_t) must equal 135168 bytes");
+typedef shbt_stinespring_hyperframe_t UnifiedStinespringHyperFrame;
+_Static_assert(sizeof(UnifiedStinespringHyperFrame) == 135168U,
+               "C-ABI Invariant Violation: sizeof(UnifiedStinespringHyperFrame) must equal 135168 bytes");
 
 /* Hyper-Frame Real-Time Telemetry Mapping */
 typedef struct {

@@ -58,6 +58,35 @@ pub const MODE_B_TIER1_WET_MASS_KG: f64 = 16583.32;
 pub const MODE_B_STINESPRING_LIMIT_KG: f64 = 16600.00;
 pub const MODE_B_PAYLOAD_MARGIN_KG: f64 = 16.68;
 
+/// Mode B Jump-Cruiser Architectural Constants with 5th-Gen `SHBT-MAR-312X` Exotic Nacelle
+pub const MODE_B_MAR312X_DRY_NACELLE_MASS_KG: f64 = 950.00;
+pub const MODE_B_MAR312X_DRY_NACELLE_VOL_M3: f64 = 0.3500;
+pub const MODE_B_MAR312X_SHIP_DRY_MASS_KG: f64 = 5_892.30;
+pub const MODE_B_MAR312X_TIER1_FULL_CORES: usize = 41;
+pub const MODE_B_MAR312X_TIER1_WAFER_REFILLS: usize = 410;
+pub const MODE_B_MAR312X_TIER1_FUEL_MASS_KG: f64 = 15_456.59;
+pub const MODE_B_MAR312X_TIER1_WET_MASS_KG: f64 = 16_406.59;
+pub const MODE_B_MAR312X_PAYLOAD_MARGIN_KG: f64 = 193.41;
+pub const MODE_B_MAR312X_STORED_NET_EJ: f64 = 1_378.05674;
+
+/// Evaluate Mode B Mobile Jump-Cruiser performance when powered by `SHBT-MAR-312X` (41 cores, 950 kg nacelle).
+pub fn evaluate_mode_b_mar312x() -> JumpCruiserMetrics {
+    let range_per_core_312x = 423_839.0 * (0.99200 / 0.89519);
+    JumpCruiserMetrics {
+        dry_nacelle_mass_kg: MODE_B_MAR312X_DRY_NACELLE_MASS_KG,
+        dry_nacelle_vol_m3: MODE_B_MAR312X_DRY_NACELLE_VOL_M3,
+        active_seed_wafer_mass_kg: MODE_B_ACTIVE_SEED_WAFER_MASS_KG,
+        tier1_fuel_cores: MODE_B_MAR312X_TIER1_FULL_CORES,
+        tier1_wafer_refills: MODE_B_MAR312X_TIER1_WAFER_REFILLS,
+        tier1_fuel_mass_kg: MODE_B_MAR312X_TIER1_FUEL_MASS_KG,
+        tier1_wet_mass_kg: MODE_B_MAR312X_TIER1_WET_MASS_KG,
+        stinespring_limit_kg: MODE_B_STINESPRING_LIMIT_KG,
+        payload_reserve_margin_kg: MODE_B_MAR312X_PAYLOAD_MARGIN_KG,
+        hot_swap_latency_us: 11.40,
+        unrefueled_range_cruise_ly: range_per_core_312x * (MODE_B_MAR312X_TIER1_FULL_CORES as f64),
+    }
+}
+
 /// Mode A Stargate Nacelle Options
 pub const MODE_A_STATIONARY_NACELLE_MASS_KG: f64 = 4096.99;
 pub const MODE_A_STATIONARY_NACELLE_VOL_M3: f64 = 1.3114;

@@ -386,6 +386,15 @@ pub fn seed_wafer_turnaround_time_s(mode: FoundrySynthesisMode, tier: ReactorTie
     breeder_turnaround_time_s(mode, tier) / 10.0
 }
 
+/// Sub-millisecond breeder turnaround time in microseconds for one `376.99 kg` (1.0 CEU)
+/// fuel core when powered by the `SHBT-MAR-312X` Tier 4 Direct Boundary Bus (`24.9625 EW`):
+/// - Mode 1c (`0.2845 PJ`): `11.40 us`
+/// - Mode 1a (`2.1220 PJ`): `85.01 us`
+/// - Mode 1b (`21.4300 PJ` raw slag): `858.5 us`
+pub fn breeder_turnaround_mar312x_direct_bus_us(mode: FoundrySynthesisMode) -> f64 {
+    crate::universal_foundry::UniversalMatterCloner::direct_boundary_bus_core_breed_time_us(mode)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

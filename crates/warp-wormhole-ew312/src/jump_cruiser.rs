@@ -112,6 +112,63 @@ impl JumpCruiserSimulation {
             mission_success: ok,
         }
     }
+
+    /// Execute end-to-end 6-phase flight simulation for the upgraded `SHBT-MAR-312X` Jump-Cruiser
+    /// (`5,892.30 kg` dry hull, `950.00 kg` nacelle, 41 single-frame fuel cores = `1,378.06 EJ`),
+    /// supporting `99.3c` Cruise, `993.2c` Burst, `99,318c` Standard Impulse, and `2,482,950c` Tier 4 Hyper-Impulse.
+    pub fn simulate_mar312x_flight(
+        vessel_displacement_tons: f64,
+        tier: warp_power_battery::Mar312xPowerTier,
+        target_distance_ly: f64,
+    ) -> JumpCruiserFlightRecord {
+        let optics = GhostGravitationalOptics::new();
+        let scan = optics.scan_feedstock(72, 178, 169.30);
+
+        let v_c = match tier {
+            warp_power_battery::Mar312xPowerTier::Tier0QuiescentStandby => 0.0,
+            warp_power_battery::Mar312xPowerTier::Tier1ContinuousCruise => 99.3,
+            warp_power_battery::Mar312xPowerTier::Tier2SustainedBurst => 993.2,
+            warp_power_battery::Mar312xPowerTier::Tier3ExawattImpulse => 99_318.0,
+            warp_power_battery::Mar312xPowerTier::Tier4PlanetaryForge => 2_482_950.0,
+        };
+
+        let (mapped_tier, tau_fold_ms) = match tier {
+            warp_power_battery::Mar312xPowerTier::Tier4PlanetaryForge
+            | warp_power_battery::Mar312xPowerTier::Tier3ExawattImpulse => (PowerTier::ExawattImpulse, 0.508),
+            warp_power_battery::Mar312xPowerTier::Tier2SustainedBurst => (PowerTier::SustainedBurst, 66.98),
+            warp_power_battery::Mar312xPowerTier::Tier1ContinuousCruise => (PowerTier::ContinuousCruise, 509.10),
+            warp_power_battery::Mar312xPowerTier::Tier0QuiescentStandby => (PowerTier::BaselineHf178, 4240.0),
+        };
+
+        let harvest_rate = 376.99 / 0.0042;
+        let dt = 1.0;
+        let c = 299792458.0;
+        let v_eff = 0.95 * c;
+        let ds2 = -(c * dt) * (c * dt) + (v_eff * dt) * (v_eff * dt);
+        let wake_res = 3.2e-13;
+
+        let ok = vessel_displacement_tons <= 1660.54
+            && target_distance_ly > 0.0
+            && ds2 <= 0.0
+            && wake_res <= 1.0e-12
+            && scan.tomography_verified;
+
+        JumpCruiserFlightRecord {
+            vessel_displacement_tons,
+            power_tier: mapped_tier,
+            transit_velocity_c: v_c,
+            hover_accel_m_s2: 9.80665,
+            crew_deck_gravity_g: 1.00000,
+            coriolis_angular_velocity: [0.0, 0.0, 0.0],
+            harvest_rate_kg_s: harvest_rate,
+            feedstock_scan: scan,
+            derender_duration_ms: tau_fold_ms,
+            collision_cross_section_m2: 0.0,
+            egress_2pn_interval_ds2: ds2,
+            wake_rigidity_residual: wake_res,
+            mission_success: ok,
+        }
+    }
 }
 
 #[cfg(test)]

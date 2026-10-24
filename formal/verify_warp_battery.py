@@ -20,6 +20,8 @@ def main():
         ("MAR-312 Graser & Battery Theorems", REPO / "formal/verify_isomer_graser.py"),
         ("IBR-312 Reload Magazine Theorems", REPO / "formal/verify_ibr312.py"),
         ("Coset Spinor Synthesis Theorems", REPO / "formal/verify_warp_synthesis.py"),
+        ("MAR-312X Exotic Reactor Theorems", REPO / "formal/verify_warp_mar312x.py"),
+        ("Swarm Phase 1-3 Warp Upgrade Theorems", REPO / "formal/verify_warp_swarm_upgrades.py"),
     ]
 
     for name, script in scripts:

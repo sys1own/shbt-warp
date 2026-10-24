@@ -33,6 +33,70 @@ extern "C" {
 #define SHBT_MAR312C_SEED_WAFER_VOL_L     (3.59)
 #define SHBT_MAR312C_COMPACTED_NACELLE_KG (2257.70)
 #define SHBT_MAR312_STATIONARY_NACELLE_KG (4096.99)
+#define SHBT_MAR312X_EXOTIC_NACELLE_KG    (950.00)
+#define SHBT_MAR312X_NACELLE_MASS_KG      (950U)
+#define SHBT_MAR312X_NACELLE_VOLUME_ML    (350000U)
+#define SHBT_MAR312X_SINGLE_FRAME_CORES   (41U)
+#define SHBT_MAR312X_SUPERHYDRIDE_FIELD_MT (48000U)
+#define SHBT_MAR312X_SUPERHYDRIDE_TCRIT_MK (192500U)
+#define SHBT_MAR312X_DECX_EFF_PPM         (992000U)
+#define SHBT_MAR312X_DIRECT_BUS_EFF_PPM   (998500U)
+#define SHBT_MAR312X_CROWBAR_TRIP_FS      (1701U)
+#define SHBT_MAR312X_FRENKEL_SHEAR_MPA    (4800.00)
+#define SHBT_MAR312X_TIER4_SHEAR_MPA      (785.00)
+#define SHBT_MAR312X_TIER4_GROSS_EW       (25.000)
+#define SHBT_MAR312X_TIER4_ELEC_EW        (24.800)
+#define SHBT_MAR312X_TIER4_DIRECT_EW      (24.9625)
+#define SHBT_MAR312X_CEU_NET_ENERGY_EJ    (33.61114)
+#define SHBT_MAR312X_SENSIBLE_HEAT_FRAC   (2.13039486e-9)
+
+/* Phase 1-4 SHBT-SWARM / SHBT-MAR-312X Command Opcodes */
+#define SHBT_SWARM_CMD_NOP                      (0x00000000U)
+#define SHBT_SWARM_CMD_TOMITA_QUINE_CPY         (0x00000001U)
+#define SHBT_SWARM_CMD_PT_GOI_PROJECT           (0x00000002U)
+#define SHBT_SWARM_CMD_TOMO_CAPTURE             (0x00000004U)
+#define SHBT_SWARM_CMD_EXEC_CLONE_SHIP          (0x00000008U)
+#define SHBT_SWARM_CMD_EXEC_CLONE_BIO           (0x00000010U)
+#define SHBT_SWARM_CMD_LANDAUER_SHUNT           (0x00000020U)
+#define SHBT_SWARM_CMD_MERA_PINN_SYNC           (0x00000040U)
+#define SHBT_SWARM_CMD_PT_GOI_EQUIL             (0x00000080U)
+#define SHBT_SWARM_CMD_TOMITA_LEARN             (0x00000100U)
+#define SHBT_SWARM_CMD_VERLINDE_PLAN            (0x00000200U)
+#define SHBT_SWARM_CMD_SP2G_HIVE_SYNC           (0x00000400U)
+#define SHBT_SWARM_CMD_AP_MPC_ENCLAVE           (0x00000800U)
+#define SHBT_SWARM_CMD_XENO_ASSIMILATE          (0x00001000U)
+#define SHBT_SWARM_CMD_EXEC_UNIV_SYNTH          (0x00002000U)
+#define SHBT_SWARM_CMD_ZERO_COMP_DIRECT_RENDER  (0x00004000U)
+#define SHBT_SWARM_CMD_MERA_DAG_INSTANCE        (0x00008000U)
+#define SHBT_SWARM_CMD_MAR312X_FORGE_TIER4      (0x00010000U)
+#define SHBT_SWARM_CMD_DIRECT_BOUNDARY_SYNTH    (0x00020000U)
+#define SHBT_SWARM_CMD_AUTOPOIETIC_SELF_HEAL    (0x00040000U)
+#define SHBT_SWARM_CMD_WEYL_EXCITON_CROWBAR     (0x80000000U)
+#define SHBT_SWARM_CMD_PCSS_CROWBAR             (0x80000000U)
+
+/* Phase 1-4 SHBT-SWARM / SHBT-MAR-312X Fault Bitmasks */
+#define SHBT_SWARM_FAULT_NONE                       (0x00000000U)
+#define SHBT_SWARM_FAULT_ADM_IMBALANCE              (0x00000001U)
+#define SHBT_SWARM_FAULT_PARTITION_LOCK             (0x00000002U)
+#define SHBT_SWARM_FAULT_FRAMING_WEYL               (0x00000004U)
+#define SHBT_SWARM_FAULT_BL_ANOMALY                 (0x00000008U)
+#define SHBT_SWARM_FAULT_NEUTRINO_LEAK              (0x00000010U)
+#define SHBT_SWARM_FAULT_SECDED_UNCORR              (0x00000020U)
+#define SHBT_SWARM_FAULT_CAYLEY_HASH                (0x00000040U)
+#define SHBT_SWARM_FAULT_THERMAL_CLAMP              (0x00000080U)
+#define SHBT_SWARM_FAULT_CBF_PHYS_VIOL              (0x00000100U)
+#define SHBT_SWARM_FAULT_GREY_GOO_CAP               (0x00000200U)
+#define SHBT_SWARM_FAULT_CLF_DIVERGENCE             (0x00000400U)
+#define SHBT_SWARM_FAULT_X0_PROTECT_LCK             (0x00000800U)
+#define SHBT_SWARM_FAULT_X1_SAPIENT_LCK             (0x00001000U)
+#define SHBT_SWARM_FAULT_SUGAWARA_CAP_EXCEEDED      (0x00002000U)
+#define SHBT_SWARM_FAULT_DRIPLINE_UNSTABLE          (0x00004000U)
+#define SHBT_SWARM_FAULT_SIM_TO_RENDER_HASH_MISMATCH (0x00008000U)
+#define SHBT_SWARM_FAULT_HABITAT_GRAV_DEVIATION     (0x00010000U)
+#define SHBT_SWARM_FAULT_SUPERHYDRIDE_TETHER_LOSS   (0x00020000U)
+#define SHBT_SWARM_FAULT_PURCELL_BANDGAP_DRIFT      (0x00040000U)
+#define SHBT_SWARM_FAULT_DECX_CHERN_BACKSCATTER     (0x00080000U)
+#define SHBT_SWARM_FAULT_FORGE_SHEAR_EXCEEDED       (0x00100000U)
 
 /* 5-Phase Dispatch State Machine Bitmasks */
 #define MAR_STATE_STANDBY_STASIS   ((uint32_t)0x01U)
@@ -194,6 +258,41 @@ uint32_t shbt_mar312_tick_dispatch(volatile shbt_mar312_mmio_t *mar,
 bool shbt_mar312_synth_fold_ok(uint16_t antibaryon_ratio_q16,
                                uint16_t coset_weight_q16,
                                uint32_t synth_status_flags);
+
+/**
+ * @brief SHBT-MAR-312X Tier 4 Hyper-Impulse (25.00 EW gross / 24.80 EW electric) dispatch
+ */
+uint32_t shbt_mar312x_dispatch_tier4(volatile shbt_mar312_mmio_t *mar,
+                                     double t_op_kelvin,
+                                     double b_field_tesla,
+                                     double tether_disp_angstrom,
+                                     double sigma_shear_mpa,
+                                     int32_t decx_chern_c2,
+                                     double purcell_dos);
+
+/**
+ * @brief SHBT-MAR-312X 50.518 kHz continuous autopoietic ROM scrub (SUB-07)
+ */
+uint32_t shbt_mar312x_autopoietic_scrub_50k518(volatile shbt_mar312_mmio_t *mar,
+                                               uint64_t rom_cayley_sig,
+                                               uint64_t live_cayley_sig);
+
+/**
+ * @brief SHBT-MAR-312X 1.701 ps (1,701 fs) Weyl-Exciton Crowbar Interlock (SUB-08)
+ */
+uint32_t shbt_mar312x_weyl_crowbar_trip_fs(volatile shbt_mar312_mmio_t *mar);
+
+/**
+ * @brief Phase 1 SECDED Hamming(72,64) + 256-bit Burau-Cayley hash verification
+ */
+uint32_t shbt_swarm_verify_secded_cayley(const UnifiedStinespringFrame *frame,
+                                         const uint64_t expected_cayley[4]);
+
+/**
+ * @brief Phase 2 9-Component Proof-Carrying CBF + Class X0/X1 Xenobiological Safety Gate
+ */
+uint32_t shbt_swarm_cbf_xeno_gate(double min_cbf_barrier,
+                                  uint8_t xeno_class_code);
 
 #ifdef __cplusplus
 }

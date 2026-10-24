@@ -71,6 +71,55 @@ pub const MASS_SEED_WAFER_KG: f64 = 37.699;
 /// Full 64-bank hyperframe Stinespring frame mass (10^28 nucleons): 16,605.39 kg.
 pub const MASS_HYPERFRAME_KG: f64 = 16_605.39;
 
+// ============================================================================
+// Phase 2 Xenobiological Triage & Mode II 4.2 K Tomographic Feedstock Guard
+// ============================================================================
+
+/// Mode II 4.2 K Landauer tomographic readout energy floor: `Q_readout = k_B * 4.2 K * ln(2) = 4.0194e-23 J/bit`.
+pub const MODE2_TOMO_READOUT_J_PER_BIT: f64 = 4.01937e-23;
+
+/// Critical 101-layer TTN-MERA complexity threshold for sapient/technological life (`10^6` nat-layers in Q48.16).
+pub const C_CRIT_SAPIENT_Q16: u64 = 1_000_000 << 16;
+
+/// Specific transmutation work for abiotic mineral regolith (Mode 1b): `56.845009 TJ/kg`.
+pub const W_MODE1B_REGOLITH_TJ_KG: f64 = 56.845_009;
+/// Specific transmutation work for Class X2 primitive pre-sapient biomass: `0.424815 TJ/kg`.
+pub const W_CLASS_X2_BIOMASS_TJ_KG: f64 = 0.424_815;
+/// Specific work saved by Class X2 assimilation vs. abiotic regolith: `56.420194 TJ/kg` (`99.25%`).
+pub const DELTA_W_X2_SAVINGS_TJ_KG: f64 = 56.420_194;
+
+/// Hardware fault bitmasks for attempted de-rendering of protected life.
+pub const SHBT_SWARM_FAULT_X0_PROTECT_LCK: u32 = 0x0000_0800;
+pub const SHBT_SWARM_FAULT_X1_SAPIENT_LCK: u32 = 0x0000_1000;
+
+/// Phase 2 Xenobiological Triage Classes evaluated during stand-off Bondi-Hoyle funnel intake.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u32)]
+pub enum XenoTriageClass {
+    /// `Class M0`: Abiotic regolith / slag (`D_Cayley > 0`, `C_MERA == 0`) — permitted (`56.845009 TJ/kg`).
+    M0AbioticRegolith  = 0x0000_0000,
+    /// `Class X0`: Protected Earth-seeded / terrestrial life (`D_Cayley == 0`) — hardware locked (`0x00000800`).
+    X0ProtectedEarth   = 0x1000_0000,
+    /// `Class X1`: Protected sapient / technological life (`D_Cayley > 0`, `C_MERA >= C_crit`) — hardware locked (`0x00001000`).
+    X1ProtectedSapient = 0x2000_0000,
+    /// `Class X2`: Primitive pre-sapient biomass (`D_Cayley > 0`, `0 < C_MERA < C_crit`) — permitted (`P_Brem == 0 W`).
+    X2AssimilablePrim  = 0x4000_0000,
+}
+
+/// Telemetry receipt from Mode II 4.2 K tomographic scan & xenobiological triage of harvested feedstock.
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+pub struct XenoHarvestTriageReceipt {
+    pub triage_class: XenoTriageClass,
+    pub d_cayley_distance: u32,
+    pub c_mera_q16: u64,
+    pub q_readout_j_per_bit: f64,
+    pub brem_power_watts: f64,
+    pub specific_work_tj_kg: f64,
+    pub work_saved_tj_kg: f64,
+    pub derender_permitted: bool,
+    pub fault_mask: u32,
+}
+
 /// Harvesting Operational Regime
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum HarvestingRegime {
@@ -225,6 +274,55 @@ impl GhostMassHarvester {
             stored_in_ibr312: true,
         }
     }
+
+    /// Evaluate Phase 2 Xenobiological Triage (`Classes M0, X0, X1, X2`) on stand-off
+    /// Bondi-Hoyle funnel feedstock scanned via Mode II 4.2 K tomographic capture
+    /// (`Q_readout = 4.0194e-23 J/bit`), checking 101-layer TTN-MERA complexity `C_MERA`
+    /// and Burau-Cayley phylogenetic distance `D_Cayley`.
+    /// Blocks de-rendering in hardware if `Class X0` (`0x00000800`) or `Class X1` (`0x00001000`)
+    /// is detected, while permitting `Class M0` and `Class X2` non-ionizing assimilation (`P_Brem == 0 W`).
+    pub fn evaluate_xenobiological_triage(
+        &self,
+        d_cayley_distance: u32,
+        c_mera_q16: u64,
+    ) -> Result<XenoHarvestTriageReceipt, u32> {
+        let triage_class = if d_cayley_distance == 0 {
+            XenoTriageClass::X0ProtectedEarth
+        } else if c_mera_q16 >= C_CRIT_SAPIENT_Q16 {
+            XenoTriageClass::X1ProtectedSapient
+        } else if c_mera_q16 > 0 {
+            XenoTriageClass::X2AssimilablePrim
+        } else {
+            XenoTriageClass::M0AbioticRegolith
+        };
+
+        match triage_class {
+            XenoTriageClass::X0ProtectedEarth => Err(SHBT_SWARM_FAULT_X0_PROTECT_LCK),
+            XenoTriageClass::X1ProtectedSapient => Err(SHBT_SWARM_FAULT_X1_SAPIENT_LCK),
+            XenoTriageClass::M0AbioticRegolith => Ok(XenoHarvestTriageReceipt {
+                triage_class,
+                d_cayley_distance,
+                c_mera_q16,
+                q_readout_j_per_bit: MODE2_TOMO_READOUT_J_PER_BIT,
+                brem_power_watts: 0.0,
+                specific_work_tj_kg: W_MODE1B_REGOLITH_TJ_KG,
+                work_saved_tj_kg: 0.0,
+                derender_permitted: true,
+                fault_mask: 0,
+            }),
+            XenoTriageClass::X2AssimilablePrim => Ok(XenoHarvestTriageReceipt {
+                triage_class,
+                d_cayley_distance,
+                c_mera_q16,
+                q_readout_j_per_bit: MODE2_TOMO_READOUT_J_PER_BIT,
+                brem_power_watts: 0.0,
+                specific_work_tj_kg: W_CLASS_X2_BIOMASS_TJ_KG,
+                work_saved_tj_kg: DELTA_W_X2_SAVINGS_TJ_KG,
+                derender_permitted: true,
+                fault_mask: 0,
+            }),
+        }
+    }
 }
 
 /// Diagnostics and performance results from a harvest & synthesis cycle.
@@ -291,5 +389,30 @@ mod tests {
         assert_eq!(res.sugawara_shift_vis, 45.0 / 64.0);
         assert!(res.stored_in_ibr312);
         assert_eq!(res.coset_diagnostics.total_core_mass_kg, 376.99);
+    }
+
+    #[test]
+    fn test_xenobiological_triage_in_ghost_harvester() {
+        let harvester = GhostMassHarvester::new();
+        // Class X0 (Earth-seeded, D_Cayley == 0) -> blocked with 0x00000800
+        assert_eq!(
+            harvester.evaluate_xenobiological_triage(0, 100),
+            Err(SHBT_SWARM_FAULT_X0_PROTECT_LCK)
+        );
+        // Class X1 (Sapient, C_MERA >= C_crit) -> blocked with 0x00001000
+        assert_eq!(
+            harvester.evaluate_xenobiological_triage(12, C_CRIT_SAPIENT_Q16),
+            Err(SHBT_SWARM_FAULT_X1_SAPIENT_LCK)
+        );
+        // Class M0 (Abiotic regolith) -> permitted at 56.845009 TJ/kg
+        let m0 = harvester.evaluate_xenobiological_triage(8, 0).unwrap();
+        assert_eq!(m0.triage_class, XenoTriageClass::M0AbioticRegolith);
+        assert!(m0.derender_permitted);
+        assert_eq!(m0.brem_power_watts, 0.0);
+        // Class X2 (Primitive biomass) -> permitted with 56.420194 TJ/kg savings
+        let x2 = harvester.evaluate_xenobiological_triage(8, 2048).unwrap();
+        assert_eq!(x2.triage_class, XenoTriageClass::X2AssimilablePrim);
+        assert!(x2.derender_permitted);
+        assert!((x2.work_saved_tj_kg - 56.420_194).abs() < 1e-6);
     }
 }
