@@ -398,8 +398,6 @@ Reload latency: `50.80 μs` micro-batch (`317.8 μs` full core in Impulse mode),
 
 `crates/warp-power-battery/src/mar312x.rs`, `crates/warp-power-battery/src/universal_foundry.rs`, and `crates/warp-power-battery/src/ibr312_magazine.rs` transfer the **5th-Gen Exotic-Material Autopoietic Mass-Annihilation Reactor (`SHBT-MAR-312X`)** and **Phase 3 Universal Arbitrary Matter Folding (`R_univ^SWARM[Θ(x)]`)** from [`sys1own/shbt-swarm`](https://github.com/sys1own/shbt-swarm). By synthesizing eight exotic metamaterial subsystems (`SUB-01..08`) across all 230 3D crystallographic space groups (`G_space ∈ 1..230`, plus `0` for amorphous/biogenic media) with a 124-channel Dynamic Sugawara Framing Compensator (`|Δh_vis| ≤ C_braid = 100/φ² = 38.196601 nats`, `Δ_fr ≡ 0`) and a Chern-Simons Wyckoff Framing Tether (`k_tether = 5.1295 × 10¹⁰ N/m`, `|δx|_max ≤ 10⁻⁴ Å`), `SHBT-MAR-312X` cuts total dry nacelle mass to **`950.00 kg` (`-57.92%` vs. `SHBT-MAR-312C`; `-76.81%` vs. `SHBT-MAR-312`)** and internal volume to **`0.3500 m³` (`-59.25%` vs. `SHBT-MAR-312C`; `-73.31%` vs. `SHBT-MAR-312`)**.
 
-![Three-Generation SHBT Mass-Annihilation Reactor Comparison](figures/reactor-comparison.png)
-
 #### Three-Generation Architectural Evolution & 8-Subsystem Ledger (`SUB-01..08`)
 
 | Subsystem ID | Exotic-Material Subsystem (`SHBT-MAR-312X`) | `SHBT-MAR-312` Mass | `SHBT-MAR-312C` Mass | `SHBT-MAR-312X` Mass & Volume | Space Group & Key Physical Invariant |
