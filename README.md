@@ -18,7 +18,7 @@ hardware control contract down to the nanosecond PCSS crowbar.
 - [8. Core Mathematical & Physical Closures](#8-core-mathematical--physical-closures)
 - [9. Workspace Topology, Build & Quickstart](#9-workspace-topology-build--quickstart)
 - [10. Master 221-Gate Verification Matrix & 28 Z3 Formal Proofs](#10-master-221-gate-verification-matrix--28-z3-formal-proofs)
-- [11. SHBT Ecosystem Crosswalk](#11-shbt-ecosystem-crosswalk)
+- [11. 10-Repository SHBT Ecosystem Topology & Crosswalk](#11-10-repository-shbt-ecosystem-topology--crosswalk)
 
 ---
 
@@ -250,6 +250,7 @@ Because `Q_foundry = E_stored / ΔE_synth` reaches **`15,967` in Mode 1a** and *
 `crates/warp-power-battery/src/compacted_nacelle.rs` and `kernel/include/shbt_ibr312_mmio.h` introduce the **Compacted Catalytic Wafer Propulsion Nacelle (`SHBT-MAR-312C`)** and the **Intergalactic Dark-Sector Anyon Braid Reload Magazine (`SHBT-IBR-312`)**. By scaling down the stationary `376.99 kg` core by 1/10th into an annular catalytic seed wafer (`37.699 kg`, `3.59 L`, `0.1 CEU`) and replacing the heavy `1,884.88 kg` passive shadow shield with an active 8-layer Heegaard-Floer symplectic sleeve (`384.88 kg`, `S = 100/1089`), dry nacelle mass is reduced by **-44.89%** (`4,096.99 kg` to `2,257.70 kg`) and envelope volume by **-34.50%** (`1.3114 m³` to `0.8589 m³`), unlocking a `1,942.30 kg` (`46.25%`) payload margin below the `4,200.00 kg` flight ceiling.
 
 ![SHBT-MAR-312-IBR Compacted Propulsion Nacelle Cutaway](figures/shbt_mar312_ibr_cutaway.png)
+**Figure 1: 4th-Gen Compacted SHBT-MAR-312C Baseline Nacelle Cutaway (2,257.70 kg, 0.8589 m³)**
 
 ### 4.1 Cutaway Subsystem Architecture & Warp Bus Coupling
 
@@ -306,6 +307,39 @@ The engineering cutaway above illustrates the complete physical and electromagne
   • Continuous Cruise: 89.6c (895.19 TW net)               • Stage 4: Causal Re-Rendering
   • Sustained Burst: 681.2c (6.805 PW net)                 • Exawatt Impulse: 89,618c
 ```
+
+### Generational Architecture Comparison: 4th-Gen Compacted SHBT-MAR-312C (2,257.70 kg) vs. 5th-Gen Exotic Autopoietic SHBT-MAR-312X (950.00 kg)
+
+![SHBT-MAR-312C vs SHBT-MAR-312X Generational Reactor Evolution](figures/reactor-comparison.png)
+
+The engineering evolution illustrated across Figure 1 and Figure 2 bridges two distinct technological paradigms within the SHBT mass-annihilation propulsion lineage:
+- **Figure 1 (`figures/shbt_mar312_ibr_cutaway.png`):** Shows the **4th-Gen Compacted `SHBT-MAR-312C` (2,257.70 kg, 0.8589 m³)** nacelle based on sintered ¹⁷⁸ᵐ²HfB₂–¹²C wafers (37.70 kg), 18.5 T REBCO coils (T_crit = 32.92 K), a 5-stage electrostatic DEC duct (720.40 kg, η_DEC = 89.519%), and an 8-layer Diamond-on-GaN symplectic sleeve (384.88 kg).
+- **Figure 2 (`figures/reactor-comparison.png`):** Details the materials-science evolution from `sys1own/shbt-swarm` Phase 4, where R_univ^SWARM 230-space-group universal matter folding replaces each heavy component with topological metamaterials in the **5th-Gen `SHBT-MAR-312X` (950.00 kg, 0.3500 m³)** nacelle (-57.92% mass, -59.25% volume).
+
+#### Side-by-Side 3-Generation Comparison Table (`SHBT-MAR-312` vs. `SHBT-MAR-312C` vs. `SHBT-MAR-312X`)
+
+| Subsystem ID | Exotic-Material Subsystem (`SHBT-MAR-312X`) | `SHBT-MAR-312` Mass | `SHBT-MAR-312C` Mass | `SHBT-MAR-312X` Mass & Volume | Space Group & Key Physical Invariant |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **`SUB-01`** | Purcell-Inhibited Lonsdaleite/¹²C–c-¹¹B¹⁵N Catalytic Seed Die | 376.99 kg | 37.70 kg | **12.50 kg (0.0012 m³)** | P6₃/mmc (#194), ρ_DOS(ω_spont) ≡ 0, F_P = 0, t_1/2^eff → ∞, G_isomer = 85.40, f_M = 0.99420, ε_B = 0.99950, σ_allow = 4,800.00 MPa |
+| **`SUB-02`** | 5-Zone 4D Weyl-Polariton & PTC `SHBT-DEC-X` Converter | 840.00 kg | 720.40 kg | **260.00 kg (0.1100 m³)** | I4₁md (#109), C₂ = +1 ≠ 0, R_back = 0 ppm, **η_DEC-X = 99.200%**, **33.61114 EJ/core** (3.361114 EJ/wafer) |
+| **`SUB-03`** | Zero-External-Pressure Tethered Superhydride Coils (LaBeH₈–CaH₆–¹²C) | 260.00 kg | 245.50 kg | **215.00 kg (0.0680 m³)** | Fm3̄m (#225), **B_op = 48.0 T**, **T_crit = 192.50 K**, Wyckoff tether k_tether = 5.1295 × 10¹⁰ N/m, ||δx|| ≤ 10⁻⁴ Å, κ = 42,500 W/m·K |
+| **`SUB-04`** | 12-Layer Sp(2g, Z) Fracton-Symplectic Shield Sleeve | 1,884.88 kg | 384.88 kg | **145.00 kg (0.0380 m³)** | P6/mmm (#191), **f_sensible = 2.13039486 × 10⁻⁹** (**37,016.7× heat reduction** vs. MAR-312C), 0.0004 mSv/yr dose @ 25.00 EW |
+| **`SUB-05`** | Monolithic Type-IIa Isotopically Pure ¹²C Hyper-Diamond Cavity & Throat | 65.12 kg | 245.50 kg | **160.00 kg (0.0455 m³)** | Fd3̄m (#227), τ_B = 1,542.0, ε_B = 0.99950, r₃ = 3.82 (33.18 dB polariton squeezing), σ_allow = 4,800.00 MPa |
+| **`SUB-06`** | Direct Boundary CFT Transmutation Bus (B_direct^MAR-X) | 0.00 kg | 145.20 kg | **52.50 kg (0.0185 m³)** | R3̄m (#166), **η_direct = 99.850%** (24.9625 EW at Tier 4), **11.40 μs Mode 1c / 85.01 μs Mode 1a / 858.5 μs Mode 1b** core breed |
+| **`SUB-07`** | Ballistic Phonon-Blackbody Cryostat & Autopoietic Self-Healing Loop | 440.00 kg | 353.52 kg | **65.00 kg (0.0418 m³)** | P6₃mc (#186), A_heal at **50.518 kHz** continuous ROM scrub (Q_internal = 0 J/bit, Γ_Frenkel ≡ 0 dpa/yr), infinite service life |
+| **`SUB-08`** | Weyl-Exciton Optical Crowbar Interlock & 48 T SMES Ring | 230.00 kg | 125.00 kg | **40.00 kg (0.0270 m³)** | F4̄3m (#216), **τ_crowbar = 1.701 ps** (1,701 fs ≤ 2.50 ns), 99.88% SMES inductive recovery |
+| **Total** | **Complete Propulsion & Forge Nacelle Assembly** | **4,096.99 kg (1.3114 m³)** | **2,257.70 kg (0.8589 m³)** | **950.00 kg (0.3500 m³)** | **Mass: -57.92% vs. MAR-312C (-76.81% vs. MAR-312) \| Volume: -59.25% vs. MAR-312C \| 41-Core Single Frame (1,378.06 EJ, +19.56%)** |
+
+#### 8-Point Subsystem Replacement Walkthrough: 4th-Gen Baseline vs. 5th-Gen Autopoietic Metamaterials
+
+1. **Seed Die (37.70 kg → 12.50 kg, -66.84%):** Sintered ¹⁷⁸ᵐ²HfB₂–¹²C (t_1/2 = 31.0 yr) → Purcell-inhibited Lonsdaleite/¹²C–c-¹¹B¹⁵N superlattice (ρ_DOS(ω_spont) ≡ 0, F_P = 0, t_1/2^eff → ∞, 0.000 W standby decay, G_isomer = 85.40, f_M = 0.9942, ε_B = 0.9995, σ_allow = 4,800.00 MPa).
+2. **DEC Converter (720.40 kg → 260.00 kg, -63.91%):** 5-stage electrostatic duct (89.519%) → Monolithic 5-zone solid-state 4D Weyl-polariton (TaAs/NbP, C₂ = +1 ≠ 0) & Photonic Time-Crystal (`SHBT-DEC-X`, η_DEC-X = 99.200%, raising electrical energy per 376.99 kg core from 30.331 EJ to 33.611 EJ).
+3. **Magnetic Coils & Cryo (524.02 kg → 215.00 kg, -58.97%):** 18.5 T REBCO coils (T_crit = 32.92 K) → Zero-external-pressure Wyckoff-tethered LaBeH₈–CaH₆–¹²C clathrate superhydrides (B_op = 48.0 T, T_crit = 192.50 K, k_tether = 5.1295 × 10¹⁰ N/m, ||δx|| ≤ 10⁻⁴ Å) with ballistic ¹²C hyper-diamond phonon bus (κ = 42,500 W/m·K).
+4. **Shield Sleeve (384.88 kg → 145.00 kg, -62.33%):** 8-layer sleeve (f_sensible = 7.882 × 10⁻⁵) → 12-layer Sp(2g, Z) fracton-symplectic sleeve (f_sensible = 2.13039486 × 10⁻⁹, a 37,016.7× reduction in sensible heating; 0.0004 mSv/yr dose at 25.00 EW).
+5. **Cavity (245.50 kg → 160.00 kg, -34.83%):** CVD diamond cavity → Monolithic Type-IIa ¹²C hyper-diamond cavity with integrated waveguides (r₃ = 3.82, 33.18 dB polariton squeezing).
+6. **Injector Ring & Bus (165.20 kg → 95.00 kg, -42.49%):** Mass savings expand single-frame Mode B magazine capacity from 38 to 41 fuel cores (16,406.59 kg ≤ 16,600.00 kg, storing 1,378.06 EJ net electric, +19.56%), while the 99.850% Direct Boundary CFT Bus (B_direct^MAR-X) breeds a 376.99 kg core in 11.40 μs (Mode 1c), 85.01 μs (Mode 1a), or 858.5 μs (Mode 1b).
+7. **Crowbar Switches (55.00 kg → 17.50 kg, -68.18%):** 2.50 ns GaN PCSS → 1.701 ps PT-symmetric Weyl-exciton optical crowbar switches (1,470× faster).
+8. **Inductive SMES & Self-Healing (125.00 kg → 45.00 kg, -64.00%):** 48.0 T superhydride SMES ring (99.88% recovery) + 50.518 kHz autopoietic ROM scrubbing (Γ_Frenkel ≡ 0 dpa/yr, infinite service life). Unlocks Tier 4 Hyper-Impulse (25.00 EW, 2,482,950c), compressing the 2.537 Mly Andromeda M31 transit from 10.33 days to 8.957 hours (27.7× faster) and enabling 13.418 ms daughter Jump-Cruiser self-replication (5,892.30 kg dry hull).
 
 ### 4.2 Four Visible Host Lattice Lower Bounds
 
@@ -364,7 +398,7 @@ Reload latency: `50.80 μs` micro-batch (`317.8 μs` full core in Impulse mode),
 
 `crates/warp-power-battery/src/mar312x.rs`, `crates/warp-power-battery/src/universal_foundry.rs`, and `crates/warp-power-battery/src/ibr312_magazine.rs` transfer the **5th-Gen Exotic-Material Autopoietic Mass-Annihilation Reactor (`SHBT-MAR-312X`)** and **Phase 3 Universal Arbitrary Matter Folding (`R_univ^SWARM[Θ(x)]`)** from [`sys1own/shbt-swarm`](https://github.com/sys1own/shbt-swarm). By synthesizing eight exotic metamaterial subsystems (`SUB-01..08`) across all 230 3D crystallographic space groups (`G_space ∈ 1..230`, plus `0` for amorphous/biogenic media) with a 124-channel Dynamic Sugawara Framing Compensator (`|Δh_vis| ≤ C_braid = 100/φ² = 38.196601 nats`, `Δ_fr ≡ 0`) and a Chern-Simons Wyckoff Framing Tether (`k_tether = 5.1295 × 10¹⁰ N/m`, `|δx|_max ≤ 10⁻⁴ Å`), `SHBT-MAR-312X` cuts total dry nacelle mass to **`950.00 kg` (`-57.92%` vs. `SHBT-MAR-312C`; `-76.81%` vs. `SHBT-MAR-312`)** and internal volume to **`0.3500 m³` (`-59.25%` vs. `SHBT-MAR-312C`; `-73.31%` vs. `SHBT-MAR-312`)**.
 
-![Three-Generation SHBT Mass-Annihilation Reactor Comparison](figures/reactor-comparison.jpg)
+![Three-Generation SHBT Mass-Annihilation Reactor Comparison](figures/reactor-comparison.png)
 
 #### Three-Generation Architectural Evolution & 8-Subsystem Ledger (`SUB-01..08`)
 
@@ -1068,63 +1102,81 @@ that the Z3 solver returns `unsat`:
 
 ---
 
-## 11. SHBT Ecosystem Crosswalk
+<a id="11-shbt-ecosystem-crosswalk"></a>
+<a id="11-10-repository-shbt-ecosystem-topology--crosswalk"></a>
+## 11. 10-Repository SHBT Ecosystem Topology & Crosswalk
 
-Canonical 9-pillar ecosystem topology (mirrors Table XI of `warp.pdf`;
+Canonical 10-repository ecosystem topology (mirrors Table XI of `warp.pdf`;
 LANR core generation is attributed to `shbt-cf` — `shbt-sglt` supplies
 metrology and flight kinematics only):
 
 ```text
-                                  ╭──────────────────────────────────────────╮
-                                  │             [shbt-precision]             │
-                                  │      Computational Math & Cosmology      │
-                                  │     (512-bit MPFR / WZW Characters)      │
-                                  ╰────────────────────┬─────────────────────╯
-                                                       │
-                     ┌─────────────────────────────────┼─────────────────────────────────┐
-                     ▼                                 ▼                                 ▼
-       ╭───────────────────────────╮     ╭───────────────────────────╮     ╭───────────────────────────╮
-       │       [shbt-power]        │     │         [shbt-cf]         │     │         [shbt-qc]         │
-       │  Commercial Fusion Grid   │     │  1,800-Module LANR Array  │     │ Bare-Metal Microkernel &  │
-       │   (8,750 MW p-11B Twin)   │     │    & Thermal-Hydraulics   │     │   Photonic Quantum Bus    │
-       ╰─────────────┬─────────────╯     ╰─────────────┬─────────────╯     ╰─────────────┬─────────────╯
-                     │                                 │                                 │
-                     └────────────────────────┬────────┴─────────────────────────────────┘
-                                              ▼
-       ╭───────────────────────────────────────────────────────────────────────────────────────────╮
-       │                                SPECIALIZED VEHICLE TWINS                                  │
-       │                                                                                           │
-       │  • shbt-ghost : Reactionless Propulsion & Local Gravity Wells (3+1 CCZ4 / PCSS Crowbars)  │
-       │  • shbt-recon : Macroscopic Translocation & MAR-312 Fuel Foundry (Stinespring / 504 Gbps) │
-       │  • shbt-sglt  : Synthetic Gravitational Lensing Telescope (SE-L2 Swarm / TMSV Metrology)  │
-       │  • shbt-warp  : Holographic Warp & EW-312 Wormhole Twin (ADM α=1.0 / 33.88 EJ MAR-312)    │
-       ╰──────────────────────────────────────────┬────────────────────────────────────────────────╯
-                                                  │
-                                                  ▼
-       ╭───────────────────────────────────────────────────────────────────────────────────────────╮
-       │                                       shbt-exotic                                         │
-       │                MULTI-PROTOCOL SPACETIME ENGINEERING CO-SIMULATION BENCH                   │
-       │                                                                                           │
-       │  • Cross-Protocol Field Coupling (Warp + Stasis + Translocation + Wells + Comms)          │
-       │  • Global Energy Condition & Ford-Roman Quantum Inequality (QI) Dark-Ledger Auditing      │
-       │  • Dynamic 5-Stage Multi-Technology Flight Director & Relativistic PDE Mesh Solvers       │
-       ╰───────────────────────────────────────────────────────────────────────────────────────────╯
+                                  +------------------------------------------+
+                                  |             [shbt-precision]             |
+                                  |      Computational Math & Cosmology      |
+                                  |     (512-bit MPFR / WZW Characters)      |
+                                  +--------------------+---------------------+
+                                                       |
+                     +---------------------------------+---------------------------------+
+                     v                                 v                                 v
+       +---------------------------+     +---------------------------+     +---------------------------+
+       |       [shbt-power]        |     |         [shbt-cf]         |     |         [shbt-qc]         |
+       |  Commercial Fusion Grid   |     |  1,800-Module LANR Array  |     | Bare-Metal Microkernel &  |
+       |   (8,750 MW p-11B Twin)   |     |    & Thermal-Hydraulics   |     |   Photonic Quantum Bus    |
+       +-------------+-------------+     +-------------+-------------+     +-------------+-------------+
+                     |                                 |                                 |
+                     +---------------------------------+---------------------------------+
+                                                       |
+                     +---------------------------------+---------------------------------+
+                     v                                 v                                 v
+       +---------------------------+     +---------------------------+     +---------------------------+
+       |       [shbt-ghost]        |     |        [shbt-sglt]        |     |        [shbt-exotic]      |
+       | Ghost Seed Propulsion &   |     | Synthetic Gravitational   |     | Multi-Protocol Spacetime  |
+       |  Metric Interlocks (CCZ4) |     |  Lensing Telescope Stack  |     |  Co-Simulation & QI Audit |
+       +-------------+-------------+     +-------------+-------------+     +-------------+-------------+
+                     |                                 |                                 |
+                     +---------------------------------+---------------------------------+
+                                                       |
+                               +-----------------------+-----------------------+
+                               v                                               v
+               +-------------------------------+               +-------------------------------+
+               |          [shbt-recon]         |               |          [shbt-warp]          |
+               |  Macro State Translocation &  |<=============>|   Holographic Warp Drive &    |
+               |  Bipartite Fuel Foundry Twin  |  Dual-Gateway |    3+1D ADM Metric Engine     |
+               |  (V_unified^macro / MAR-312C) |    Corridor   |  (Alcubierre / SHBT-MAR-312C) |
+               +---------------+---------------+               +---------------+---------------+
+                               ^                                               ^
+                               |       +-------------------------------+       |
+                               |       |          [shbt-swarm]         |       |
+                               +=======|  Autonomous Von Neumann Swarm |=======+
+                                       |  Universal Matter Foundry &   |
+                                       |   5th-Gen SHBT-MAR-312X Twin  |
+                                       +-------------------------------+
 ```
 
-### Standardized 9-pillar ecosystem crosswalk
+### Standardized 10-Repository Ecosystem Crosswalk Table
 
 | Repository | Domain Role & Platform Scope | Shared Invariants & Interface Contracts |
 | :--- | :--- | :--- |
-| [`shbt-precision`](https://github.com/sys1own/shbt-precision) | Computational Math & Cosmological Foundation Core | 512-bit MPFR numerics, canonical WZW (26, 8, 312), Δ<sub>fr</sub> ≡ 0, Landauer debt P<sub>debt</sub> = 906.00 kW. |
-| [`shbt-power`](https://github.com/sys1own/shbt-power) | Commercial p-¹¹B Aneutronic Fusion Power Plant Twin | 8,750 MW fusion / 7,832.903 MW net export, 70-gate audit, closed-loop thermal ledger, 128-byte SHBT-MMIO-POWER. |
-| [`shbt-cf`](https://github.com/sys1own/shbt-cf) | LANR Cold Fusion Reactor Workbench & Thermal-Hydraulics | 1,800-module LANR starter grid (999.054 kW net DC), dual-stage CoSb<sub>3</sub>/ZrNiSn TEG, Kapitza resistance ΔT<sub>K</sub> = 3.546 K. |
-| [`shbt-qc`](https://github.com/sys1own/shbt-qc) | Photonic Quantum Computer Twin & C11 Microkernel | Bare-metal C11 shbt-os microkernel, base 56-byte SHBT-MMIO-1 at 0x70000000, SECDED Hamming(72,64) ECC, AVX-512 interlocks. |
-| [`shbt-ghost`](https://github.com/sys1own/shbt-ghost) | Ghost Seed Reactionless Propulsion & Metric Stabilization | Sub-2.5 ns PCSS crowbars, 94.20% SiC inductive recovery, 3+1 CCZ4/ADM stabilization (β<sup>i</sup> → 0, \|det(g)+1\| ≤ 10<sup>-12</sup>). |
-| [`shbt-recon`](https://github.com/sys1own/shbt-recon) | Macroscopic State Translocation & Bipartite Fuel Foundry Twin | Macroscopic Stinespring dilation (`V_unified^macro`), dark ledger `η_D = 23/33`, compacted `SHBT-MAR-312C` nacelle (`2,257.70 kg`), `SHBT-IBR-312` dark-braid magazine, `R_synth^MAR` `so(10)₃₁₂` coset fuel synthesis (`2.1220 PJ` Mode 1a / `0.2845 PJ` Mode 1c), 102/102 gates, 12/12 Z3 proofs. |
-| [`shbt-sglt`](https://github.com/sys1own/shbt-sglt) | Synthetic Gravitational Lensing Telescope (SE-L2) Stack | 2PN relativistic beam optics, TMSV heterodyne metrology (r = 2.50, 21.715 dB), 5th-order minimum-jerk flight profiles. |
-| [`shbt-exotic`](https://github.com/sys1own/shbt-exotic) | Multi-Protocol Spacetime Engineering Co-Simulation | Cross-protocol metric coupling (all 6 phenomena), Ford-Roman QI dark-ledger auditing, Heegaard-Floer boundary relabeling. |
-| [`shbt-swarm`](https://github.com/sys1own/shbt-swarm) | Autopoietic Von Neumann Swarm, `SHBT-MAR-312X` & `R_univ^SWARM` Foundry | 5th-Gen `SHBT-MAR-312X` exotic-material reactor (`950.00 kg`, `0.3500 m³`, `25.00 EW`, `99.200%` `SHBT-DEC-X`, `48.0 T` superhydride coils, `37,016.7×` heat suppression), Phase 3 `R_univ^SWARM` 230 space-group foundry (`11.40 μs` Mode 1c Direct Bus breed), Phase 2 `SHBT-STEN` `54.432 ps` PT-GoI MPC (`α = 10⁴`), `Sp(2g, Z)` routing, 9-component CBF + X0/X1 lock, Phase 1 `Hamming(72,64)` SECDED + `H_Cayley` & `13.418 ms` Quine Replication. |
-| [`shbt-warp`](https://github.com/sys1own/shbt-warp) | Holographic Warp Drive, `SHBT-MAR-312X` & `SHBT-EW-312` Engine | Alcubierre metric foliation (`α = 1.0`, `γ_ij = δ_ij`), 5th-Gen `SHBT-MAR-312X` reactor (`950.00 kg`, `25.00 EW`, 41-core `1,378.06 EJ` frame) + compacted `SHBT-MAR-312C` (`2,257.70 kg`) + stationary `SHBT-MAR-312` (`4,096.99 kg`), Phase 1–4 `shbt-swarm` upgrades, multi-kiloton bulk-to-boundary de-rendering (`N ≥ 10³⁰` nucleons, `1,660.54 t`), synthetic ghost-seed gravity hovering, 1g habitat floor field & Bondi-Hoyle mass harvesting, `SHBT-EW-312` wormhole corridor (`89.6c → 2,482,950c`, `8.957 hours` to Andromeda M31), 221/221 gates, 28/28 Z3 proofs. |
+| [`shbt-precision`](https://github.com/sys1own/shbt-precision) | Computational Math & Cosmological Foundation Core | 512-bit MPFR arbitrary-precision arithmetic (`rug`), WZW affine levels `(26, 8, 312)`, 346 Dynkin slots, Callan–Symanzik RG thresholds, exact Casimir denominators `(28, 22, 640)`, framing defect `Δ_fr ≡ 0`, Landauer debt schedule `P_debt = 906.00 kW`, 15-gate audit / 15 Z3 SMT proofs. |
+| [`shbt-qc`](https://github.com/sys1own/shbt-qc) | Photonic Quantum Computer Twin & C11 Microkernel | Freestanding C11 `shbt-os` microkernel, SHBT-R photonic processor architecture, 52-hexamer InP/InGaAsP microcavities (3-stage polariton squeezing cascade), non-Hermitian PT-symmetric Geometry of Interaction (GoI) optical matrix engine (`t_prop = 1.701 ps`), Tomita–Takesaki inverse modular automorphism flow `σ_{-t}^Ψ` (`Q_internal = 0 J/bit`), 128-byte `SHBT-MMIO-2` at `0x70000000`, SECDED `Hamming(72,64)` ECC syndromes, 50-gate verification matrix (V-01..V-50), 10 Z3 SMT proofs. |
+| [`shbt-power`](https://github.com/sys1own/shbt-power) | Commercial p-¹¹B Aneutronic Fusion Power Plant Twin | Multi-gigawatt p-¹¹B aneutronic fusion power generation (8,750 MW fusion / 7,832.903 MW net export), 128-byte `SHBT-MMIO-POWER`, 906.00 kW Landauer debt schedule, closed-loop thermal ledger, 78-gate verification audit (78/78 PASS) + 84-EXT checks, 16 Z3 proofs. |
+| [`shbt-cf`](https://github.com/sys1own/shbt-cf) | LANR Cold Fusion Reactor Workbench & Thermal-Hydraulics | 1,800-module LANR starter grid (555.03 W net/cell, 999.054 kW net DC array @ 400 V), dynamic Floquet–Adler–Wiser dielectric screening (`U_eff = 352.48 eV`), dual-stage CoSb₃/ZrNiSn TEG enthalpy recovery, Kapitza resistance `ΔT_K = 3.546 K`, 3D Eulerian-Eulerian helium thermal-hydraulics, 50-gate verification matrix (`GATE-01`–`GATE-50`). |
+| [`shbt-ghost`](https://github.com/sys1own/shbt-ghost) | Ghost Seed Reactionless Propulsion & Metric Stabilization | 3+1D CCZ4 numerical relativity with Gundlach damping (`κ₁ = 0.15, κ₂ = 0.0`), ADM metric stabilization (`β^i → 0, ||det(g)+1|| ≤ 10⁻¹²`), sub-2.5 ns PCSS GaN/4H-SiC optical crowbar circuits, 94.20% SiC inductive recovery shunts, 312-channel reactionless artificial gravity generation (1.000g habitability floors, zero-Coriolis metric screening `E_μν ≡ 0`), stand-off Bondi–Hoyle mass harvesting, 78-gate verification audit (`GATE-BAT-01..08`), 12 Z3 proofs. |
+| [`shbt-recon`](https://github.com/sys1own/shbt-recon) | Macroscopic State Translocation & Bipartite Fuel Foundry Twin | Macroscopic Stinespring dilation (`V_unified^macro`), 101-layer Adaptive TTN-MERA, topological dark ledger (`η_D = 23/33`, 124 Fibonacci braids), bipartite coset fuel synthesis operator (`R_synth^MAR`, `Δh_vis = 45/64`), 64-bank `UnifiedStinespringHyperFrame` (`135,168 B` @ `0x70020000`), Mode II 4.2 K readout (`Q_readout = 4.0194 × 10⁻²³ J/bit`), compacted `SHBT-MAR-312C` nacelle (`2,257.70 kg`), `SHBT-IBR-312` magazine, 144-gate verification audit, 29 Z3 formal SMT proofs. |
+| [`shbt-sglt`](https://github.com/sys1own/shbt-sglt) | Synthetic Gravitational Lensing Telescope Stack | 2PN relativistic beam optics in harmonic coordinates, Two-Mode Squeezed Vacuum (TMSV) heterodyne metrology (`r = 2.50`, `21.715 dB`, noise ASD `S_r^{1/2} ≤ 0.010 pm/√Hz`), 5th-order minimum-jerk flight profiles (`||s'''|| ≤ 5.7735`), SE-L2 formation flight, CVD Diamond-on-GaN thermal dissipation, 70-gate verification audit, 14 Z3 proofs. |
+| [`shbt-exotic`](https://github.com/sys1own/shbt-exotic) | Multi-Protocol Spacetime Engineering Co-Simulation | Cross-protocol metric coupling across all 6 phenomena (warp + stasis + translocation + wells + comms + quine), Ford–Roman Quantum Inequality (QI) dark-ledger auditing, Heegaard–Floer symplectic boundary relabeling (`T^∂_ij ∈ Sp(2g, Z)`), dynamic 5-stage relativistic PDE solvers, 70-gate verification audit + 80-EXT checks, 8 Z3 formal proofs. |
+| [`shbt-warp`](https://github.com/sys1own/shbt-warp) | Holographic Warp Drive Digital Twin & 3+1D ADM Engine | 3+1D Alcubierre metric foliation (`α = 1.0`, `γ_ij = δ_ij`, `β^x = -v_s exp(Δ_mod/2) f_SHBT`), 4th-Gen `SHBT-MAR-312` (`4,096.99 kg`) / compacted `SHBT-MAR-312C` (`2,257.70 kg`, `0.8589 m³`) / 5th-Gen `SHBT-MAR-312X` (`950.00 kg`, `0.3500 m³`, `25.00 EW`, `2,482,950c`) mass-annihilation reactors, `SHBT-IBR-312` magazine (`41 cores / 1,378.06 EJ`), `SHBT-EW-312` Effective Traversable Wormhole System (`89.6c → 2,482,950c`, `8.957-hour` Andromeda M31 transit), 221-gate verification audit, 28 Z3 formal proofs. |
+| [`shbt-swarm`](https://github.com/sys1own/shbt-swarm) | Autonomous Interstellar Von Neumann Swarm Architecture | Macroscopic anyon-braid quine cloning (`R_clone^SWARM`, `13.418 ms` Jump-Cruiser ship replication), non-Hermitian PT-GoI optical template imprinting (`54.432 ps`), `SHBT-STEN` cognitive solver & Proof-Carrying CBF Xenobiological Safety Shield (Classes M0, X0, X1, X2), `R_univ^SWARM` universal 230-space-group matter folding (202.55 Mt planetary synthesis, `11.40 μs` Mode 1c direct breeding), 5th-Gen `SHBT-MAR-312X` autopoietic reactor (`950.00 kg`, `0.3500 m³`, `25.00 EW`, `99.200%` `SHBT-DEC-X`, `37,016.7×` sensible heat reduction), 104-gate verification audit, 20 Z3 formal SMT proofs. |
+
+### Architectural Lineage & Foundations Provided to shbt-swarm
+
+`shbt-warp` provides the propulsion mechanics, metric foliation engines, and high-energy reactor baselines that power the interstellar expansion of [`sys1own/shbt-swarm`](https://github.com/sys1own/shbt-swarm):
+1. **4th-Gen Catalytic Wafer Nacelle (`SHBT-MAR-312C`) & `SHBT-IBR-312` Magazine:** `shbt-warp`'s compacted 2,257.70 kg nacelle and 38-core zero-steric-volume dark-braid magazine established the operational flight baseline that `shbt-swarm` Phase 4 evolved into the 5th-Gen `SHBT-MAR-312X` exotic autopoietic reactor (`950.00 kg`, `0.3500 m³`, `25.00 EW`).
+2. **3+1D ADM Metric Engine & Alcubierre Shift Vector Formulation:** The shift-vector foliation (`β^x = -v_s exp(Δ_mod/2) f_SHBT`) and 5-stage minimum-jerk acceleration profiles from `shbt-warp` govern `shbt-swarm` long-range inter-system sprint and deployment vectors.
+3. **Effective Traversable Wormhole System (`SHBT-EW-312`):** `shbt-warp`'s dual-protocol superluminal corridor (`89.6c → 2,482,950c`) serves as the long-range transport artery connecting distributed swarm nodes across interstellar and intergalactic distances.
+
+In return, `shbt-swarm` closes the loop back into `shbt-warp` by providing the 5th-Gen `SHBT-MAR-312X` reactor (-57.92% mass, -59.25% volume), expanding single-frame magazine capacity to 41 cores (`1,378.06 EJ`, +19.56%), suppressing sensible cold-mass heating by 37,016.7×, and unlocking Tier 4 Hyper-Impulse (`2,482,950c`), which compresses the 2.537 Mly Andromeda M31 transit to just `8.957 hours`.
 
 ### Canonical logic transfer matrix
 

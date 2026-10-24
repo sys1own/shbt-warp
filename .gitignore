@@ -19,6 +19,7 @@ __pycache__
 /figures/*
 !/figures/shbt_mar312_ibr_cutaway.png
 !/figures/reactor-comparison.jpg
+!/figures/reactor-comparison.png
 /sim_results.tex
 /cad_sim_results.tex
 sweep_results.csv
